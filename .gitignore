@@ -1,0 +1,46 @@
+tmp
+
+## composer
+/vendor
+composer.lock
+.vscode
+nbproject
+
+## Office
+~$*
+
+## vim
+Session.vim
+*.swp
+*.swo
+
+########## OS specific
+
+## Windows files to ignore
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+~*.tmp
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+## OSX specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+## Linux
+*~
+*:Zone.Identifier

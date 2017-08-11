@@ -1,0 +1,21 @@
+{
+    "name": "Quick",
+    "description": "A set of php scripts for developing quick websites",
+    "authors": [
+        {
+            "name": "Michael Mueller",
+            "email": "michaelmuelleronline@gmx.de"
+        }
+    ],
+    "require": {
+      "phpmailer/phpmailer": "~5.2",
+      "sinergi/browser-detector": "6.1.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "qck\\": ""
+        }
+    }
+}
