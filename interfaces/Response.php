@@ -14,6 +14,7 @@ interface Response
   const CODE_UNAUTHORIZED = 401;
   
   const CT_HTML_UTF8 = "Content-Type: text/html; charset=utf-8";
+  const CT_TEXTPLAIN_UTF8 = "Content-Type: text/plain; charset=utf-8";
   const CT_CSS_UTF8 = "Content-Type: text/css; charset=utf-8";
   const CT_JAVASCRIPT_UTF8 = "Content-Type: text/javascript; charset=utf-8";
   const CT_JSON_UTF8 = "Content-Type: application/json; charset=utf-8";

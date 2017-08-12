@@ -45,7 +45,9 @@ class App
     $response = $cntrllr->run( $Config );
     
     // send the response
-    $response->send();
+    // if there is a null response, the controller has sent everything himself
+    if(!is_null($response))
+      $response->send();
   }
 
   /**
