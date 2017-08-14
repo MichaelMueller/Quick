@@ -32,4 +32,15 @@ interface AppConfig
    * @return ControllerFactory
    */
   function getControllerFactory();
+  /**
+   * @return \qck\interfaces\Session
+   */
+  function getSession();
+  /**
+   * create link creates a link for this. since e.g. pretty urls are setup inside the webserver and per instance
+   * the developer must provide this function for the system to create valid urls
+   * 
+   * @return string an absolute url for this application conformant to the controller scheme
+   */
+  function createLink($ControllerClassName, $args=array());
 }

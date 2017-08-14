@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\apps\testapp;
+namespace qck\apps\database;
 
 /**
  * Description of MbitsPhpMailer
@@ -9,6 +9,11 @@ namespace qck\apps\testapp;
  */
 class AppConfig extends \qck\abstracts\AppConfig
 {
+
+  public function getAppName()
+  {
+    return "database";
+  }
 
   public function getControllerFactory()
   {

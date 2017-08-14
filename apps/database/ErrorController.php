@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\apps\testapp;
+namespace qck\apps\database;
 
 /**
  * Description of ErrorDialog
@@ -13,15 +13,16 @@ class ErrorController implements \qck\interfaces\ErrorController
   public function run( \qck\interfaces\AppConfig $config )
   {
     $errorCode = $this->ErrorCode;
-    $error = "Server Error. Code: ".$errorCode;
-    
-    return new \qck\core\Response($error);
+    $error = "Server Error. Code: " . $errorCode;
+
+    return new \qck\core\Response( $error );
   }
 
-  public function setErrorCode( $errorCode= \qck\interaces\Response::CODE_SERVER_ERROR )
+  public function setErrorCode( $errorCode = \qck\interaces\Response::CODE_SERVER_ERROR )
   {
     $this->ErrorCode = $errorCode;
   }
-  
+
   protected $ErrorCode = null;
+
 }

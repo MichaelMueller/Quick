@@ -15,16 +15,6 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
     $this->controllerNamespace = $controllerNamespace;
   }
 
-  function setCamelize( $camelize )
-  {
-    $this->camelize = $camelize;
-  }
-
-  function setUcFirst( $ucFirst )
-  {
-    $this->ucFirst = $ucFirst;
-  }
-
   function setQueryKey( $queryKey )
   {
     $this->queryKey = $queryKey;
@@ -55,13 +45,7 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
     }
     return null;
   }
-
-  function toCamelCase( $str )
-  {
-    $func = create_function( '$c', 'return strtoupper($c[1]);' );
-    return preg_replace_callback( '/_([a-z])/', $func, $str );
-  }
-
+  
   public function getCurrentControllerClassName()
   {
     static $CurrentControllerClassName = null;
@@ -74,18 +58,22 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
       // validate class name
       if ( preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $query ) )
       {
-        if ( $this->camelize )
-          $query = $this->toCamelCase( $query );
-        if ( $this->ucFirst )
-          $query[ 0 ] = strtoupper( $query[ 0 ] );
         $CurrentControllerClassName = $query;
       }
     }
     return $CurrentControllerClassName;
   }
 
-  protected $camelize = false;
-  protected $ucFirst = false;
+  public function getQueryKey()
+  {
+    return $this->queryKey;
+  }
+
+  function getStartControllerQueryId()
+  {
+    return $this->startControllerQueryId;
+  }
+
   protected $controllerNamespace;
   protected $queryKey = "q";
   protected $startControllerQueryId = "Start";
