@@ -12,7 +12,7 @@ class Start implements \qck\interfaces\Controller
   public function run( \qck\interfaces\AppConfig $config )
   {    
     $Response = new \qck\core\Response;
-    $Response->addHeader("Location: ".$config->createLink( "Login" ));
+    $Response->addHeader("Location: ".$config->createLink( "LoginForm" ));
     return $Response;
   }
 }
