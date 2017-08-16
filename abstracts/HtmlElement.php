@@ -10,27 +10,22 @@ namespace qck\abstracts;
 abstract class HtmlElement implements \qck\interfaces\HtmlElement
 {
 
-  abstract protected function proxyRender();
+  abstract protected function renderInternal();
 
   function render()
   {
+    $contents = $this->renderInternal();
     $elment = "<" . $this->Tag . $this->getAttributeString();
-    if ( $this->NoClosingElement )
-      $elment .= "/>";
+    if ( is_null($contents) )
+      $elment .= " />";      
     else
-      $elment .= ">" . PHP_EOL . "  " . ($this->proxyRender()) . PHP_EOL . "</" . $this->Tag . ">" . PHP_EOL;
-
+      $elment .= ">" . PHP_EOL . "  " . $contents . PHP_EOL . "</" . $this->Tag . ">" . PHP_EOL;
     return $elment;
   }
 
   protected function setTag( $Tag )
   {
     $this->Tag = $Tag;
-  }
-
-  protected function setNoClosingElement( $NoClosingElement )
-  {
-    $this->NoClosingElement = $NoClosingElement;
   }
 
   public function setStyle( $name, $value )
@@ -50,7 +45,7 @@ abstract class HtmlElement implements \qck\interfaces\HtmlElement
       $this->setAttribute( "style", $this->implode( $styles, ": ", "; " ) );
     $attributes = $this->Attributes;
     $attributeString = $this->implode( $attributes, "=", " " );
-    return $attributeString ? " ".$attributeString: "";
+    return $attributeString ? " " . $attributeString : "";
   }
 
   protected function setAttribute( $name, $value )
@@ -58,7 +53,7 @@ abstract class HtmlElement implements \qck\interfaces\HtmlElement
     $this->Attributes[ $name ] = '"' . $value . '"';
   }
 
-  protected function implode( $map, $glueKeyValue = "=", $glueItems = "&" )
+  private function implode( $map, $glueKeyValue = "=", $glueItems = "&" )
   {
     $String = "";
     $toEnd = count( $map );
@@ -71,9 +66,8 @@ abstract class HtmlElement implements \qck\interfaces\HtmlElement
     return $String;
   }
 
-  private $Styles = array();// array ( "min-width" => "240px" );
+  private $Styles = array (); // array ( "min-width" => "240px" );
   private $Attributes = array ();
   private $Tag = "div";
-  private $NoClosingElement = false;
 
 }

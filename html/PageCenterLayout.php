@@ -12,8 +12,7 @@ class PageCenterLayout extends \qck\interfaces\HtmlElement
 
   function setWidget( \qck\interfaces\HtmlElement $Widget )
   {
-    $this->Widget = $Widget;
-    
+    $this->Widget = $Widget;    
   }
 
   function getWidgets()

@@ -27,9 +27,8 @@ class Dialog extends Container
     ob_start();
     ?>
 
-    <div style="border-top-left-radius: 10px; 
-         border-top-right-radius: 10px; width: 100%; background-color: #4a8cdb; color: #fff; font-size: 20px;"><?= $this->Title ?></div>
-    <div> <?= parent::proxyRender() ?> </div>
+    <div style="border-top-left-radius: 10px; border-top-right-radius: 10px; width: 100%; background-color: #4a8cdb; color: #fff; font-size: 20px;"><?= $this->Title ?></div>
+    <div><?= parent::proxyRender() ?></div>
 
     <?php
     return ob_get_clean();

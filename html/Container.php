@@ -34,13 +34,18 @@ class Container extends \qck\abstracts\HtmlElement
     return array_merge(parent::getStyles(), $this->Layout->getStyles());
   }
   
-  public function proxyRender()
+  public function renderInternal()
   {
     $Widgets = $this->Layout->getWidgets();
     ob_start();
     foreach ( $Widgets as $Widget )
       echo $Widget->render();
     return ob_get_clean();
+  }
+
+  protected function hasValue()
+  {
+    return true;
   }
 
   /**
