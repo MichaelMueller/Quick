@@ -49,4 +49,9 @@ abstract class AppConfig implements \qck\interfaces\AppConfig
     }
     return $Link;
   }
+  
+  function getCurrentControllerName()
+  {
+    return $this->getControllerFactory()->getCurrentControllerClassName();
+  }
 }

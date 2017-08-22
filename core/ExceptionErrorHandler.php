@@ -43,7 +43,8 @@ class ExceptionErrorHandler
         $this->AppConfig->getAdminMailer()->sendToAdmin( "Error on " . $this->AppConfig->getHostInfo(), $text );
 
       $errDialog = $this->AppConfig->getErrorHandler();
-      $errDialog->setErrorCode( $e->getCode() );
+      $code = $e->getCode() ? $e->getCode() : 500;
+      $errDialog->setErrorCode( $code );
       $errDialog->run( $this->AppConfig )->send();
     }
     catch ( Exception $ex )

@@ -25,4 +25,9 @@ class AppConfig extends \qck\abstracts\AppConfig
       $var = new ErrorController( );
     return $var;
   }
+
+  public function getAppName()
+  {
+    return "helloworld";
+  }
 }
