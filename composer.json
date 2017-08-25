@@ -1,6 +1,7 @@
 {
-    "name": "Quick",
-    "description": "A set of php scripts for developing quick websites",
+    "name": "MichaelMueller/Quick",
+	"type": "library",
+    "description": "A set of php scripts for developing websites quickly",
     "authors": [
         {
             "name": "Michael Mueller",
