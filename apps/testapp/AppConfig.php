@@ -14,7 +14,7 @@ class AppConfig extends \qck\abstracts\AppConfig
   {
     static $var = null;
     if ( !$var )
-      $var = new \qck\core\ControllerFactory( "\\qck\\apps\\database\\controller" );
+      $var = new \qck\core\ControllerFactory( "\\qck\\apps\\testapp\\controller" );
     return $var;
   }
 
@@ -29,5 +29,10 @@ class AppConfig extends \qck\abstracts\AppConfig
   public function getAppName()
   {
     return "testapp";
+  }
+  
+  public function getTests()
+  {
+    return array(tests\DailyLogTest::class);
   }
 }
