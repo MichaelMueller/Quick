@@ -10,9 +10,9 @@ namespace qck\ext;
 class DailyLog extends \qck\abstracts\Log
 {
 
-  function __construct( $logDir, $installAsErrorLog = false )
+  function __construct( $logDir, $installAsErrorLog = false, $dateFormat = 'Y-m' )
   {
-    $this->LogFilePath = $logDir . "/" . date( 'Y-m-d' ) . ".txt";
+    $this->LogFilePath = $logDir . "/" . date( $dateFormat ) . ".txt";
     $this->setInstallAsErrorLog( $installAsErrorLog );
   }
 

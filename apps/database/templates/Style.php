@@ -47,11 +47,10 @@ class Style implements \qck\interfaces\Template
         border: 1px solid gray;
         border-radius: calc(8px + 0.2vw);
         font-family: "Trebuchet MS", Helvetica, sans-serif;
-        font-size: calc(8px + 0.4vw);
+        font-size: calc(8px + 0.8vw);
         color: #1f1f1f;
         background-color: #fff;
-        font-size: calc(10px + 0.5vw);
-        padding: calc(8px + 0.8vw);
+        padding: calc(4px + 0.4vw);
         width: 100%;
       }
       
@@ -72,7 +71,7 @@ class Style implements \qck\interfaces\Template
       {
         font-family: "Trebuchet MS", Helvetica, sans-serif;    
         font-size: calc(8px + 0.8vw);
-        padding: calc(8px + 0.4vw);
+        padding: calc(4px + 0.4vw);
         border: 1px solid rgba(27,31,35,0.2);
         background-image: linear-gradient(-180deg, #5bc0de 0%, #1786a7 90%);
         border-radius: 0.25em;   
@@ -103,8 +102,8 @@ class Style implements \qck\interfaces\Template
 
       .dialogBar
       {
-        background: #5bc0de;
-        border: 1px solid #f5b74e;
+        background: #1786a7;
+        border: 1px solid gray;
         box-shadow: 0 2px 2px gray, inset 0 1px 0 #fff;  
         border: 1px solid gray;
         border-top-left-radius: calc(8px + 0.2vw);
