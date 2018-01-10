@@ -2,6 +2,7 @@
     "name": "michaelmueller/quick",
 	"type": "library",
     "description": "A set of php scripts for developing websites quickly",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Michael Mueller",
