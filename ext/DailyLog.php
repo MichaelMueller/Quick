@@ -7,7 +7,7 @@ namespace qck\ext;
  *
  * @author muellerm
  */
-class DailyLog extends \qck\abstracts\Log
+class DailyLog extends \qck\ext\abstracts\Log
 {
 
   function __construct( $logDir, $installAsErrorLog = false, $dateFormat = 'Y-m' )

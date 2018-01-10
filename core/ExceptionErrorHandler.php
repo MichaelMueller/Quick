@@ -15,7 +15,7 @@ class ExceptionErrorHandler
     $this->FatalErrorText = $FatalErrorText;
   }
 
-  function setAppConfig( \qck\interfaces\AppConfig $AppConfig )
+  function setAppConfig( \qck\core\interfaces\AppConfig $AppConfig )
   {
     $this->AppConfig = $AppConfig;
   }
@@ -31,23 +31,33 @@ class ExceptionErrorHandler
     throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
   }
 
-  function handle( \Exception $e )
+  function handle( \Throwable $e )
   {
     $errTxt = $this->FatalErrorText;
     try
     {
       $text = strval( $e );
       //$code = $e->getCode();
-      error_log( $text );
-      if ( $this->AppConfig->sendMailOnException() )
+      if ( $this->AppConfig->getAdminMailer() )
         $this->AppConfig->getAdminMailer()->sendToAdmin( "Error on " . $this->AppConfig->getHostInfo(), $text );
 
-      $errDialog = $this->AppConfig->getErrorHandler();
-      $code = $e->getCode() ? $e->getCode() : 500;
-      $errDialog->setErrorCode( $code );
-      $errDialog->run( $this->AppConfig )->send();
+      // decide if we are on cli or not      
+      if($this->AppConfig->getControllerFactory()->usesCli())
+        die( PHP_EOL.$text );
+      else
+      {
+        // otherwise log error and consult error handler
+        error_log( $text );
+        $errDialog = $this->AppConfig->getErrorController();
+        $code = $e->getCode() ? $e->getCode() : 500;
+        $errDialog->setErrorCode( $code );
+        
+        $Response = $errDialog->run( $this->AppConfig );
+        if($Response)
+          $Response->send();
+      }
     }
-    catch ( Exception $ex )
+    catch ( \Exception $ex )
     {
       error_log( strval( $ex ) );
       http_response_code( 500 );
@@ -57,7 +67,7 @@ class ExceptionErrorHandler
 
   /**
    *
-   * @var \qck\interfaces\AppConfig
+   * @var \qck\core\interfaces\AppConfig
    */
   protected $AppConfig;
   protected $FatalErrorText = "An application error occured. Please come back later. If the problem persists, please contact the administrator. Thank you for your patience.";

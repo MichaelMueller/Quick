@@ -7,10 +7,11 @@ namespace qck\apps\helloworld\controller;
  *
  * @author muellerm
  */
-class Start implements \qck\interfaces\Controller
+class Start implements \qck\core\interfaces\Controller
 {
-  public function run( \qck\interfaces\AppConfig $config )
+  public function run( \qck\core\interfaces\AppConfig $Config )
   {    
+    /* @var $Config \qck\apps\helloworld\AppConfig */
     return new \qck\core\Response("Hello World.");
   }
 }

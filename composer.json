@@ -1,7 +1,7 @@
 {
     "name": "michaelmueller/quick",
-	"type": "library",
-    "description": "A set of php scripts for developing websites quickly",
+    "type": "library",
+    "description": "A PHP application framework and a collection of reusable PHP objects",
     "license": "Apache-2.0",
     "authors": [
         {

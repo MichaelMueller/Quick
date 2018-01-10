@@ -7,12 +7,13 @@ namespace qck\core;
  *
  * @author muellerm
  */
-class ControllerFactory implements \qck\interfaces\ControllerFactory
+class ControllerFactory implements \qck\core\interfaces\ControllerFactory
 {
 
-  public function __construct( $controllerNamespace )
+  public function __construct( $controllerNamespace, $Argv = null )
   {
     $this->controllerNamespace = $controllerNamespace;
+    $this->Argv = $Argv;
   }
 
   function setQueryKey( $queryKey )
@@ -20,13 +21,13 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
     $this->queryKey = $queryKey;
   }
 
-  function setStartControllerQueryId( $startControllerQueryId )
+  function setStartControllerClassName( $startControllerClassName )
   {
-    $this->startControllerQueryId = $startControllerQueryId;
+    $this->startControllerClassName = $startControllerClassName;
   }
 
   /**
-   * @return \qck\interfaces\Controller or null
+   * @return \qck\core\interfaces\Controller or null
    */
   public function getController()
   {
@@ -40,12 +41,12 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
       $subController = null;
       if ( class_exists( $fqClassName, true ) )
         $subController = new $fqClassName();
-      if ( $subController instanceof \qck\interfaces\Controller )
+      if ( $subController instanceof \qck\core\interfaces\Controller )
         return $subController;
     }
     return null;
   }
-  
+
   public function getCurrentControllerClassName()
   {
     static $CurrentControllerClassName = null;
@@ -53,7 +54,23 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
     {
       // find requested query ( = the controller class to be instatiated and called )
       $queryKey = $this->queryKey;
-      $query = isset( $_GET[ $queryKey ] ) ? $_GET[ $queryKey ] : $this->startControllerQueryId;
+      $query = $this->startControllerClassName;
+      if ( $this->Argv )
+      {
+        // get first positional argument
+        for ( $i = 1; $i < count( $this->Argv ); $i++ )
+        {
+          if ( isset( $this->Argv[ $i ][ 0 ] ) && $this->Argv[ $i ][ 0 ] == "-" )
+            $i = $i + 1;
+          else
+          {
+            $query = $this->Argv[ $i ];
+            break;
+          }
+        }
+      }
+      else
+        $query = isset( $_GET[ $queryKey ] ) ? $_GET[ $queryKey ] : $query;
 
       // validate class name
       if ( preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $query ) )
@@ -63,19 +80,30 @@ class ControllerFactory implements \qck\interfaces\ControllerFactory
     }
     return $CurrentControllerClassName;
   }
-
+  
   public function getQueryKey()
   {
     return $this->queryKey;
   }
 
-  function getStartControllerQueryId()
+  function getStartControllerClassName()
   {
-    return $this->startControllerQueryId;
+    return $this->startControllerClassName;
+  }
+
+  public function usesCli()
+  {
+    return $this->Argv !== null;
+  }
+
+  public function getArgv()
+  {
+    return $this->Argv;
   }
 
   protected $controllerNamespace;
   protected $queryKey = "q";
-  protected $startControllerQueryId = "Start";
+  protected $startControllerClassName = "Start";
+  protected $Argv;
 
 }

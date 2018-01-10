@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\apps\testapp;
+namespace qck\apps\cmd;
 
 /**
  * Description of AppConfigFactory

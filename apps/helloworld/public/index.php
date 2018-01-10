@@ -8,6 +8,6 @@ error_reporting( E_ALL );
 require_once('../../../vendor/autoload.php');
 
 // create & run application
-$app = new \qck\core\App(new qck\apps\helloworld\AppConfigFactory);
+$app = new \qck\core\App(new qck\apps\helloworld\AppConfigFactory(".."));
 $app->run();
   

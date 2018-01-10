@@ -7,19 +7,13 @@ namespace qck\apps\helloworld;
  *
  * @author micha
  */
-class AppConfigFactory implements \qck\interfaces\AppConfigFactory
+class AppConfigFactory implements \qck\core\interfaces\AppConfigFactory
 {
 
   public function create()
   {
-    if ( file_exists( __DIR__ . DIRECTORY_SEPARATOR . "AppConfigLocal.php" ) )
-    {
-      return new AppConfigLocal();
-    }
-    else
-    {
-      return new AppConfig();
-    }
+    return file_exists( "AppConfigLocal.php" ) ? new AppConfigLocal() : new AppConfig();
   }
+
 
 }

@@ -6,7 +6,7 @@ namespace qck\core;
  *
  * @author muellerm
  */
-class Response implements \qck\interfaces\Response
+class Response implements \qck\core\interfaces\Response
 {
 
   /**
@@ -76,7 +76,7 @@ class Response implements \qck\interfaces\Response
     if ( $contents != null )
     {
       header( $this->getContentType() );
-      if ( $contents instanceof \qck\interfaces\Template )
+      if ( $contents instanceof \qck\core\interfaces\Template )
         echo $contents->render();
       else if ( is_callable( $contents ) )
         echo call_user_func( $contents );
