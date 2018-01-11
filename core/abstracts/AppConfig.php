@@ -12,57 +12,61 @@ abstract class AppConfig implements \qck\core\interfaces\AppConfig
 
   public function getHostInfo()
   {
-    return $this->getSingleton("HostInfo", function(){ return gethostname(); });
+    return $this->getSingleton( "HostInfo", function()
+        {
+          return gethostname();
+        } );
   }
 
   function getWorkingDir()
   {
-    return $this->getSingleton("WorkingDir", 
-        function(){ return dirname((new \ReflectionClass($this))->getFileName()).DIRECTORY_SEPARATOR."var"; });
+    return $this->getSingleton( "WorkingDir", function()
+        {
+          return dirname( (new \ReflectionClass( $this ) )->getFileName() ) . DIRECTORY_SEPARATOR . "var";
+        } );
   }
-  
-  function getDataDir($createIfNotExists=true)
+
+  function getDataDir( $createIfNotExists = true )
   {
-    return $this->getDirWithCheck( $this->getWorkingDir().DIRECTORY_SEPARATOR."data", $createIfNotExists );
+    return $this->getDirWithCheck( $this->getWorkingDir() . DIRECTORY_SEPARATOR . "data", $createIfNotExists );
   }
-  
-  function getDataSubDir($subdir, $createIfNotExists=true)
+
+  function getDataSubDir( $subdir, $createIfNotExists = true )
   {
-    return $this->getDirWithCheck( $this->getDataDir().DIRECTORY_SEPARATOR.$subdir, $createIfNotExists );
+    return $this->getDirWithCheck( $this->getDataDir() . DIRECTORY_SEPARATOR . $subdir, $createIfNotExists );
   }
-  
-  function getCacheDir($createIfNotExists=true)
+
+  function getCacheDir( $createIfNotExists = true )
   {
-    return $this->getDirWithCheck( $this->getWorkingDir().DIRECTORY_SEPARATOR."cache", $createIfNotExists );
+    return $this->getDirWithCheck( $this->getWorkingDir() . DIRECTORY_SEPARATOR . "cache", $createIfNotExists );
   }
-  
-  function getCacheSubDir($subdir, $createIfNotExists=true)
+
+  function getCacheSubDir( $subdir, $createIfNotExists = true )
   {
-    return $this->getDirWithCheck( $this->getCacheDir().DIRECTORY_SEPARATOR.$subdir, $createIfNotExists );
+    return $this->getDirWithCheck( $this->getCacheDir() . DIRECTORY_SEPARATOR . $subdir, $createIfNotExists );
   }
-  
-  protected function getDirWithCheck( $dir, $createIfNotExists=true )
+
+  protected function getDirWithCheck( $dir, $createIfNotExists = true )
   {
-    if($createIfNotExists && !file_exists($dir))
-      mkdir($dir, 0777, true);
+    if ( $createIfNotExists && !file_exists( $dir ) )
+      mkdir( $dir, 0777, true );
     return $dir;
-    
   }
-  
+
   function getErrorController()
   {
-    return $this->getSingleton("ErrorController", function(){ return new \qck\core\controller\DefaultErrorController(); });
+    return null;
   }
-  
+
   function getAdminMailer()
   {
     return null;
   }
-  
+
   function getTests()
   {
-    return array();
-  }  
+    return array ();
+  }
 
   public function mkLink( $ControllerClassName, $args = array () )
   {
@@ -75,19 +79,20 @@ abstract class AppConfig implements \qck\core\interfaces\AppConfig
     }
     return $Link;
   }
-  
+
   function getCurrentControllerName()
   {
     return $this->getControllerFactory()->getCurrentControllerClassName();
   }
-  
-  protected function getSingleton($key, callable $createFunction)
+
+  protected function getSingleton( $key, callable $createFunction )
   {
-    if(!isset($this->Singletons[$key]))
-      $this->Singletons[$key] = $createFunction();
-    
-    return $this->Singletons[$key];
+    if ( !isset( $this->Singletons[ $key ] ) )
+      $this->Singletons[ $key ] = $createFunction();
+
+    return $this->Singletons[ $key ];
   }
-  
-  private $Singletons = array();
+
+  private $Singletons = array ();
+
 }
