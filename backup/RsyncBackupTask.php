@@ -21,6 +21,8 @@ class RsyncBackupTask extends abstracts\BackupTask
     $this->setWorkingDir($CygwinDir);
     $this->RsyncCommand = ".\\rsync.exe";
     $this->SshCommand = ".\\ssh.exe";
+    $this->addExclude("System Volume Information*");
+    $this->addExclude("\$RECYCLE.BIN*");
   }
 
   function setSsh($Ssh)
@@ -62,8 +64,12 @@ class RsyncBackupTask extends abstracts\BackupTask
   {
     $this->RsyncCommand = $RsyncCommand;
   }
+  function addExclude($Exclude)
+  {
+    $this->Excludes[] = $Exclude;
+  }
 
-  function setQuiet($Quiet)
+    function setQuiet($Quiet)
   {
     $this->Quiet = $Quiet;
   }
@@ -86,6 +92,8 @@ class RsyncBackupTask extends abstracts\BackupTask
     $cmd .= $this->ShowStats ? ' --stats' : "";
     $cmd .= $this->DryRun ? ' -n' : "";
     $cmd .= $this->ShowProgress ? ' --progress' : "";
+    foreach($this->Excludes as $Exclude)
+      $cmd .= ' --exclude "'.$Exclude.'"';
     $cmd .= ' ' . $this->Origin . ' ' . $this->Target;
     $cmds[] = $cmd;
     return $cmds;
@@ -145,6 +153,12 @@ class RsyncBackupTask extends abstracts\BackupTask
    */
   protected $Delete = true;
 
+  /**
+   *
+   * @var array 
+   */
+  protected $Excludes = [];
+  
   /**
    *
    * @var string 
