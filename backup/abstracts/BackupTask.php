@@ -31,11 +31,9 @@ abstract class BackupTask implements \qck\backup\interfaces\BackupTask
     {
       $commands[] = $cmd;
       print $cmd . PHP_EOL;
-      flush();
 
       $lastReturnCode = 0;
-      passthru($cmd, $lastReturnCode);
-      flush();
+      system($cmd, $lastReturnCode);
       
       if ($lastReturnCode != 0)
         break;

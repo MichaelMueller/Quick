@@ -24,7 +24,6 @@ abstract class BackupController implements \qck\core\interfaces\Controller
   public function run(\qck\core\interfaces\AppConfig $config)
   {
     $quiet = false;
-    $dryRun = false;
 
     /* @var $config \muellerm\server\scripts\abstracts\AppConfig */
     // set the time and memory limit to 8 hours
@@ -41,19 +40,23 @@ abstract class BackupController implements \qck\core\interfaces\Controller
     // run the jobs and collect possible errors
     $ErrorLog = null;
     $CommandLog = null;
-    $BackupSet = $this->getBackupSet($config, $quiet, $dryRun);
+    $BackupSet = $this->getBackupSet($config);
     for ($i = 0; $i < $BackupSet->size(); $i++)
     {
-      $Output = $quiet ? "": false;
+      $Output = $quiet ? "" : false;
       $RetValue = 0;
       $Commands = [];
       if (!$BackupSet->at($i)->exec($Commands, $RetValue, $Output))
       {
-        $Command = implode (PHP_EOL, $Commands);
-        $ErrorLog .= sprintf("The last command of the command list %s failed with code %d. ".PHP_EOL."Output so far was:" . PHP_EOL . " %s" . PHP_EOL, $Command, $RetValue, $Output);
-      }
+        $Command = implode(PHP_EOL, $Commands);
+        $ErrorLog .= sprintf("The last command of the command list %s failed with code %s. " . PHP_EOL, $Command, $RetValue);
+        if($quiet)
+          $ErrorLog .= sprintf("Output so far was:" . PHP_EOL . " %s" . PHP_EOL, $Output);
+      } 
       else
-        $CommandLog .= implode (PHP_EOL, $Commands) . PHP_EOL;
+      {
+        $CommandLog .= implode(PHP_EOL, $Commands) . PHP_EOL;
+      }
     }
 
     if (!$quiet)
@@ -66,20 +69,22 @@ abstract class BackupController implements \qck\core\interfaces\Controller
     $CommandLog = str_replace(PHP_EOL, "\n", $CommandLog);
     // send error log if necessary
     if ($ErrorLog)
+    {
       if ($quiet)
         $config->getAdminMailer()->sendToAdmin("Backup Errors on " . $config->getHostInfo() . " (" . $this->getDateTime() . ")", $ErrorLog);
-      else
+    }
+    else
+    {
+      // check when we have sent it the last time
+      $LastSentFile = $config->getCacheDir() . DIRECTORY_SEPARATOR . "lastsent.date";
+      $Now = time();
+      $LastSent = file_exists($LastSentFile) ? intval(file_get_contents($LastSentFile)) : $Now - $this->StatusTimeout;
+      if ($Now - $LastSent >= $this->StatusTimeout)
       {
-        // check when we have sent it the last time
-        $LastSentFile = $config->getCacheDir() . DIRECTORY_SEPARATOR . "lastsent.date";
-        $Now = time();
-        $LastSent = file_exists($LastSentFile) ? intval(file_get_contents($LastSentFile)) : $Now - $this->StatusTimeout;
-        if ($Now - $LastSent >= $this->StatusTimeout)
-        {
-          $config->getAdminMailer()->sendToAdmin("Backup Log From " . $config->getHostInfo() . " (" . $this->getDateTime() . ")", "All commands successfully run: " . PHP_EOL . $CommandLog);
-          file_put_contents($LastSentFile, $Now);
-        }
+        $config->getAdminMailer()->sendToAdmin("Backup Log From " . $config->getHostInfo() . " (" . $this->getDateTime() . ")", "All commands successfully run: " . PHP_EOL . $CommandLog);
+        file_put_contents($LastSentFile, $Now);
       }
+    }
 
     return null;
   }
