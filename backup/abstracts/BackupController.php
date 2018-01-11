@@ -25,7 +25,7 @@ abstract class BackupController implements \qck\core\interfaces\Controller
   {
     $quiet = false;
 
-    /* @var $config \muellerm\server\scripts\abstracts\AppConfig */
+    /* @var $config \mbits\server\scripts\abstracts\AppConfig */
     // set the time and memory limit to 8 hours
     set_time_limit($this->TimeLimit);
     ini_set('memory_limit', $this->MemoryLimit);
