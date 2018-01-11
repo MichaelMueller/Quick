@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\backup\abstracts;
 
 /**
@@ -26,35 +27,41 @@ abstract class BackupTask implements \qck\backup\interfaces\BackupTask
   {
     return false;
   }
-  
+
   protected function runCmd(&$output, &$returnCode, &$command)
   {
     $command = $this->getCommand(); // . " 2>&1";
-    if(!$this->Quiet)
+    if (!$this->Quiet)
       print "Command is " . $command . PHP_EOL;
     if ($this->DryRun && $this->commandCanSimulateDryRun() == false)
       return true;
 
     $descriptorspec = array(
         0 => array("pipe", "r"), // stdin is a pipe that the child will read from
-        1 => array("pipe", "w"),   // stdout is a pipe that the child will write to      
+        1 => array("pipe", "w"), // stdout is a pipe that the child will write to      
         2 => array("pipe", "w")   // stderr is a pipe that the child will write to
     );
-    flush();
     $pipes = array();
     $process = proc_open($command, $descriptorspec, $pipes);
 
-    while (!feof($pipes[1]) || !feof($pipes[2]))
+    while (($s = fgets($pipes[1])))
     {
-      $strOut = feof($pipes[1]) ? "" : fgets($pipes[1]);
-      $strOut .= feof($pipes[2]) ? "" : fgets($pipes[2]);
+      $strOut = $s;
       if (!$this->Quiet)
       {
-        print $strOut;        
+        print $strOut;
         flush();
       }
       $output .= $strOut;
     }
+    // stderr
+    $strErrOut = is_resource($pipes[2]) && !feof($pipes[2]) ? fgets($pipes[2]) : "";
+    if (!$this->Quiet)
+    {
+      print $strErrOut;
+      flush();
+    }
+    $output .= $strErrOut;
 
     fclose($pipes[0]);
     fclose($pipes[1]);

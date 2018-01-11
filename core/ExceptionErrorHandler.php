@@ -52,8 +52,10 @@ class ExceptionErrorHandler
           $Response->send();
       }
       // else: if errors should get printed= throw the error ant let the whole thing die from there on
-      else if ( boolval( ini_get( "display_errors" ) ) )
-        throw $e;
+      else if ( boolval( ini_get( "display_errors" ) ) == true )
+      {
+        print_r($errText);
+      }
       // ultimatively: inform at least something to the user
       else
       {

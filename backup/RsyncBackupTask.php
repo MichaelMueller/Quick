@@ -10,39 +10,44 @@ namespace qck\backup;
 class RsyncBackupTask extends abstracts\BackupTask
 {
 
-  function __construct( $Origin, $Target, $Quiet = false, $DryRun = false )
+  function __construct($Origin, $Target, $Quiet = false, $DryRun = false)
   {
     $this->Origin = $Origin;
     $this->Target = $Target;
-    parent::__construct( $Quiet, $DryRun );
+    parent::__construct($Quiet, $DryRun);
   }
 
-  function setSsh( $Ssh )
+  function setSsh($Ssh)
   {
     $this->Ssh = $Ssh;
   }
 
-  function setSshPort( $SshPort )
+  function setSshCommand($SshCommand)
+  {
+    $this->SshCommand = $SshCommand;
+  }
+
+  function setSshPort($SshPort)
   {
     $this->SshPort = $SshPort;
   }
 
-  function setDelete( $Delete )
+  function setDelete($Delete)
   {
     $this->Delete = $Delete;
   }
 
-  function setBackupDir( $BackupDir )
+  function setBackupDir($BackupDir)
   {
     $this->BackupDir = $BackupDir;
   }
 
-  function setShowStats( $ShowStats )
+  function setShowStats($ShowStats)
   {
     $this->ShowStats = $ShowStats;
   }
 
-  function setRsyncCommand( $RsyncCommand )
+  function setRsyncCommand($RsyncCommand)
   {
     $this->RsyncCommand = $RsyncCommand;
   }
@@ -57,7 +62,7 @@ class RsyncBackupTask extends abstracts\BackupTask
     $rsync = $this->RsyncCommand;
 
     $cmd = $rsync . " -a -h";
-    $cmd .= $this->Ssh ? ' -z -e "ssh -p ' . $this->SshPort . '"' : "";
+    $cmd .= $this->Ssh ? ' -z -e "'.$this->SshCommand.' -p ' . $this->SshPort . '"' : "";
     $cmd .= $this->Delete ? ' --delete' : "";
     $cmd .= $this->BackupDir ? ' -b --backup-dir="' . $this->BackupDir . '"' : "";
     $cmd .= $this->Quiet ? ' --quiet' : " -v";
@@ -84,6 +89,12 @@ class RsyncBackupTask extends abstracts\BackupTask
    * @var bool
    */
   protected $Ssh;
+
+  /**
+   *
+   * @var string
+   */
+  protected $SshCommand = "ssh";
 
   /**
    *
