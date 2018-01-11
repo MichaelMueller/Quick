@@ -10,42 +10,38 @@ namespace qck\backup;
 class GitBackupTask extends abstracts\BackupTask
 {
 
-  function __construct( $GitDir, $Quiet = false, $DryRun = false )
+  function __construct($GitDir)
   {
-    $this->GitDir = $GitDir;
-    parent::__construct( $Quiet, $DryRun );
+    $this->setWorkingDir($GitDir);
   }
 
-  function setGitCommand( $GitCommand )
+  function setGitCommand($GitCommand)
   {
     $this->GitCommand = $GitCommand;
   }
 
-  function setTarget( $Target )
+  function setTarget($Target)
   {
     $this->Target = $Target;
   }
 
-  function setBranch( $Branch )
+  function setBranch($Branch)
   {
     $this->Branch = $Branch;
   }
 
-  public function getCommand()
+  public function getCommands()
   {
-    $DateTime = date( 'd-M-Y H:i:s' ) . " " . date_default_timezone_get();
-    $commitMsg = "Commit of " . $DateTime;
-    $git = $this->GitCommand;
-    return sprintf( '%s add -A && %s commit -am"%s" && %s push %s %s', $git, $git, $commitMsg, $git, $this->Target, $this->Branch );
-  }
+    $cmds = [];
 
-  public function exec( &$output, &$returnCode, &$command )
-  {
-    $cwd = getcwd();
-    chdir( $this->GitDir );
-    $retValue = parent::exec( $output, $returnCode, $command );
-    chdir( $cwd );
-    return $retValue;
+    $git = $this->GitCommand;
+    $cmds[] = $git." add -A";
+    $DateTime = date('d-M-Y H:i:s') . " " . date_default_timezone_get();
+    $commitMsg = "Commit of " . $DateTime;
+    $cmds[] = $git.' commit -am"'.$commitMsg.'"';
+    $cmds[] = $git." push ".$this->Target." ".$this->Branch;
+    
+    return $cmds;
   }
 
   /**

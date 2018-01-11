@@ -13,7 +13,7 @@ abstract class BackupController implements \qck\core\interfaces\Controller
   /**
    * @return \qck\backup\interfaces\BackupSet A BackupSet
    */
-  abstract protected function getBackupSet(\qck\core\interfaces\AppConfig $config, $quiet, $dryRun);
+  abstract protected function getBackupSet(\qck\core\interfaces\AppConfig $config);
 
   protected function getDateTime()
   {
@@ -31,7 +31,6 @@ abstract class BackupController implements \qck\core\interfaces\Controller
     set_time_limit($this->TimeLimit);
     ini_set('memory_limit', $this->MemoryLimit);
     $quiet = array_search("--quiet", $config->getControllerFactory()->getArgv()) !== false;
-    $dryRun = array_search("--dryRun", $config->getControllerFactory()->getArgv()) !== false;
 
     if (!$quiet)
     {
@@ -45,17 +44,21 @@ abstract class BackupController implements \qck\core\interfaces\Controller
     $BackupSet = $this->getBackupSet($config, $quiet, $dryRun);
     for ($i = 0; $i < $BackupSet->size(); $i++)
     {
-      $Output = "";
+      $Output = $quiet ? "": false;
       $RetValue = 0;
-      $Command = 0;
-      if (!$BackupSet->at($i)->exec($Output, $RetValue, $Command))
-        $ErrorLog .= sprintf("The command %s failed with code %d. Output was:" . PHP_EOL . " %s" . PHP_EOL, $Command, $RetValue, $Output);
+      $Commands = [];
+      if (!$BackupSet->at($i)->exec($Commands, $RetValue, $Output))
+      {
+        $Command = implode (PHP_EOL, $Commands);
+        $ErrorLog .= sprintf("The last command of the command list %s failed with code %d. ".PHP_EOL."Output so far was:" . PHP_EOL . " %s" . PHP_EOL, $Command, $RetValue, $Output);
+      }
       else
-        $CommandLog .= $Command . PHP_EOL;
+        $CommandLog .= implode (PHP_EOL, $Commands) . PHP_EOL;
     }
 
     if (!$quiet)
     {
+      flush();
       print PHP_EOL . "ENDING BACKUP " . $this->getDateTime() . PHP_EOL;
       print "*********************************************" . PHP_EOL;
     }

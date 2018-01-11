@@ -10,11 +10,17 @@ namespace qck\backup;
 class RsyncBackupTask extends abstracts\BackupTask
 {
 
-  function __construct($Origin, $Target, $Quiet = false, $DryRun = false)
+  function __construct($Origin, $Target)
   {
     $this->Origin = $Origin;
     $this->Target = $Target;
-    parent::__construct($Quiet, $DryRun);
+  }
+
+  function setCygwinDir($CygwinDir)
+  {
+    $this->setWorkingDir($CygwinDir);
+    $this->RsyncCommand = ".\\rsync.exe";
+    $this->SshCommand = ".\\ssh.exe";
   }
 
   function setSsh($Ssh)
@@ -25,6 +31,11 @@ class RsyncBackupTask extends abstracts\BackupTask
   function setSshCommand($SshCommand)
   {
     $this->SshCommand = $SshCommand;
+  }
+
+  function setShowProgress($ShowProgress)
+  {
+    $this->ShowProgress = $ShowProgress;
   }
 
   function setSshPort($SshPort)
@@ -52,24 +63,32 @@ class RsyncBackupTask extends abstracts\BackupTask
     $this->RsyncCommand = $RsyncCommand;
   }
 
-  protected function commandCanSimulateDryRun()
+  function setQuiet($Quiet)
   {
-    return true;
+    $this->Quiet = $Quiet;
   }
 
-  function getCommand()
+  function setDryRun($DryRun)
   {
-    $rsync = $this->RsyncCommand;
+    $this->DryRun = $DryRun;
+  }
 
+  function getCommands()
+  {
+    $cmds = [];
+
+    $rsync = $this->RsyncCommand;
     $cmd = $rsync . " -a -h";
-    $cmd .= $this->Ssh ? ' -z -e "'.$this->SshCommand.' -p ' . $this->SshPort . '"' : "";
+    $cmd .= $this->Ssh ? ' -z -e "' . $this->SshCommand . ' -p ' . $this->SshPort . '"' : "";
     $cmd .= $this->Delete ? ' --delete' : "";
     $cmd .= $this->BackupDir ? ' -b --backup-dir="' . $this->BackupDir . '"' : "";
     $cmd .= $this->Quiet ? ' --quiet' : " -v";
     $cmd .= $this->ShowStats ? ' --stats' : "";
     $cmd .= $this->DryRun ? ' -n' : "";
+    $cmd .= $this->ShowProgress ? ' --progress' : "";
     $cmd .= ' ' . $this->Origin . ' ' . $this->Target;
-    return $cmd;
+    $cmds[] = $cmd;
+    return $cmds;
   }
 
   /**
@@ -77,6 +96,18 @@ class RsyncBackupTask extends abstracts\BackupTask
    * @var bool
    */
   protected $Origin;
+
+  /**
+   *
+   * @var bool
+   */
+  protected $Quiet = false;
+
+  /**
+   *
+   * @var bool
+   */
+  protected $DryRun = false;
 
   /**
    *
@@ -88,7 +119,13 @@ class RsyncBackupTask extends abstracts\BackupTask
    *
    * @var bool
    */
-  protected $Ssh;
+  protected $Ssh = false;
+
+  /**
+   *
+   * @var bool 
+   */
+  protected $ShowProgress = false;
 
   /**
    *

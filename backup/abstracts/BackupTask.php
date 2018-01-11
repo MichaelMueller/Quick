@@ -10,76 +10,51 @@ namespace qck\backup\abstracts;
 abstract class BackupTask implements \qck\backup\interfaces\BackupTask
 {
 
-  function __construct($Quiet = false, $DryRun = false)
+  /**
+   * @return array an array of string commands
+   */
+  abstract protected function getCommands();
+
+  public function exec(&$commands, &$lastReturnCode, &$output = false)
   {
-    $this->Quiet = $Quiet;
-    $this->DryRun = $DryRun;
-  }
+    $cmds = $this->getCommands();
 
-  abstract public function getCommand();
+    $oldCwd = getcwd();
+    if($this->WorkingDir)
+      chdir($this->WorkingDir);
+    
+    if ($output !== false)
+      ob_start();
 
-  public function exec(&$output, &$returnCode, &$command)
-  {
-    return $this->runCmd($output, $returnCode, $command);
-  }
-
-  protected function commandCanSimulateDryRun()
-  {
-    return false;
-  }
-
-  protected function runCmd(&$output, &$returnCode, &$command)
-  {
-    $command = $this->getCommand(); // . " 2>&1";
-    if (!$this->Quiet)
-      print "Command is " . $command . PHP_EOL;
-    if ($this->DryRun && $this->commandCanSimulateDryRun() == false)
-      return true;
-
-    $descriptorspec = array(
-        0 => array("pipe", "r"), // stdin is a pipe that the child will read from
-        1 => array("pipe", "w"), // stdout is a pipe that the child will write to      
-        2 => array("pipe", "w")   // stderr is a pipe that the child will write to
-    );
-    $pipes = array();
-    $process = proc_open($command, $descriptorspec, $pipes);
-
-    while (($s = fgets($pipes[1])))
+      
+    foreach ($cmds as $cmd)
     {
-      $strOut = $s;
-      if (!$this->Quiet)
-      {
-        print $strOut;
-        flush();
-      }
-      $output .= $strOut;
-    }
-    // stderr
-    $strErrOut = is_resource($pipes[2]) && !feof($pipes[2]) ? fgets($pipes[2]) : "";
-    if (!$this->Quiet)
-    {
-      print $strErrOut;
+      $commands[] = $cmd;
+      print $cmd . PHP_EOL;
       flush();
-    }
-    $output .= $strErrOut;
 
-    fclose($pipes[0]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $returnCode = proc_close($process);
-    return $returnCode == 0;
+      $lastReturnCode = 0;
+      passthru($cmd, $lastReturnCode);
+      flush();
+      
+      if ($lastReturnCode != 0)
+        break;
+    }
+    
+    if ($output !== false)
+      $output = ob_end_clean();
+
+    if($this->WorkingDir)
+      chdir($oldCwd);
+
+    return $lastReturnCode == 0 ? true : false;
   }
 
-  /**
-   *
-   * @var bool
-   */
-  protected $DryRun;
+  function setWorkingDir($WorkingDir)
+  {
+    $this->WorkingDir = $WorkingDir;
+  }
 
-  /**
-   *
-   * @var bool
-   */
-  protected $Quiet;
+  protected $WorkingDir;
 
 }
