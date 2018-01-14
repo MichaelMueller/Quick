@@ -38,7 +38,7 @@ class GitBackupTask extends abstracts\BackupTask
     $cmds[] = $git." add -A";
     $DateTime = date('d-M-Y H:i:s') . " " . date_default_timezone_get();
     $commitMsg = "Commit of " . $DateTime;
-    $cmds[] = $git.' commit -am"'.$commitMsg.'"';
+    $cmds[] = $git.' commit --allow-empty -am"'.$commitMsg.'"';
     $cmds[] = $git." push ".$this->Target." ".$this->Branch;
     
     return $cmds;
