@@ -66,6 +66,6 @@ class GitBackupTask extends abstracts\BackupTask
    *
    * @var string
    */
-  protected $Branch = "Master";
+  protected $Branch = "master";
 
 }

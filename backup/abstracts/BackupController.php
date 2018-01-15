@@ -50,9 +50,9 @@ abstract class BackupController implements \qck\core\interfaces\Controller
       {
         $Command = implode(PHP_EOL, $Commands);
         $ErrorLog .= sprintf("The last command of the command list %s failed with code %s. " . PHP_EOL, $Command, $RetValue);
-        if($quiet)
-          $ErrorLog .= sprintf("Output so far was:" . PHP_EOL . " %s" . PHP_EOL, $Output);
-      } 
+        if ($quiet)
+          $ErrorLog .= sprintf("Output so far was:" . PHP_EOL . " %s" . PHP_EOL, strval($Output));
+      }
       else
       {
         $CommandLog .= implode(PHP_EOL, $Commands) . PHP_EOL;
