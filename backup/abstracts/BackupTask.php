@@ -24,13 +24,13 @@ abstract class BackupTask implements \qck\backup\interfaces\BackupTask
   {
     $this->PostCommands[] = $cmd;
   }
+
   function addTidyUpCommand( $cmd )
   {
     $this->TidyUpCommand[] = $cmd;
   }
 
-
-  public function exec( &$commands, &$lastReturnCode, &$output= false )
+  public function exec( &$commands, &$lastReturnCode, &$output = false )
   {
     $cmds = $this->getCommands();
 
@@ -60,9 +60,9 @@ abstract class BackupTask implements \qck\backup\interfaces\BackupTask
     foreach ( $this->TidyUpCommand as $cmd )
     {
       print $cmd . PHP_EOL;
-      system( $cmd );            
+      system( $cmd );
     }
-    
+
     if ( $output !== false )
       $output = ob_get_clean();
 

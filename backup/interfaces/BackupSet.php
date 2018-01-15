@@ -11,14 +11,9 @@ interface BackupSet
 {
 
   /**
-   * 
-   * @param int $index
-   * @return BackupTask
-   */
-  function at( $index );
-
-  /**
    * @return int the size
    */
-  function size();
+  function add( interfaces\BackupTask $BackupTask );
+  
+  function run();
 }
