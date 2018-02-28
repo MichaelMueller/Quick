@@ -23,6 +23,11 @@ abstract class Controller extends \qck\core\abstracts\Controller
       $this->throwUnauthorized();
   }
   
+  function isAuthenticated()
+  {
+    return $this->getUsername() !== null;
+  }
+  
   function getUsername()
   {
     return $this->getAppConfig()->getSession()->getUsername();

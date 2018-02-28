@@ -24,7 +24,7 @@ class Session implements interfaces\Session
   public function getUsername()
   {
     $this->start();
-    return isset( $_SESSION[ self::USER_ID_KEY ] ) ? isset( $_SESSION[ self::USER_ID_KEY ] ) : null;
+    return isset( $_SESSION[ self::USER_ID_KEY ] ) ? $_SESSION[ self::USER_ID_KEY ] : null;
   }
 
   public function setUsername( $id )
