@@ -9,6 +9,10 @@ namespace qck\core;
  */
 class ExceptionErrorHandler
 {
+  function __construct(\qck\core\interfaces\AppConfig $AppConfig=null)
+  {
+    $this->AppConfig = $AppConfig;
+  }
 
   function setAppConfig( \qck\core\interfaces\AppConfig $AppConfig )
   {
