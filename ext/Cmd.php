@@ -10,11 +10,11 @@ namespace qck\ext;
 class Cmd implements \qck\ext\interfaces\Cmd
 {
 
-  function __construct( $Cmd, array $Args = [], $StartDirectory = null )
+  function __construct( $Cmd, $StartDirectory = null, array $Args = [] )
   {
     $this->Cmd = $Cmd;
-    $this->Args = $Args;
     $this->StartDirectory = $StartDirectory;
+    $this->Args = $Args;
   }
 
   function setStartDirectory( $StartDirectory )
@@ -71,14 +71,14 @@ class Cmd implements \qck\ext\interfaces\Cmd
 
   /**
    *
-   * @var array
-   */
-  protected $Args;
-
-  /**
-   *
    * @var string
    */
   protected $StartDirectory;
+
+  /**
+   *
+   * @var array
+   */
+  protected $Args;
 
 }

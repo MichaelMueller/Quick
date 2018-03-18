@@ -12,7 +12,7 @@ class GitPushAllCmd extends Cmd
 
   function __construct( $StartDirectory = null )
   {
-    parent::__construct(null, array(), $StartDirectory);
+    parent::__construct(null, $StartDirectory);
   }
 
   public function __toString()
