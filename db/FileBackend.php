@@ -6,7 +6,7 @@ namespace qck\db;
  *
  * @author muellerm
  */
-class FileBackend implements interfaces\Backend
+class FileBackend implements interfaces\Storage, interfaces\Loader, interfaces\Observer, interfaces\Visitor
 {
 
   function __construct( $DataDir )
@@ -14,88 +14,123 @@ class FileBackend implements interfaces\Backend
     $this->DataDir = $DataDir;
   }
 
-  function register( Node $Node )
+  function handle( interfaces\Node $Node )
   {
-    $this->Nodes[] = $Node;
-  }
+    if ( $this->hasChanged( $Node ) == false )
+      return;
 
-  function commit()
-  {
-    /* @var $Node qck\db\Node */
-    foreach ( $this->Nodes as $Node )
+    $PersistableArray = [];
+    foreach ( $Node->getData() as $key => $value )
     {
-      // CONVERT THE NODE TO A PLAIN ARRAY AND SAVE IT VIA JSON FILE
-      $PodArray = $this->toPodArray( $Node );
-      $Path = $this->DataDir . DIRECTORY_SEPARATOR . $this->getId( $Node );
-      file_put_contents( $Path, json_encode( $PodArray, JSON_PRETTY_PRINT ) );
+      // CONVERT OTHER NODE OBJECTS INTO A SUBARRAY WITH THE FQCN AND THE ID
+      if ( $value instanceof interfaces\Node )
+        $value = [ get_class( $value ), $this->getOrCreateId( $value ) ];
+      else if ( is_object( $value ) )
+        $value = [ serialize( $value ) ];
+      $PersistableArray[ $key ] = $value;
     }
+
+    if($this->isRegistered($Node))
+    {
+      $Path = $this->getFilePath( $this->getId( $Node ) );
+      $PersistableArray = array_merge($PersistableArray, $this->loadArray($Path));      
+    }
+    else
+      $Path = $this->getFilePath( $this->register( $Node ) );
+    
+    file_put_contents( $Path, json_encode( $PersistableArray, JSON_PRETTY_PRINT ) );
+    $this->setUnchanged( $Node );
   }
 
-  function getId( Node $Node, $create = true )
+  function save( interfaces\Node $Node )
   {
-    // GET OR CREATE AN ID
-    $index = array_search( $Node, $this->Nodes, true );
+    $Node->traverse( $this );
+  }
 
-    if ( !isset( $this->Ids[ $index ] ) )
+  protected function getOrCreateId( interfaces\Node $Node )
+  {
+    return $this->isRegistered( $Node ) ? $this->getId( $Node ) : $this->register( $Node );
+  }
+
+  protected function getFilePath( $Id )
+  {
+    return $this->DataDir . DIRECTORY_SEPARATOR . $Id . ".json";
+  }
+
+  protected function register( interfaces\Node $Node, $Id = null )
+  {
+    $key = spl_object_hash( $Node );
+    if ( !$Id )
     {
-      if ( !$create )
-        return null;
       do
       {
         $Id = uniqid();
       }
-      while ( file_exists( $this->DataDir . DIRECTORY_SEPARATOR . $Id ) );
-      $this->Ids[ $index ] = $Id;
+      while ( file_exists( $this->getFilePath( $Id ) ) );
     }
-
-    return $this->Ids[ $index ];
+    $this->Nodes[ $key ] = [ "Id" => $Id, "Changed" => false ];
+    $Node->addObserver( $this );
+    return $Id;
   }
 
-  function toPodArray( Node $Node )
+  protected function isRegistered( interfaces\Node $Node )
   {
-    $PodArray = [];
-    $Data = $Node->getData();
-
-    foreach ( $Data as $key => $value )
-    {
-      // CONVERT OTHER NODE OBJECTS INTO A SUBARRAY WITH THE FQCN AND THE ID
-      if ( $value instanceof Node )
-        $PodArray[ $key ] = [ get_class( $value ), $this->getId( $Node ) ];
-      else if ( is_object( $value ) )
-        $PodArray[ $key ] = serialize( $value );
-      else
-        $PodArray[ $key ] = $value;
-    }
+    return isset( $this->Nodes[ spl_object_hash( $Node ) ] );
   }
 
-  public function loadData( interfaces\Node $Node )
+  protected function getId( interfaces\Node $Node )
   {
-    $Id = $this->getId( $Node, false );
-    if ( $Id )
-    {
-      $Path = $this->DataDir . DIRECTORY_SEPARATOR . $this->getId( $Node );
-      if ( !file_exists( $Path ) )
-        return null;
+    return $this->Nodes[ spl_object_hash( $Node ) ][ "Id" ];
+  }
 
-      $PodArray = json_decode( file_get_contents( $Path ), true );
+  protected function loadArray( $Path )
+  {
+    return json_decode( file_get_contents( $Path ), true );
+  }
+
+  function loadData( interfaces\Node $Node )
+  {
+    if ( $this->isRegistered( $Node ) )
+    {
+      $Path = $this->getFilePath( $this->getId( $Node ) );
+      $PersistetArray = $this->loadArray($Path);
+
       $Data = [];
-      foreach ( $PodArray as $key => $value )
+      foreach ( $PersistetArray as $key => $value )
       {
         if ( is_array( $value ) && count( $value ) == 2 )
         {
-          $value = new $value[ 0 ]( $this );
-          $this->Ids[ count( $this->Nodes ) - 1 ] = $value[ 1 ];
+          $Fqcn = $value[ 0 ];
+          $value = new $Fqcn();
+          $this->register( $value, $value[ 1 ] );
         }
         else if ( is_array( $value ) && count( $value ) == 1 )
           $value = unserialize( $value[ 0 ] );
         $Data[ $key ] = $value;
       }
+      return $Data;
     }
+
     return null;
+  }
+
+  public function changed( interfaces\Node $Node, $key, $newVal, $oldVal )
+  {
+    $this->Nodes[ spl_object_hash( $Node ) ][ "Changed" ] = true;
+  }
+
+  protected function setUnchanged( interfaces\Node $Node )
+  {
+    $this->Nodes[ spl_object_hash( $Node ) ][ "Changed" ] = false;
+  }
+
+  protected function hasChanged( interfaces\Node $Node )
+  {
+    $key = spl_object_hash( $Node );
+    return isset( $this->Nodes[ $key ] ) ? $this->Nodes[ $key ][ "Changed" ] : true;
   }
 
   protected $DataDir;
   protected $Nodes = [];
-  protected $Ids = [];
 
 }

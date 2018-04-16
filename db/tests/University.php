@@ -14,12 +14,12 @@ use \qck\db;
 class University extends db\Node
 {
 
-  public function __construct( db\interfaces\Backend $Backend, $Name, Teacher $Decane = null )
+  public function __construct( $Name, Teacher $Decane = null )
   {
-    parent::__construct( $Backend, [      
+    parent::__construct( [
       "Name" => $Name,
       "Decane" => $Decane,
-      "Teachers" => new db\Node($Backend),
-      "Students" => new db\Node($Backend) ] );
+      "Teachers" => new db\Node(),
+      "Students" => new db\Node() ] );
   }
 }

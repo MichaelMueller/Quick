@@ -35,17 +35,25 @@ interface Node
   function has( $value );
 
   /**
+   * @return bool
+   */
+  function hasData();
+  
+  /**
    * @return array
    */
   function getData();
 
+  
   /**
    * @return void
    */
   function dropData();
   
   /**
-   * @return Backend
+   * traversing the graph using the visitor pattern
+   * @param \qck\db\interfaces\interfaces\Visitor $Visitor
+   * @param type $VisitedNodes
    */
-  function getBackend();
+  function traverse( Visitor $Visitor, array &$VisitedNodes = [] );
 }

@@ -9,9 +9,8 @@ namespace qck\db;
 class Node implements interfaces\Node
 {
 
-  public function __construct( interfaces\Backend $Backend, array $Data = array () )
+  public function __construct( array $Data = array () )
   {
-    $this->Backend = $Backend;
     foreach ( $Data as $key => $value )
       $this->$key = $value;
   }
@@ -19,7 +18,41 @@ class Node implements interfaces\Node
   function __set( $key, $value )
   {
     $this->assertHasData();
+    $prevVal = isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
     $this->Data[ $key ] = $value;
+    /* @var $Observer interfaces\Observer */
+    foreach ( $this->Observer as $Observer )
+      $Observer->changed( $this, $key, $value, $prevVal );
+  }
+
+  function traverse( interfaces\Visitor $Visitor, array &$VisitedNodes = [] )
+  {
+    if ( in_array( $this, $VisitedNodes ) )
+      return;
+
+    $VisitedNodes[] = $this;
+    $Visitor->handle( $this );
+    $this->assertHasData();
+    foreach ( $this->Data as $value )
+    {
+      if ( $value instanceof interfaces\Node )
+        $value->traverse( $Visitor, $VisitedNodes );
+    }
+  }
+
+  function dropData()
+  {
+    $this->Data = null;
+  }
+
+  function addObserver( interfaces\Observer $Observer )
+  {
+    $this->Observer[] = $Observer;
+  }
+
+  function setLoader( interfaces\Loader $Loader )
+  {
+    $this->Loader = $Loader;
   }
 
   function __get( $key )
@@ -37,7 +70,10 @@ class Node implements interfaces\Node
   function add( $value )
   {
     $this->assertHasData();
-    $this->Data[] = $value;
+    $newIndex = count( $this->Data );
+    while ( isset( $this->Data[ $newIndex ] ) )
+      $newIndex++;
+    $this->$newIndex = $value;
   }
 
   function has( $value )
@@ -46,31 +82,38 @@ class Node implements interfaces\Node
     return in_array( $value, $this->Data );
   }
 
+  function hasData()
+  {
+    return $this->Data != null;
+  }
+
   function getData()
   {
     $this->assertHasData();
     return $this->Data;
   }
 
-  function dropData()
-  {
-    $this->Data = null;
-  }
-
   protected function assertHasData()
   {
     if ( $this->Data != null )
       return;
-    $this->Data = $this->Backend->loadData( $this );
-    if ( !$this->Data )
+    if ( $this->Loader )
+      $this->Data = $this->Loader->loadData( $this );
+    else
       $this->Data = [];
   }
 
   /**
    *
-   * @var interfaces\Backend
+   * @var interfaces\Loader
    */
-  protected $Backend;
+  protected $Loader;
+
+  /**
+   *
+   * @var array of Observer
+   */
+  protected $Observer = [];
   protected $Data;
 
 }

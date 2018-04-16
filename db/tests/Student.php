@@ -13,9 +13,9 @@ use \qck\db;
 class Student extends db\Node
 {
 
-  public function __construct( db\interfaces\Backend $Backend, $Name )
+  public function __construct( $Name )
   {
-    parent::__construct( $Backend, [ "Name" => $Name, "Teachers" => new db\Node( $Backend ) ] );
+    parent::__construct( [ "Name" => $Name, "Teachers" => new db\Node( ) ] );
   }
 
   function addTeacher( Teacher $NewTeacher )

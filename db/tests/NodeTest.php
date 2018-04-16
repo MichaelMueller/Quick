@@ -13,30 +13,39 @@ class NodeTest extends \qck\core\abstracts\Test
   {
     // Create a Student Register: A University has Students and Teachers. Students and Teachers are related (they teach the students)
     // with CRUD functionality
-    $this->createTests();
+    $this->createTests( $config );
   }
 
-  function createTests()
+  function createTests( \qck\core\interfaces\AppConfig $config )
   {
-    $Dir = sys_get_temp_dir()."/nodes".uniqid();
-    $Backend = new \qck\db\FileBackend( $Dir );
-    $MyUniversity = new University( $Backend, "My University" );
+    $MyUniversity = new University( "My University" );
 
-    $Sally = new Student( $Backend, "Sally Miller" );
-    $John = new Student( $Backend, "Jon Smith" );
-    $Michael = new Student( $Backend, "Michael Jordan" );
+    $Sally = new Student( "Sally Miller" );
+    $John = new Student( "Jon Smith" );
+    $Michael = new Student( "Michael Jordan" );
 
-    $ProfPipen = new Teacher( $Backend, "Prof. Pipen" );
-    $ProfSteinberg = new Teacher( $Backend, "Prof. Steinberg" );
+    $ProfPipen = new Teacher( "Prof. Pipen" );
+    $ProfSteinberg = new Teacher( "Prof. Steinberg" );
 
     $MyUniversity->Decane = $ProfPipen;
     $ProfPipen->addStudent( $Sally );
     $ProfPipen->addStudent( $John );
     $ProfPipen->addStudent( $Michael );
     $ProfSteinberg->addStudent( $Sally );
-        
-     
-    print_r($MyUniversity);
+
+    /* @var $config \qck\ext\abstracts\AppConfig */
+    $Dir = $config->getFileService()->createUniqueFileName( $config->getDataDir() );
+    $config->getFileService()->createDir( $Dir );
+    try
+    {
+      $Backend = new \qck\db\FileBackend( $Dir );
+      $Backend->save( $MyUniversity );
+    }
+    finally
+    {
+
+      #$config->getFileService()->delete( $Dir );
+    }
   }
 
   public function getRequiredTests()
