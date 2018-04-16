@@ -7,34 +7,40 @@ namespace qck\apps\testapp;
  *
  * @author muellerm
  */
-class AppConfig extends \qck\ext\abstracts\AppConfig {
+class AppConfig extends \qck\ext\abstracts\AppConfig
+{
 
-    function __construct($Argv = null) {
-        $this->Argv = $Argv;
-    }
+  function __construct( $Argv = null )
+  {
+    $this->Argv = $Argv;
+  }
 
-    public function getControllerFactory() {
-        static $var = null;
-        if (!$var)
-            $var = new \qck\core\ControllerFactory("\\qck\\apps\\testapp\\controller", $this->Argv);
-        return $var;
-    }
+  public function getControllerFactory()
+  {
+    static $var = null;
+    if ( !$var )
+      $var = new \qck\core\ControllerFactory( "\\qck\\apps\\testapp\\controller", $this->Argv );
+    return $var;
+  }
 
-    public function getErrorController() {
-        static $var = null;
-        if (!$var)
-            $var = new ErrorController( );
-        return $var;
-    }
+  public function getErrorController()
+  {
+    static $var = null;
+    if ( !$var )
+      $var = new ErrorController( );
+    return $var;
+  }
 
-    public function getAppName() {
-        return "testapp";
-    }
+  public function getAppName()
+  {
+    return "testapp";
+  }
 
-    public function getTests() {
-        return array(\qck\ext\tests\DailyLogTest::class);
-    }
+  public function getTests()
+  {
+    return array ( \qck\ext\tests\DailyLogTest::class, \qck\db\tests\NodeTest::class );
+  }
 
-    private $Argv;
+  private $Argv;
 
 }
