@@ -38,7 +38,7 @@ class NodeTest extends \qck\core\abstracts\Test
     $config->getFileService()->createDir( $Dir );
     try
     {
-      $Backend = new \qck\db\FileBackend( $Dir );
+      $Backend = new \qck\db\FileStorage( $Dir );
       $Backend->save( $MyUniversity );
     }
     finally

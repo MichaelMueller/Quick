@@ -6,7 +6,7 @@ namespace qck\db;
  *
  * @author muellerm
  */
-class FileBackend implements interfaces\Storage, interfaces\Loader, interfaces\Observer, interfaces\Visitor
+class FileStorage implements interfaces\Storage, interfaces\Loader, interfaces\Observer, interfaces\Visitor
 {
 
   function __construct( $DataDir )
@@ -60,11 +60,14 @@ class FileBackend implements interfaces\Storage, interfaces\Loader, interfaces\O
   protected function register( interfaces\Node $Node, $Id = null )
   {
     $key = spl_object_hash( $Node );
+    $fqcn = str_replace("\\", "_", get_class($Node));
+    $i = 0;
     if ( !$Id )
     {
       do
       {
-        $Id = uniqid();
+        $i++;
+        $Id = $fqcn.".".strval($i);
       }
       while ( file_exists( $this->getFilePath( $Id ) ) );
     }
