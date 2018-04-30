@@ -9,111 +9,132 @@ namespace qck\db;
 class Node implements interfaces\Node
 {
 
-  public function __construct( array $Data = array () )
+  function __construct( array $Data = [], $Uuid = null )
   {
-    foreach ( $Data as $key => $value )
-      $this->$key = $value;
+    $this->Data = $Data;
+    $this->Uuid = $Uuid;
+  }
+
+  public function set( $key, $value )
+  {
+    $valueModification = isset( $this->Data[ $key ] );
+    $prevVal = null;
+    if ( $valueModification )
+      $prevVal = $this->Data[ $key ];
+
+    $this->Data[ $key ] = $value;
+    if ( $valueModification )
+    /* @var $Observer interfaces\NodeObserver */
+      foreach ( $this->Observer as $Observer )
+        $Observer->modified( $this, $key, $value, $prevVal );
+    else
+      foreach ( $this->Observer as $Observer )
+        $Observer->added( $this, $key, $value );
+    $this->ModifiedTime = time();
   }
 
   function __set( $key, $value )
   {
-    $this->assertHasData();
-    $prevVal = isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
-    $this->Data[ $key ] = $value;
-    /* @var $Observer interfaces\Observer */
-    foreach ( $this->Observer as $Observer )
-      $Observer->changed( $this, $key, $value, $prevVal );
+    $this->set( $key, $value );
   }
 
-  function traverse( interfaces\Visitor $Visitor, array &$VisitedNodes = [] )
+  public function remove( $key )
   {
-    if ( in_array( $this, $VisitedNodes ) )
-      return;
-
-    $VisitedNodes[] = $this;
-    $Visitor->handle( $this );
-    $this->assertHasData();
-    foreach ( $this->Data as $value )
+    if ( isset( $this->Data[ $key ] ) )
     {
-      if ( $value instanceof interfaces\Node )
-        $value->traverse( $Visitor, $VisitedNodes );
+      $value = $this->Data[ $key ];
+      unset( $this->Data[ $key ] );
+      /* @var $Observer interfaces\Observer */
+      foreach ( $this->Observer as $Observer )
+        $Observer->deleted( $this, $key, $value );
+      $this->ModifiedTime = time();
     }
-  }
-
-  function dropData()
-  {
-    $this->Data = null;
-  }
-
-  function addObserver( interfaces\Observer $Observer )
-  {
-    $this->Observer[] = $Observer;
-  }
-
-  function setLoader( interfaces\Loader $Loader )
-  {
-    $this->Loader = $Loader;
-  }
-
-  function __get( $key )
-  {
-    $this->assertHasData();
-    return isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
-  }
-
-  function keys()
-  {
-    $this->assertHasData();
-    return array_keys( $this->Data );
   }
 
   function add( $value )
   {
-    $this->assertHasData();
     $newIndex = count( $this->Data );
     while ( isset( $this->Data[ $newIndex ] ) )
       $newIndex++;
     $this->$newIndex = $value;
   }
 
-  function has( $value )
+  function addObserver( interfaces\NodeObserver $Observer )
   {
-    $this->assertHasData();
-    return in_array( $value, $this->Data );
+    $this->Observer[] = $Observer;
   }
 
-  function hasData()
+  function __get( $key )
   {
-    return $this->Data != null;
+    return $this->get( $key, true );
   }
 
-  function getData()
+  public function get( $key )
   {
-    $this->assertHasData();
-    return $this->Data;
-  }
-
-  protected function assertHasData()
-  {
-    if ( $this->Data != null )
-      return;
-    if ( $this->Loader )
-      $this->Data = $this->Loader->loadData( $this );
+    if ( isset( $this->Data[ $key ] ) )
+    {
+      $val = $this->Data[ $key ];
+      if ( $val instanceof interfaces\NodeRef )
+      {
+        $val = $val->getNode();
+        if ( $val == null )
+          $this->set( $key, null );
+      }
+      return $val;
+    }
     else
-      $this->Data = [];
+      return null;
+  }
+
+  function has( $key )
+  {
+    return isset( $this->Data[ $key ] );
+  }
+
+  function keys()
+  {
+    return array_keys( $this->Data );
+  }
+
+  public function getModifiedTime()
+  {
+    return $this->ModifiedTime;
+  }
+
+  function getUuid()
+  {
+    if ( !$this->Uuid )
+      $this->Uuid = \Ramsey\Uuid\Uuid::uuid4();
+    return $this->Uuid;
+  }
+
+  public function getData()
+  {
+    return $this->Data;
   }
 
   /**
    *
-   * @var interfaces\Loader
+   * @var array the actual data
    */
-  protected $Loader;
+  protected $Data;
+
+  /**
+   *
+   * @var string
+   */
+  protected $Uuid;
 
   /**
    *
    * @var array of Observer
    */
   protected $Observer = [];
-  protected $Data;
+
+  /**
+   *
+   * @var int date of last modifcation to the Data array
+   */
+  protected $ModifiedTime = 0;
 
 }

@@ -1,0 +1,36 @@
+<?php
+
+namespace qck\db;
+
+/**
+ *
+ * @author muellerm
+ */
+class NodeRef implements interfaces\NodeRef
+{
+
+  function __construct( $Uuid, interfaces\NodeDb $NodeDb )
+  {
+    $this->Uuid = $Uuid;
+    $this->NodeDb = $NodeDb;
+  }
+
+  function getUuid()
+  {
+    return $this->Uuid;
+  }
+
+  public function getNode()
+  {
+    return $this->NodeDb->getNode($this->Uuid);
+  }
+
+  protected $Uuid;
+
+  /**
+   *
+   * @var interfaces\NodeDb
+   */
+  protected $NodeDb;
+
+}

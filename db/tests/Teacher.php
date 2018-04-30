@@ -12,14 +12,18 @@ use \qck\db;
 class Teacher extends db\Node
 {
 
-  public function __construct( $Name )
+  public function __construct( db\interfaces\Backend $Backend, $Uuid = null, array $Data=[] )
   {
-    parent::__construct( [ "Name" => $Name, "Students" => new db\Node() ] );
+    parent::__construct($Backend, $Uuid, $Data);
+    if(!$Uuid)
+    {
+      $this->Students = new db\Node($Backend);
+    }
   }
 
   function addStudent( Student $NewStudent )
   {
-    if ( !$this->Students->has( $NewStudent ) )
+    if ( !$this->Students->contains( $NewStudent ) )
     {
       $this->Students->add( $NewStudent );
       $NewStudent->addTeacher( $this );

@@ -7,21 +7,24 @@ use \qck\db;
 /**
  * @property string $Name Description
  * @property db\Node $Teachers Description
- * @property db\Node $Students Description
  * @author muellerm
  */
 class Student extends db\Node
 {
 
-  public function __construct( $Name )
+  public function __construct( db\interfaces\Backend $Backend, $Uuid = null, array $Data=[] )
   {
-    parent::__construct( [ "Name" => $Name, "Teachers" => new db\Node( ) ] );
+    parent::__construct($Backend, $Uuid, $Data);
+    if(!$Uuid)
+    {
+      $this->Teachers = new db\Node($Backend);
+    }
   }
 
   function addTeacher( Teacher $NewTeacher )
   {
 
-    if ( !$this->Teachers->has( $NewTeacher ) )
+    if ( !$this->Teachers->contains( $NewTeacher ) )
     {
       $this->Teachers->add( $NewTeacher );
       $NewTeacher->addStudent( $this );

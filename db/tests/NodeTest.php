@@ -18,14 +18,20 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function createTests( \qck\core\interfaces\AppConfig $config )
   {
-    $MyUniversity = new University( "My University" );
+    /* @var $config \qck\ext\abstracts\AppConfig */
+    $Dir = $config->getFileService()->createUniqueFileName( $config->getDataDir() );
+    $config->getFileService()->createDir( $Dir );
+    $JsonSerializer = new \qck\db\JsonSerializer();
+    $FileDatabase = new \qck\db\FileDatabase( $Dir, $JsonSerializer );
 
-    $Sally = new Student( "Sally Miller" );
-    $John = new Student( "Jon Smith" );
-    $Michael = new Student( "Michael Jordan" );
+    $MyUniversity = new University( $FileDatabase, "My University" );
 
-    $ProfPipen = new Teacher( "Prof. Pipen" );
-    $ProfSteinberg = new Teacher( "Prof. Steinberg" );
+    $Sally = new Student( $FileDatabase, "Sally Miller" );
+    $John = new Student( $FileDatabase, "Jon Smith" );
+    $Michael = new Student( $FileDatabase, "Michael Jordan" );
+
+    $ProfPipen = new Teacher( $FileDatabase, "Prof. Pipen" );
+    $ProfSteinberg = new Teacher( $FileDatabase, "Prof. Steinberg" );
 
     $MyUniversity->Decane = $ProfPipen;
     $ProfPipen->addStudent( $Sally );
@@ -33,13 +39,9 @@ class NodeTest extends \qck\core\abstracts\Test
     $ProfPipen->addStudent( $Michael );
     $ProfSteinberg->addStudent( $Sally );
 
-    /* @var $config \qck\ext\abstracts\AppConfig */
-    $Dir = $config->getFileService()->createUniqueFileName( $config->getDataDir() );
-    $config->getFileService()->createDir( $Dir );
     try
     {
-      $Backend = new \qck\db\FileStorage( $Dir );
-      $Backend->save( $MyUniversity );
+      $FileDatabase->commit();
     }
     finally
     {

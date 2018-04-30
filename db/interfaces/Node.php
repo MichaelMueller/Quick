@@ -3,21 +3,49 @@
 namespace qck\db\interfaces;
 
 /**
- *
+ * basically an array of data and a UUID
  * @author muellerm
  */
 interface Node
 {
+  /// SETTER
+
+  /**
+   * add a value with a random key
+   * @param type $value
+   */
+  function add( $value );
 
   /**
    * @return void
    */
-  function __set( $key, $value );
+  function set( $key, $value );
+
+  /**
+   * @param string $key
+   */
+  function remove( $key );
+
+  /**
+   * @param \qck\db\interfaces\Observer $Observer
+   */
+  function addObserver( NodeObserver $Observer );
 
   /**
    * @return mixed (also null if not found)
    */
-  function __get( $key );
+  function get( $key );
+
+  /**
+   * @return array the data array of this node
+   */
+  function getData();
+  
+  /**
+   * @param string $key
+   * @return bool
+   */
+  function has( $key );
 
   /**
    * @return array of the current keys
@@ -25,35 +53,12 @@ interface Node
   function keys();
 
   /**
-   * @return void
+   * @return string a uuid. if none is set a new one is generated
    */
-  function add( $value );
+  function getUuid();
 
   /**
-   * @return bool
+   * @return int The timestamp of last modificaiton of the data
    */
-  function has( $value );
-
-  /**
-   * @return bool
-   */
-  function hasData();
-  
-  /**
-   * @return array
-   */
-  function getData();
-
-  
-  /**
-   * @return void
-   */
-  function dropData();
-  
-  /**
-   * traversing the graph using the visitor pattern
-   * @param \qck\db\interfaces\interfaces\Visitor $Visitor
-   * @param type $VisitedNodes
-   */
-  function traverse( Visitor $Visitor, array &$VisitedNodes = [] );
+  function getModifiedTime();
 }
