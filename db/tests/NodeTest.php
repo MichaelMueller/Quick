@@ -24,12 +24,12 @@ class NodeTest extends \qck\core\abstracts\Test
   {
     $JsonSerializer = new \qck\db\JsonSerializer();
     $FileDatabase = new \qck\db\FileNodeDb( $this->Dir, $JsonSerializer );
-    
-    $SqliteFile = $this->Dir.DIRECTORY_SEPARATOR."sqlite.db";
-    $SqliteDatabase = new \qck\db\SqliteDb($SqliteFile);
-    
-    $MultiDb = new \qck\db\MultiDatabase($SqliteDatabase);
-    $MultiDb->addNodeDb($FileDatabase);
+
+    $SqliteFile = $this->Dir . DIRECTORY_SEPARATOR . "sqlite.db";
+    $SqliteDatabase = new \qck\db\SqliteDb( $SqliteFile );
+
+    $MultiDb = new \qck\db\MultiDatabase( $SqliteDatabase );
+    $MultiDb->addNodeDb( $FileDatabase );
     return $MultiDb;
   }
 
@@ -96,8 +96,8 @@ class NodeTest extends \qck\core\abstracts\Test
       return $value instanceof \qck\db\interfaces\UuidProvider && $MichaelUuid == $value->getUuid();
     }
     );
-    
-    $this->assert($Michael->Name == $Michael2->Name, $Michael->Name ."is not equals ". $Michael2->Name);
+
+    $this->assert( $Michael->Name == $Michael2->Name, $Michael->Name . "is not equals " . $Michael2->Name );
   }
 
   function testConcurrentModify()
@@ -108,7 +108,7 @@ class NodeTest extends \qck\core\abstracts\Test
   function createTests( \qck\core\interfaces\AppConfig $config )
   {
     /* @var $config \qck\ext\abstracts\AppConfig */
-    $this->Dir = $this->getTempDir( "NodeTest", true, true );
+    $this->Dir = $this->getTempDir( "NodeTest_" . University::UUID, true, true );
     try
     {
       $this->testCreate();
