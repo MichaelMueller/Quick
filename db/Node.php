@@ -26,10 +26,10 @@ class Node implements interfaces\Node
     if ( $valueModification )
     /* @var $Observer interfaces\NodeObserver */
       foreach ( $this->Observer as $Observer )
-        $Observer->modified( $this, $key, $value, $prevVal );
+        $Observer->keyModified( $this, $key, $value, $prevVal );
     else
       foreach ( $this->Observer as $Observer )
-        $Observer->added( $this, $key, $value );
+        $Observer->keyAdded( $this, $key, $value );
     $this->ModifiedTime = time();
   }
 
@@ -38,17 +38,32 @@ class Node implements interfaces\Node
     $this->set( $key, $value );
   }
 
+  function removeWhere( callable $ValueComparator )
+  {
+    $keys = $this->findInternal( $ValueComparator );
+    foreach ( $keys as $key )
+      $this->remove( $key );
+  }
+
   public function remove( $key )
   {
     if ( isset( $this->Data[ $key ] ) )
     {
       $value = $this->Data[ $key ];
       unset( $this->Data[ $key ] );
-      /* @var $Observer interfaces\Observer */
+      /* @var $Observer interfaces\NodeObserver */
       foreach ( $this->Observer as $Observer )
-        $Observer->deleted( $this, $key, $value );
+        $Observer->keyDeleted( $this, $key, $value );
       $this->ModifiedTime = time();
     }
+  }
+
+  function addIfNotExists( $value )
+  {
+    if ( $this->contains( $value ) )
+      return false;
+    $this->add( $value );
+    return true;
   }
 
   function add( $value )
@@ -66,7 +81,7 @@ class Node implements interfaces\Node
 
   function __get( $key )
   {
-    return $this->get( $key, true );
+    return $this->get( $key );
   }
 
   public function get( $key )
@@ -104,13 +119,51 @@ class Node implements interfaces\Node
   function getUuid()
   {
     if ( !$this->Uuid )
-      $this->Uuid = \Ramsey\Uuid\Uuid::uuid4();
+      $this->Uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
     return $this->Uuid;
   }
 
   public function getData()
   {
     return $this->Data;
+  }
+
+  public function contains( $value )
+  {
+    return $this->findFirst( function($other) use($value)
+        {
+          return $value === $other;
+        }
+        ) !== null;
+  }
+
+  function find( callable $ValueComparator )
+  {
+    return $this->findInternal( $ValueComparator, false );
+  }
+
+  protected function findInternal( callable $ValueComparator, $returnKeys = false )
+  {
+    $results = [];
+    foreach ( $this->keys() as $key )
+    {
+      $value = $this->get( $key );
+      if ( $ValueComparator( $value ) )
+        $results[] = $returnKeys ? $key : $value;
+    }
+
+    return $results;
+  }
+
+  public function findFirst( callable $ValueComparator )
+  {
+    foreach ( $this->keys() as $key )
+    {
+      $value = $this->get( $key );
+      if ( $ValueComparator( $value ) )
+        return $value;
+    }
+    return null;
   }
 
   /**

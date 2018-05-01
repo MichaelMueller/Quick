@@ -9,7 +9,7 @@ namespace qck\db\abstracts;
 abstract class NodeDb implements \qck\db\interfaces\NodeDb
 {
 
-  public function add( interfaces\Node $Node )
+  public function add( \qck\db\interfaces\Node $Node )
   {
     $this->addRecursive( $Node );
   }
@@ -20,12 +20,9 @@ abstract class NodeDb implements \qck\db\interfaces\NodeDb
       return;
 
     $this->Nodes[ $Node->getUuid() ] = $Node;
-    foreach ( $Node->keys() as $key )
-    {
-      $val = $Node->get( $key, false );
-      if ( $val instanceof interfaces\Node )
-        $this->addRecursive( $val );
-    }
+    foreach ( $Node->getData() as $value )
+      if ( $value instanceof \qck\db\interfaces\Node )
+        $this->addRecursive( $value );
   }
 
   /**

@@ -14,7 +14,7 @@ interface NodeObserver
    * @param type $key
    * @param type $val
    */
-  function added( Node $Node, $key, $val );
+  function keyAdded( Node $Node, $key, $val );
   /**
    * called whenever a value is modified
    * @param \qck\db\interfaces\Node $Node
@@ -22,12 +22,12 @@ interface NodeObserver
    * @param type $newVal
    * @param type $prevVal
    */
-  function modified( Node $Node, $key, $newVal, $prevVal );
+  function keyModified( Node $Node, $key, $newVal, $prevVal );
   /**
    * called whenever a key is removed
    * @param \qck\db\interfaces\Node $Node
    * @param type $key
    * @param type $val
    */
-  function deleted( Node $Node, $key, $val );
+  function keyDeleted( Node $Node, $key, $val );
 }
