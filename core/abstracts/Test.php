@@ -8,26 +8,29 @@ namespace qck\core\abstracts;
 abstract class Test implements \qck\core\interfaces\Test
 {
 
-  protected function assert( $condition, $messageIfNot="" )
+  protected function assert( $condition, $messageIfNot = "" )
   {
-    if(!$condition)
-      throw new \Exception ("Assertion failed: ".$messageIfNot);
+    if ( !$condition )
+      throw new \Exception( "Assertion failed" . ( $messageIfNot ? ": " . $messageIfNot : "" ) );
   }
-  protected function warnIf( $condition, $messageIfTrue="" )
+
+  protected function warnIf( $condition, $messageIfTrue = "" )
   {
-    if($condition)
-      print ("Warning: ".$messageIfTrue . PHP_EOL);
+    if ( $condition )
+      print ("Warning: " . $messageIfTrue . PHP_EOL );
   }
-  protected function getTempDir( $folderName = null, $deleteIfExists = false, $create=false )
+
+  protected function getTempDir( $folderName = null, $deleteIfExists = false,
+                                 $create = false )
   {
     $TheFolder = $folderName ? $folderName : uniqid();
 
     $Dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $TheFolder;
     if ( $deleteIfExists && file_exists( $Dir ) )
       $this->rrmdir( $Dir );
-    
-    if($create)
-      mkdir($Dir);
+
+    if ( $create )
+      mkdir( $Dir );
     return $Dir;
   }
 

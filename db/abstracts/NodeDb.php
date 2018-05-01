@@ -26,7 +26,6 @@ abstract class NodeDb implements \qck\db\interfaces\NodeDb
   }
 
   /**
-   *
    * @var array 
    */
   protected $Nodes = [];

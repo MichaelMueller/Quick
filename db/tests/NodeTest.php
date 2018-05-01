@@ -24,7 +24,13 @@ class NodeTest extends \qck\core\abstracts\Test
   {
     $JsonSerializer = new \qck\db\JsonSerializer();
     $FileDatabase = new \qck\db\FileNodeDb( $this->Dir, $JsonSerializer );
-    return $FileDatabase;
+    
+    $SqliteFile = $this->Dir.DIRECTORY_SEPARATOR."sqlite.db";
+    $SqliteDatabase = new \qck\db\SqliteDb($SqliteFile);
+    
+    $MultiDb = new \qck\db\MultiDatabase($SqliteDatabase);
+    $MultiDb->addNodeDb($FileDatabase);
+    return $MultiDb;
   }
 
   const PROF_PIPEN_NAME = "Prof. Pipen";

@@ -166,6 +166,14 @@ class Node implements interfaces\Node
     return null;
   }
 
+  public function setData( array $Data )
+  {
+    foreach ( $Data as $key => $value )
+    {
+      $this->set( $key, $value );
+    }
+  }
+
   /**
    *
    * @var array the actual data
