@@ -40,7 +40,7 @@ class FileNodeDb extends abstracts\NodeDb
       if ( is_array( $value ) && $value[ 0 ] == self::UUID )
         $value = new NodeRef( $value[ 1 ], $this );
       else if ( is_array( $value ) && $value[ 0 ] == self::SERIALIZED_OBJECT )
-        $value = unserialize( $value );
+        $value = unserialize( $value[1] );
       $DataArray[ $key ] = $value;
     }
     return $DataArray;
@@ -81,7 +81,7 @@ class FileNodeDb extends abstracts\NodeDb
   protected function loadNode( $Uuid )
   {
     $File = $this->getFilePath( $Uuid );
-    if ( file_exists( $File ) )
+    if ( !file_exists( $File ) )
       return null;
 
     $DataFile = $this->getDataFilePath( $Uuid );

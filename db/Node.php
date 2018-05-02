@@ -40,7 +40,7 @@ class Node implements interfaces\Node
 
   function removeWhere( callable $ValueComparator )
   {
-    $keys = $this->findInternal( $ValueComparator );
+    $keys = $this->findInternal( $ValueComparator, true );
     foreach ( $keys as $key )
       $this->remove( $key );
   }
@@ -68,10 +68,8 @@ class Node implements interfaces\Node
 
   function add( $value )
   {
-    $newIndex = count( $this->Data );
-    while ( isset( $this->Data[ $newIndex ] ) )
-      $newIndex++;
-    $this->$newIndex = $value;
+    $newIndex = $value instanceof interfaces\UuidProvider ? $value->getUuid() : \Ramsey\Uuid\Uuid::uuid4()->toString();
+    $this->set( $newIndex, $value );
   }
 
   function addObserver( interfaces\NodeObserver $Observer )
