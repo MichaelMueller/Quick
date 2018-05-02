@@ -9,6 +9,7 @@ use \qck\db;
  * @property Teacher $Decane
  * @property db\Node $Teachers
  * @property db\Node $Students
+ * @property \DateTime $DateFounded
  * @author muellerm
  */
 class University extends db\Node
@@ -22,6 +23,7 @@ class University extends db\Node
     $University->Students = new db\Node();
     $University->Decane = $Decane;
     $University->Name = $Name;
+    $University->DateFounded = \DateTime::createFromFormat('j-M-Y', '15-Feb-2009');
     return $University;
   }
 

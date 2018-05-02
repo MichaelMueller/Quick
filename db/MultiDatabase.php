@@ -9,7 +9,7 @@ namespace qck\db;
 class MultiDatabase implements interfaces\NodeDb
 {
 
-  function __construct( $PrimaryNodeDb )
+  function __construct( interfaces\NodeDb $PrimaryNodeDb )
   {
     $this->NodeDbs[] = $PrimaryNodeDb;
   }
@@ -34,6 +34,13 @@ class MultiDatabase implements interfaces\NodeDb
   public function getNode( $Uuid )
   {
     return $this->NodeDbs[ 0 ]->getNode( $Uuid );
+  }
+
+  public function unloadNode( interfaces\Node $Node )
+  {
+    foreach ( $this->NodeDbs as $NodeDb )
+      $NodeDb->unloadNode($Node);
+    
   }
 
   protected $NodeDbs = [];
