@@ -22,7 +22,7 @@ class NodeRef implements interfaces\NodeRef
 
   public function getNode()
   {
-    return $this->NodeDb->getNode($this->Uuid);
+    return $this->NodeDb->get($this->Uuid);
   }
 
   protected $Uuid;

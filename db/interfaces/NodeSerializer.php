@@ -6,7 +6,7 @@ namespace qck\db\interfaces;
  *
  * @author muellerm
  */
-interface ArraySerializer
+interface NodeSerializer
 {
 
   /**
@@ -15,15 +15,16 @@ interface ArraySerializer
    * @param \qck\db\interfaces\Node $Node
    * @return string A string representation of the Node
    */
-  function toString( array $Data );
+  function toString( Node $Node );
 
   /**
    * create a array from a string
    * 
    * @param string $String
-   * @return array
+   * @param NodeDb $NodeDb for creating NodeRef objects a NodeDb instance is needed
+   * @return Node or null if unserialization did not work
    */
-  function fromString( $String );
+  function fromString( $String, NodeDb $NodeDb );
 
   /**
    * @return string the file extension

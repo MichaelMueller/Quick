@@ -6,110 +6,121 @@ namespace qck\db;
  *
  * @author muellerm
  */
-class FileNodeDb extends abstracts\NodeDb
+class FileNodeDb implements \qck\db\interfaces\NodeDb
 {
-  
-  const UUID = 0;
-  const SERIALIZED_OBJECT = 1;
-  
-  function __construct( $DataDir, \qck\db\interfaces\ArraySerializer $Serializer )
+
+  const KEY_ADDED = 0;
+  const KEY_MODIFIED = 1;
+  const KEY_DELETED = 2;
+
+  function __construct( $DataDir, \qck\db\interfaces\NodeSerializer $Serializer )
   {
     $this->DataDir = $DataDir;
     $this->Serializer = $Serializer;
   }
 
-  protected function prepareForSerialization( array $NodeData )
+  public function add( interfaces\Node $Node )
   {
-    $DataArray = [];
-    foreach ( $NodeData as $key => $value )
+    $this->addRecursively( $Node );
+  }
+
+  function sync()
+  {
+    // first merge exisitng nodes
+    $this->acquireLock();
+    foreach ( $this->Nodes as $Node )
     {
-      if ( $value instanceof interfaces\UuidProvider )
-        $DataArray[ $key ] = array ( self::UUID, $value->getUuid() );
-      else if ( is_array( $value ) || is_object( $value ) )
-        $DataArray[ $key ] = array ( self::SERIALIZED_OBJECT, serialize( $value ) );
-      else
-        $DataArray[ $key ] = $value;
+      $File = $this->getFilePath( $Node->getUuid() );
+      if ( file_exists( $File ) )
+      {
+        $PersistetNode = $this->load( $File );
+        $DataDiff = array_merge( $Node->getData(), $PersistetNode->getData() );
+        // remove null values
+        $MergedData = array_filter( $MergedData, function($value)
+        {
+          return $value !== null;
+        } );
+        $Node->setData( $MergedData );
+      }
+      $Data = $this->Serializer->toString( $Node );
+      file_put_contents( $File, $Data, LOCK_EX );
     }
-    return $DataArray;
+    $this->releaseLock();
   }
 
-  protected function recoverFromSerialization( array $DataArray )
+  public function get( $Uuid )
   {
-    foreach ( $DataArray as $key => $value )
-    {
-      if ( is_array( $value ) && $value[ 0 ] == self::UUID )
-        $value = new NodeRef( $value[ 1 ], $this );
-      else if ( is_array( $value ) && $value[ 0 ] == self::SERIALIZED_OBJECT )
-        $value = unserialize( $value[1] );
-      $DataArray[ $key ] = $value;
-    }
-    return $DataArray;
+    if ( isset( $this->Nodes[ $Uuid ] ) )
+      return $this->Nodes[ $Uuid ];
+
+    $File = $this->getFilePath( $Uuid );
+    if ( !file_exists( $File ) )
+      return null;
+
+    $Node = $this->load( $File );
+    if ( !$Node )
+      return null;
+
+    $this->Nodes[ $Uuid ] = $Node;
+    $this->add( $Node );
+    return $Node;
   }
 
-  protected function getDataArray( $File )
+  public function unload( interfaces\Node $Node )
   {
-    return $this->recoverFromSerialization( $this->getRawArray( $File ) );
+    if ( isset( $this->Nodes[ $Node->getUuid() ] ) )
+      unset( $this->Nodes[ $Node->getUuid() ] );
   }
 
-  protected function getRawArray( $File )
+  protected function acquireLock()
   {
-    return $this->Serializer->fromString( file_get_contents( $File ) );
+    if ( $this->Fp )
+      $this->releaseLock();
+    $LockFile = $this->getLockFile();
+    if ( !file_exists( $LockFile ) )
+      touch( $LockFile );
+    $this->Fp = fopen( $LockFile, "w" );
+    flock( $this->Fp, LOCK_EX );
+  }
+
+  protected function releaseLock()
+  {
+    if ( !$this->Fp )
+      return;
+    flock( $this->Fp, LOCK_UN );
+    fclose( $this->Fp );
+    $this->Fp = null;
+  }
+
+  protected function load( $File )
+  {
+    return $this->Serializer->fromString( file_get_contents( $File ), $this );
+  }
+
+  protected function addRecursively( interfaces\Node $Node, &$VisitedNodeUuids = [] )
+  {
+    $Uuid = $Node->getUuid();
+    if ( in_array( $Uuid, $VisitedNodeUuids ) )
+      return;
+    $VisitedNodeUuids[] = $Uuid;
+
+    // only add if not exists
+    if ( !isset( $this->Nodes[ $Uuid ] ) )
+      $this->Nodes[ $Uuid ] = $Node;
+
+    foreach ( $Node->getData() as $val )
+      if ( $val instanceof interfaces\Node )
+        $this->addRecursively( $val, $VisitedNodeUuids );
+  }
+
+  protected function getLockFile()
+  {
+    return $this->DataDir . DIRECTORY_SEPARATOR . "f8b123ae-4ef7-4d06-85fc-591a0b3d8f65";
   }
 
   protected function getFilePath( $Uuid )
   {
     return $this->DataDir . DIRECTORY_SEPARATOR . $Uuid . "." . $this->Serializer->getFileExtensionWithoutDot();
-  }
-
-  protected function getDataFilePath( $Uuid )
-  {
-    return $this->getFilePath( $Uuid . ".Data" );
-  }
-
-  protected function insertNode( interfaces\Node $Node )
-  {
-    $Uuid = $Node->getUuid();
-    $File = $this->getFilePath( $Uuid );
-    $DataFile = $this->getDataFilePath( $Uuid );
-    $MetaData = [ $Node->getUuid(), get_class( $Node ), $Node->getModifiedTime() ];
-    $DataArray = $this->prepareForSerialization( $Node->getData() );
-
-    file_put_contents( $File, $this->Serializer->toString( $MetaData ) );
-    file_put_contents( $DataFile, $this->Serializer->toString( $DataArray ) );
-  }
-
-  protected function loadNode( $Uuid )
-  {
-    $File = $this->getFilePath( $Uuid );
-    if ( !file_exists( $File ) )
-      return null;
-
-    $DataFile = $this->getDataFilePath( $Uuid );
-    $MetaData = $this->getRawArray( $File );
-    $Fqcn = $MetaData[ 1 ];
-    $Data = $this->getDataArray( $DataFile );
-    return new $Fqcn( $Data, $Uuid );
-  }
-
-  protected function updateNode( ChangeLog $ChangeLog )
-  {
-    $Node = $ChangeLog->getNode();
-    $Uuid = $Node->getUuid();
-    $DataFile = $this->getDataFilePath( $Uuid );
-
-    $DataArray = $Node->getData();
-    $DataOnDisk = $this->getDataArray( $DataFile );
-    for ( $i = $ChangeLog->getNextIndex(); $i < $ChangeLog->getSize(); $i++ )
-    {
-      $key = $ChangeLog->getKey( $i );
-      if ( $ChangeLog->isAddedEvent( $i ) || $ChangeLog->isModifiedEvent( $i ) )
-        $DataOnDisk[ $key ] = $DataArray[ $key ];
-      else if ( $ChangeLog->isDeletedEvent( $i ) )
-        unset( $DataOnDisk[ $key ] );
-    }
-
-    $DataArray = $this->prepareForSerialization( $DataOnDisk );
-    file_put_contents( $DataFile, $this->Serializer->toString( $DataArray ) );
   }
 
   /**
@@ -120,14 +131,20 @@ class FileNodeDb extends abstracts\NodeDb
 
   /**
    *
-   * @var array
+   * @var interfaces\NodeSerializer
    */
-  protected $ChangeLogs = [];
+  protected $Serializer;
 
   /**
    *
-   * @var interfaces\ArraySerializer
+   * @var array
    */
-  protected $Serializer;
+  protected $Nodes;
+
+  /**
+   *
+   * @var resource 
+   */
+  protected $Fp;
 
 }

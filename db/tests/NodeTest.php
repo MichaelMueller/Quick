@@ -27,24 +27,13 @@ class NodeTest extends \qck\core\abstracts\Test
     return $FileDatabase;
   }
 
-  function getSqliteDatabase()
-  {
-
-    $SqliteFile = $this->Dir . DIRECTORY_SEPARATOR . "sqlite.db";
-    $SqliteDatabase = new \qck\db\SqliteDb( $SqliteFile );
-    return $SqliteDatabase;
-  }
-
   /**
    * 
    * @return \qck\db\interfaces\NodeDb
    */
   function getDb()
   {
-
-    $MultiDb = new \qck\db\MultiDatabase( $this->getSqliteDatabase() );
-    $MultiDb->addNodeDb( $this->getFileDatabase() );
-    return $MultiDb;
+    return $this->getFileDatabase();
   }
 
   const PROF_PIPEN_NAME = "Prof. Pipen";
@@ -73,14 +62,14 @@ class NodeTest extends \qck\core\abstracts\Test
 
     $Db = $this->getDb();
     $Db->add( $MyUniversity );
-    $Db->commit();
+    $Db->sync();
   }
 
   function testRead()
   {
     $Db = $this->getDb();
     /* @var $University University */
-    $University = $Db->getNode( University::UUID );
+    $University = $Db->get( University::UUID );
     $this->assert( $University->Decane->Name == self::PROF_PIPEN_NAME );
     $Michael = $University->Students->findFirst( function($value)
     {
@@ -93,7 +82,7 @@ class NodeTest extends \qck\core\abstracts\Test
   {
     $Db = $this->getDb();
     /* @var $University University */
-    $University = $Db->getNode( University::UUID );
+    $University = $Db->get( University::UUID );
     $Michael = $University->Students->findFirst( function($value) use($MichaelUuid)
     {
       return $value instanceof \qck\db\interfaces\UuidProvider && $MichaelUuid == $value->getUuid();
@@ -101,10 +90,10 @@ class NodeTest extends \qck\core\abstracts\Test
     );
     /* @var $Michael Student */
     $Michael->Name = "Michael Air Jordan";
-    $Db->commit();
+    $Db->sync();
 
     $NewDatabase = $this->getDb();
-    $University2 = $NewDatabase->getNode( University::UUID );
+    $University2 = $NewDatabase->get( University::UUID );
     $Michael2 = $University2->Students->findFirst( function($value) use($MichaelUuid)
     {
       return $value instanceof \qck\db\interfaces\UuidProvider && $MichaelUuid == $value->getUuid();
@@ -118,11 +107,11 @@ class NodeTest extends \qck\core\abstracts\Test
   {
     /* @var $Uni1 University */
     $Db1 = $this->getFileDatabase();
-    $Uni1 = $Db1->getNode( University::UUID );
+    $Uni1 = $Db1->get( University::UUID );
 
     /* @var $Uni2 University */
     $Db2 = $this->getFileDatabase();
-    $Uni2 = $Db2->getNode( University::UUID );
+    $Uni2 = $Db2->get( University::UUID );
 
     $Uni1->Students->removeWhere( function($val)
     {
@@ -131,13 +120,13 @@ class NodeTest extends \qck\core\abstracts\Test
 
     $NewStud = Student::create( "Sally The Real Miller" );
     $Uni2->Students->add( $NewStud );
-    $Db2->add($NewStud);
+    $Db2->add( $NewStud );
 
-    $Db1->commit();
-    $Db2->commit();
+    $Db1->sync();
+    $Db2->sync();
 
     $Db3 = $this->getFileDatabase();
-    $Uni3 = $Db3->getNode( University::UUID );
+    $Uni3 = $Db3->get( University::UUID );
     $SallyMiller = $Uni3->Students->findFirst( function($val)
     {
       return $val instanceof Student && $val->Name == "Sally The Real Miller";
@@ -147,7 +136,7 @@ class NodeTest extends \qck\core\abstracts\Test
     {
       return $val instanceof Student && ($val->Name == "Michael Air Jordan");
     } );
-    $this->assert($Michael == null);
+    $this->assert( $Michael == null );
   }
 
   function createTests( \qck\core\interfaces\AppConfig $config )

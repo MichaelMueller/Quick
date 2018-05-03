@@ -17,19 +17,7 @@ class Node implements interfaces\Node
 
   public function set( $key, $value )
   {
-    $valueModification = isset( $this->Data[ $key ] );
-    $prevVal = null;
-    if ( $valueModification )
-      $prevVal = $this->Data[ $key ];
-
     $this->Data[ $key ] = $value;
-    if ( $valueModification )
-    /* @var $Observer interfaces\NodeObserver */
-      foreach ( $this->Observer as $Observer )
-        $Observer->keyModified( $this, $key, $value, $prevVal );
-    else
-      foreach ( $this->Observer as $Observer )
-        $Observer->keyAdded( $this, $key, $value );
     $this->ModifiedTime = time();
   }
 
@@ -47,15 +35,8 @@ class Node implements interfaces\Node
 
   public function remove( $key )
   {
-    if ( isset( $this->Data[ $key ] ) )
-    {
-      $value = $this->Data[ $key ];
-      unset( $this->Data[ $key ] );
-      /* @var $Observer interfaces\NodeObserver */
-      foreach ( $this->Observer as $Observer )
-        $Observer->keyDeleted( $this, $key, $value );
-      $this->ModifiedTime = time();
-    }
+    if ( $this->has( $key ) )
+      $this->set( $key, null );
   }
 
   function addIfNotExists( $value )
@@ -140,19 +121,6 @@ class Node implements interfaces\Node
     return $this->findInternal( $ValueComparator, false );
   }
 
-  protected function findInternal( callable $ValueComparator, $returnKeys = false )
-  {
-    $results = [];
-    foreach ( $this->keys() as $key )
-    {
-      $value = $this->get( $key );
-      if ( $ValueComparator( $value ) )
-        $results[] = $returnKeys ? $key : $value;
-    }
-
-    return $results;
-  }
-
   public function findFirst( callable $ValueComparator )
   {
     foreach ( $this->keys() as $key )
@@ -166,10 +134,20 @@ class Node implements interfaces\Node
 
   public function setData( array $Data )
   {
-    foreach ( $Data as $key => $value )
+    $this->Data = $Data;
+  }
+
+  protected function findInternal( callable $ValueComparator, $returnKeys = false )
+  {
+    $results = [];
+    foreach ( $this->keys() as $key )
     {
-      $this->set( $key, $value );
+      $value = $this->get( $key );
+      if ( $ValueComparator( $value ) )
+        $results[] = $returnKeys ? $key : $value;
     }
+
+    return $results;
   }
 
   /**
