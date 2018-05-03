@@ -20,16 +20,61 @@ interface Node extends UuidProvider
   function addObserver( NodeObserver $Observer );
 
   /**
-   * Sets Data on this Node. The Node should notify observers when updating internal Data using this array.
-   * Caution: Array could have NodeRef objects. Use NodeRef::getNode() when requested to lazy load these references.
-   * @param array $Data
+   * add a value with random key. notify observer
+   * @param mixed $value
    */
-  function setData( array $Data );
+  function add( $value );
 
   /**
-   * @return array the Data array (key/value pairs) of this node
+   * set a value with specific key. notify observer
+   * @param string $key
+   * @param mixed $value
    */
-  function getData();
+  function set( $key, $value );
+
+  /**
+   * remove matching elements. notify observer
+   * @param \qck\db\interfaces\Matcher $Matcher
+   */
+  function remove( Matcher $Matcher, $resolveRefs=true );
+  
+  /**
+   * will set all values from $OtherNode on this
+   * @param \qck\db\interfaces\Node $OtherNode
+   */
+  function merge( Node $OtherNode );  
+
+  /**
+   * get a value or null, if its of type NodeRef the ref will be resolved if $resolveRef is true
+   * @param string $key
+   * @param bool $resolveRef
+   * @return mixed
+   */
+  function get( $key, $resolveRef = true );
+
+  /**
+   * @param string $key
+   * @return bool true if key exists, false otherwise
+   */
+  function has( $key );
+
+  /**
+   * @param string $key
+   * @return array
+   */
+  function keys();
+
+  /**
+   * @param \qck\db\interfaces\Matcher $Matcher
+   * @return array an array of matching keys (!!!)
+   */
+  function find( Matcher $Matcher, $resolveRefs=true );
+  
+  /**
+   * @param \qck\db\interfaces\Matcher $Matcher
+   * @return mixed an array of matching keys (!!!)
+   */
+  function findFirst( Matcher $Matcher, $resolveRefs=true );
 
   /**
    * @return int The timestamp of last modificaton of the internal data

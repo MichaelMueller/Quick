@@ -9,10 +9,6 @@ namespace qck\db;
 class FileNodeDb implements \qck\db\interfaces\NodeDb
 {
 
-  const KEY_ADDED = 0;
-  const KEY_MODIFIED = 1;
-  const KEY_DELETED = 2;
-
   function __construct( $DataDir, \qck\db\interfaces\NodeSerializer $Serializer )
   {
     $this->DataDir = $DataDir;
@@ -28,20 +24,24 @@ class FileNodeDb implements \qck\db\interfaces\NodeDb
   {
     // first merge exisitng nodes
     $this->acquireLock();
+    /* @var $Node interfaces\Node */
     foreach ( $this->Nodes as $Node )
     {
-      $File = $this->getFilePath( $Node->getUuid() );
-      if ( file_exists( $File ) )
+      $Uuid = $Node->getUuid();
+      $File = $this->getFilePath( $Uuid );
+      /* @var $ChangeLog ChangeLog */
+      $ChangeLog = isset( $this->ChangeLogs[ $Uuid ] ) ? $this->ChangeLogs[ $Uuid ] : null;
+
+      if ( $ChangeLog )
       {
         $PersistetNode = $this->load( $File );
-        $DataDiff = array_merge( $Node->getData(), $PersistetNode->getData() );
-        // remove null values
-        $MergedData = array_filter( $MergedData, function($value)
-        {
-          return $value !== null;
-        } );
-        $Node->setData( $MergedData );
+        $ChangeLog->applyTo( $PersistetNode );
+        $Node->merge( $PersistetNode );
+        $ChangeLog->clear();
       }
+      else
+        $this->ChangeLogs[ $Uuid ] = new ChangeLog( $Node );
+
       $Data = $this->Serializer->toString( $Node );
       file_put_contents( $File, $Data, LOCK_EX );
     }
@@ -61,15 +61,18 @@ class FileNodeDb implements \qck\db\interfaces\NodeDb
     if ( !$Node )
       return null;
 
-    $this->Nodes[ $Uuid ] = $Node;
     $this->add( $Node );
+    $this->ChangeLogs[ $Uuid ] = new ChangeLog( $Node );
     return $Node;
   }
 
   public function unload( interfaces\Node $Node )
   {
-    if ( isset( $this->Nodes[ $Node->getUuid() ] ) )
-      unset( $this->Nodes[ $Node->getUuid() ] );
+    $Uuid = $Node->getUuid();
+    if ( isset( $this->Nodes[ $Uuid ] ) )
+      unset( $this->Nodes[ $Uuid ] );
+    if ( isset( $this->ChangeLogs[ $Uuid ] ) )
+      unset( $this->ChangeLogs[ $Uuid ] );
   }
 
   protected function acquireLock()
@@ -108,9 +111,9 @@ class FileNodeDb implements \qck\db\interfaces\NodeDb
     if ( !isset( $this->Nodes[ $Uuid ] ) )
       $this->Nodes[ $Uuid ] = $Node;
 
-    foreach ( $Node->getData() as $val )
-      if ( $val instanceof interfaces\Node )
-        $this->addRecursively( $val, $VisitedNodeUuids );
+    foreach ( $Node->keys() as $key )
+      if ( $Node->get( $key, false ) instanceof interfaces\Node )
+        $this->addRecursively( $Node->get( $key, false ), $VisitedNodeUuids );
   }
 
   protected function getLockFile()
@@ -139,7 +142,13 @@ class FileNodeDb implements \qck\db\interfaces\NodeDb
    *
    * @var array
    */
-  protected $Nodes;
+  protected $Nodes = [];
+
+  /**
+   *
+   * @var array
+   */
+  protected $ChangeLogs = [];
 
   /**
    *

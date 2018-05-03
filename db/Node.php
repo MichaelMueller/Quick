@@ -6,51 +6,12 @@ namespace qck\db;
  *
  * @author muellerm
  */
-class Node implements interfaces\Node
+class Node implements interfaces\Node, interfaces\Matcher
 {
 
-  function __construct( array $Data = [], $Uuid = null )
+  function __construct( $Uuid = null )
   {
-    $this->Data = $Data;
     $this->Uuid = $Uuid;
-  }
-
-  public function set( $key, $value )
-  {
-    $this->Data[ $key ] = $value;
-    $this->ModifiedTime = time();
-  }
-
-  function __set( $key, $value )
-  {
-    $this->set( $key, $value );
-  }
-
-  function removeWhere( callable $ValueComparator )
-  {
-    $keys = $this->findInternal( $ValueComparator, true );
-    foreach ( $keys as $key )
-      $this->remove( $key );
-  }
-
-  public function remove( $key )
-  {
-    if ( $this->has( $key ) )
-      $this->set( $key, null );
-  }
-
-  function addIfNotExists( $value )
-  {
-    if ( $this->contains( $value ) )
-      return false;
-    $this->add( $value );
-    return true;
-  }
-
-  function add( $value )
-  {
-    $newIndex = $value instanceof interfaces\UuidProvider ? $value->getUuid() : \Ramsey\Uuid\Uuid::uuid4()->toString();
-    $this->set( $newIndex, $value );
   }
 
   function addObserver( interfaces\NodeObserver $Observer )
@@ -58,26 +19,69 @@ class Node implements interfaces\Node
     $this->Observer[] = $Observer;
   }
 
-  function __get( $key )
+  function add( $value )
   {
-    return $this->get( $key );
+    $newIndex = count( $this->Data );
+    while ( $this->has( $newIndex ) )
+      ++$newIndex;
+    $this->set( $newIndex, $value );
   }
 
-  public function get( $key )
+  public function set( $key, $value )
+  {
+    $prevVal = null;
+    $modification = $this->has( $key );
+    if ( $modification )
+      $prevVal = $this->get( $key, false );
+    $this->Data[ $key ] = $value;
+    $this->ModifiedTime = time();
+    if ( $modification )
+      foreach ( $this->Observer as $Observer )
+        $Observer->propertyModified( $this, $key, $prevVal );
+    else
+      foreach ( $this->Observer as $Observer )
+        $Observer->propertyAdded( $this, $key );
+  }
+
+  function __set( $key, $value )
+  {
+    $this->set( $key, $value );
+  }
+
+  public function remove( interfaces\Matcher $Matcher, $resolveRefs = true )
+  {
+    foreach ( $this->find( $Matcher, $resolveRefs ) as $key )
+    {
+      unset( $this->Data[ $key ] );
+      $this->ModifiedTime = time();
+    }
+
+    foreach ( $this->Observer as $Observer )
+      $Observer->removeInvoked( $this, $Matcher );
+  }
+
+  public function merge( interfaces\Node $OtherNode )
+  {
+    foreach ( $OtherNode->keys() as $key )
+      $this->set( $key, $OtherNode->get( $key, false ) );
+  }
+
+  public function get( $key, $resolveRef = true )
   {
     if ( isset( $this->Data[ $key ] ) )
     {
       $val = $this->Data[ $key ];
-      if ( $val instanceof interfaces\NodeRef )
-      {
+      if ( $val instanceof interfaces\NodeRef && $resolveRef )
         $val = $val->getNode();
-        if ( $val == null )
-          $this->set( $key, null );
-      }
       return $val;
     }
     else
       return null;
+  }
+
+  function __get( $key )
+  {
+    return $this->get( $key );
   }
 
   function has( $key )
@@ -88,6 +92,24 @@ class Node implements interfaces\Node
   function keys()
   {
     return array_keys( $this->Data );
+  }
+
+  function find( interfaces\Matcher $Matcher, $resolveRefs = true )
+  {
+    $Matchings = [];
+    foreach ( $this->keys() as $key )
+      if ( $Matcher->matches( $this->get( $key, $resolveRefs ) ) )
+        $Matchings[] = $key;
+    return $Matchings;
+  }
+
+  function findFirst( interfaces\Matcher $Matcher, $resolveRefs = true )
+  {
+    $Matchings = [];
+    foreach ( $this->keys() as $key )
+      if ( $Matcher->matches( $this->get( $key, $resolveRefs ) ) )
+        return $this->get( $key, $resolveRefs );
+    return null;
   }
 
   public function getModifiedTime()
@@ -102,59 +124,16 @@ class Node implements interfaces\Node
     return $this->Uuid;
   }
 
-  public function getData()
+  public function matches( $value )
   {
-    return $this->Data;
-  }
-
-  public function contains( $value )
-  {
-    return $this->findFirst( function($other) use($value)
-        {
-          return $value === $other;
-        }
-        ) !== null;
-  }
-
-  function find( callable $ValueComparator )
-  {
-    return $this->findInternal( $ValueComparator, false );
-  }
-
-  public function findFirst( callable $ValueComparator )
-  {
-    foreach ( $this->keys() as $key )
-    {
-      $value = $this->get( $key );
-      if ( $ValueComparator( $value ) )
-        return $value;
-    }
-    return null;
-  }
-
-  public function setData( array $Data )
-  {
-    $this->Data = $Data;
-  }
-
-  protected function findInternal( callable $ValueComparator, $returnKeys = false )
-  {
-    $results = [];
-    foreach ( $this->keys() as $key )
-    {
-      $value = $this->get( $key );
-      if ( $ValueComparator( $value ) )
-        $results[] = $returnKeys ? $key : $value;
-    }
-
-    return $results;
+    return $value instanceof interfaces\UuidProvider && $value->getUuid() == $this->getUuid();
   }
 
   /**
    *
    * @var array the actual data
    */
-  protected $Data;
+  protected $Data = [];
 
   /**
    *

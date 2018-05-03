@@ -36,16 +36,13 @@ class NodeTest extends \qck\core\abstracts\Test
     return $this->getFileDatabase();
   }
 
-  const PROF_PIPEN_NAME = "Prof. Pipen";
-  const STUD_JORDAN_NAME = "Michael Jordan";
-
   function testCreate()
   {
     $Sally = Student::create( "Sally Miller" );
     $John = Student::create( "Jon Smith" );
-    $Michael = Student::create( self::STUD_JORDAN_NAME );
+    $Michael = Student::create( "Michael Jordan" );
 
-    $ProfPipen = Teacher::create( self::PROF_PIPEN_NAME );
+    $ProfPipen = Teacher::create( "Prof. Pipen" );
     $ProfPipen->addStudent( $Sally );
     $ProfPipen->addStudent( $John );
     $ProfPipen->addStudent( $Michael );
@@ -65,17 +62,23 @@ class NodeTest extends \qck\core\abstracts\Test
     $Db->sync();
   }
 
+  function createStudentMatcher( $name )
+  {
+    return \qck\db\Matcher::create( function($value) use($name)
+        {
+          return $value instanceof Student && $value->Name == $name;
+        } );
+  }
+
   function testRead()
   {
     $Db = $this->getDb();
     /* @var $University University */
     $University = $Db->get( University::UUID );
-    $this->assert( $University->Decane->Name == self::PROF_PIPEN_NAME );
-    $Michael = $University->Students->findFirst( function($value)
-    {
-      return $value instanceof Student && $value->Name == self::STUD_JORDAN_NAME;
-    } );
-    return $Michael->getUuid();
+    $this->assert( $University->Decane->Name == "Prof. Pipen" );
+
+    $Michael = $University->Students->findFirst( $this->createStudentMatcher( "Michael Jordan" ) );
+    $this->assert( $Michael );
   }
 
   function testModify( $MichaelUuid )
@@ -83,22 +86,15 @@ class NodeTest extends \qck\core\abstracts\Test
     $Db = $this->getDb();
     /* @var $University University */
     $University = $Db->get( University::UUID );
-    $Michael = $University->Students->findFirst( function($value) use($MichaelUuid)
-    {
-      return $value instanceof \qck\db\interfaces\UuidProvider && $MichaelUuid == $value->getUuid();
-    }
-    );
+    $Michael = $University->Students->findFirst( $this->createStudentMatcher( "Michael Jordan" ) );
+    $this->assert( $Michael );
     /* @var $Michael Student */
     $Michael->Name = "Michael Air Jordan";
     $Db->sync();
 
     $NewDatabase = $this->getDb();
     $University2 = $NewDatabase->get( University::UUID );
-    $Michael2 = $University2->Students->findFirst( function($value) use($MichaelUuid)
-    {
-      return $value instanceof \qck\db\interfaces\UuidProvider && $MichaelUuid == $value->getUuid();
-    }
-    );
+    $Michael2 = $University2->Students->findFirst( $this->createStudentMatcher( "Michael Air Jordan" ) );
 
     $this->assert( $Michael->Name == $Michael2->Name, $Michael->Name . "is not equals " . $Michael2->Name );
   }
@@ -113,10 +109,10 @@ class NodeTest extends \qck\core\abstracts\Test
     $Db2 = $this->getFileDatabase();
     $Uni2 = $Db2->get( University::UUID );
 
-    $Uni1->Students->removeWhere( function($val)
-    {
-      return $val instanceof Student && ($val->Name == "Sally Miller" || $val->Name == "Michael Air Jordan");
-    } );
+    $Uni1->Students->remove( \qck\db\Matcher::create( function($val)
+        {
+          return $val instanceof Student && ($val->Name == "Sally Miller" || $val->Name == "Michael Air Jordan");
+        } ) );
 
     $NewStud = Student::create( "Sally The Real Miller" );
     $Uni2->Students->add( $NewStud );
@@ -127,16 +123,11 @@ class NodeTest extends \qck\core\abstracts\Test
 
     $Db3 = $this->getFileDatabase();
     $Uni3 = $Db3->get( University::UUID );
-    $SallyMiller = $Uni3->Students->findFirst( function($val)
-    {
-      return $val instanceof Student && $val->Name == "Sally The Real Miller";
-    } );
-    $this->assert( $SallyMiller->Name == "Sally The Real Miller" );
-    $Michael = $Uni3->Students->findFirst( function($val)
-    {
-      return $val instanceof Student && ($val->Name == "Michael Air Jordan");
-    } );
-    $this->assert( $Michael == null );
+    $SallyMiller = $Uni3->Students->findFirst( $this->createStudentMatcher( "Sally The Real Miller" ) );
+    $this->assert( $SallyMiller );
+
+    $Michael = $Uni3->Students->findFirst( $this->createStudentMatcher( "Michael Air Jordan" ) );
+    $this->assert( $Michael === null );
   }
 
   function createTests( \qck\core\interfaces\AppConfig $config )

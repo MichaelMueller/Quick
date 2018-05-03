@@ -20,14 +20,17 @@ class Student extends db\Node
     return $Student;
   }
 
-  public function __construct( array $Data = [], $Uuid = null )
+  public function __construct( $Uuid = null )
   {
-    parent::__construct( $Data, $Uuid );
+    parent::__construct( $Uuid );
   }
 
   function addTeacher( Teacher $NewTeacher )
   {
-    if ( $this->Teachers->addIfNotExists( $NewTeacher ) )
+    if ( $this->Teachers->findFirst( $NewTeacher ) === null )
+    {
+      $this->Teachers->add( $NewTeacher );
       $NewTeacher->addStudent( $this );
+    }
   }
 }
