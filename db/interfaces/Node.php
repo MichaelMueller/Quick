@@ -31,6 +31,12 @@ interface Node extends UuidProvider
    * @param mixed $value
    */
   function set( $key, $value );
+  
+  /**
+   * will call set() in a foreach loop
+   * @param array $Data
+   */
+  function setData( array $Data );
 
   /**
    * remove matching elements. notify observer

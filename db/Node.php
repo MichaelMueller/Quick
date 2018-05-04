@@ -48,6 +48,12 @@ class Node implements interfaces\Node, interfaces\Matcher
     $this->set( $key, $value );
   }
 
+  public function setData( array $Data )
+  {
+    foreach ( $Data as $key => $value )
+      $this->set( $key, $value );
+  }
+
   public function remove( interfaces\Matcher $Matcher, $resolveRefs = true )
   {
     foreach ( $this->find( $Matcher, $resolveRefs ) as $key )
