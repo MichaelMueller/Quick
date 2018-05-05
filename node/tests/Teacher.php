@@ -1,8 +1,8 @@
 <?php
 
-namespace qck\db\tests;
+namespace qck\node\tests;
 
-use \qck\db;
+use \qck\node;
 
 /**
  * @property string $Name Description

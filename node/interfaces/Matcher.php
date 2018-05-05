@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\node\interfaces;
 
 /**
  * @author muellerm

@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\node\interfaces;
 
 /**
  *
@@ -11,7 +11,7 @@ interface NodeDb
 
   /**
    * Register this Node (and children recursively)
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    */
   function add( Node $Node );
 
@@ -21,7 +21,7 @@ interface NodeDb
    * Will then acquire a global lock
    * Will then update InMemory Nodes that have changed on the persistent side
    * Will then apply changes to persistent Nodes
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    */
   function sync();
 

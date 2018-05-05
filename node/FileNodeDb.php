@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\db;
+namespace qck\node;
 
 /**
  *
  * @author muellerm
  */
-class FileNodeDb implements \qck\db\interfaces\NodeDb
+class FileNodeDb implements \qck\node\interfaces\NodeDb
 {
 
-  function __construct( $DataDir, \qck\db\interfaces\NodeSerializer $Serializer )
+  function __construct( $DataDir, \qck\node\interfaces\NodeSerializer $Serializer )
   {
     $this->DataDir = $DataDir;
     $this->Serializer = $Serializer;

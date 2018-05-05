@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\node\interfaces;
 
 /**
  *
@@ -10,14 +10,14 @@ interface NodeObserver
 {
   /**
    * called whenever a value is added
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    * @param type $key
    * @param type $val
    */
   function propertyAdded( Node $Node, $key );
   /**
    * called whenever a value is modified
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    * @param type $key
    * @param type $newVal
    * @param type $prevVal
@@ -25,7 +25,7 @@ interface NodeObserver
   function propertyModified( Node $Node, $key, $prevVal );
   /**
    * called whenever a key is removed
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    * @param type $key
    * @param type $val
    */

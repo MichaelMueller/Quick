@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\node\interfaces;
 
 /**
  * A Node is a special Object that is persistable within a Graph structure.
@@ -15,7 +15,7 @@ interface Node extends UuidProvider
 
   /**
    * Will add an Observer to this Node. @see NodeObserver
-   * @param \qck\db\interfaces\NodeObserver $Observer
+   * @param \qck\node\interfaces\NodeObserver $Observer
    */
   function addObserver( NodeObserver $Observer );
 
@@ -40,13 +40,13 @@ interface Node extends UuidProvider
 
   /**
    * remove matching elements. notify observer
-   * @param \qck\db\interfaces\Matcher $Matcher
+   * @param \qck\node\interfaces\Matcher $Matcher
    */
   function remove( Matcher $Matcher, $resolveRefs=true );
   
   /**
    * will set all values from $OtherNode on this
-   * @param \qck\db\interfaces\Node $OtherNode
+   * @param \qck\node\interfaces\Node $OtherNode
    */
   function merge( Node $OtherNode );  
 
@@ -71,13 +71,13 @@ interface Node extends UuidProvider
   function keys();
 
   /**
-   * @param \qck\db\interfaces\Matcher $Matcher
+   * @param \qck\node\interfaces\Matcher $Matcher
    * @return array an array of matching keys (!!!)
    */
   function find( Matcher $Matcher, $resolveRefs=true );
   
   /**
-   * @param \qck\db\interfaces\Matcher $Matcher
+   * @param \qck\node\interfaces\Matcher $Matcher
    * @return mixed an array of matching keys (!!!)
    */
   function findFirst( Matcher $Matcher, $resolveRefs=true );

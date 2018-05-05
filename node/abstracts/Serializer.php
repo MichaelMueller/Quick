@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\abstracts;
+namespace qck\node\abstracts;
 
 /**
  * abstract implementation of a NodeDb. Extending classes will mostly deal
@@ -8,7 +8,7 @@ namespace qck\db\abstracts;
  * 
  * @author muellerm
  */
-abstract class Serializer implements \qck\db\interfaces\NodeSerializer
+abstract class Serializer implements \qck\node\interfaces\NodeSerializer
 {
 
   const KEY_UUID = 0;
@@ -22,7 +22,7 @@ abstract class Serializer implements \qck\db\interfaces\NodeSerializer
 
   abstract protected function serializeArray( $Array );
 
-  public function fromString( $String, \qck\db\interfaces\NodeDb $NodeDb )
+  public function fromString( $String, \qck\node\interfaces\NodeDb $NodeDb )
   {
     $SerializedArray = $this->unserializeToArray( $String );
 
@@ -38,7 +38,7 @@ abstract class Serializer implements \qck\db\interfaces\NodeSerializer
       if ( is_array( $value ) )
       {
         if ( $value[ 0 ] == self::TYPE_UUID )
-          $value = new \qck\db\NodeRef( $value[ 1 ], $NodeDb );
+          $value = new \qck\node\NodeRef( $value[ 1 ], $NodeDb );
         else if ( $value[ 0 ] == self::TYPE_SERIALIZED_OBJECT )
           $value = unserialize( $value[ 1 ] );
       }
@@ -47,13 +47,13 @@ abstract class Serializer implements \qck\db\interfaces\NodeSerializer
     return $Node;
   }
 
-  public function toString( \qck\db\interfaces\Node $Node )
+  public function toString( \qck\node\interfaces\Node $Node )
   {
     $Data = [];
     foreach ( $Node->keys() as $key )
     {
       $value = $Node->get( $key, FALSE );
-      if ( $value instanceof \qck\db\interfaces\UuidProvider )
+      if ( $value instanceof \qck\node\interfaces\UuidProvider )
         $value = [ self::TYPE_UUID, $value->getUuid() ];
       else if ( is_object( $value ) || is_array( $value ) )
         $value = [ self::TYPE_SERIALIZED_OBJECT, serialize( $value ) ];

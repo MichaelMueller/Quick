@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\node\interfaces;
 
 /**
  *
@@ -12,7 +12,7 @@ interface NodeSerializer
   /**
    * convert a array to a string. All referenced Nodes will be replaced to NodeRefs before serialization
    * 
-   * @param \qck\db\interfaces\Node $Node
+   * @param \qck\node\interfaces\Node $Node
    * @return string A string representation of the Node
    */
   function toString( Node $Node );

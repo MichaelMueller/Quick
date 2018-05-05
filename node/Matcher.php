@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db;
+namespace qck\node;
 
 /**
  *
