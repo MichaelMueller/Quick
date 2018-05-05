@@ -7,12 +7,12 @@ use \qck\node;
 /**
  * @property string $Name Description
  * @property Teacher $Decane
- * @property db\Node $Teachers
- * @property db\Node $Students
+ * @property node\Node $Teachers
+ * @property node\Node $Students
  * @property \DateTime $DateFounded
  * @author muellerm
  */
-class University extends db\Node
+class University extends node\Node
 {
 
   const UUID = "2e6a4315-7c94-4086-9c33-c477adac32e7";
@@ -20,8 +20,8 @@ class University extends db\Node
   static function create( $Name, Teacher $Decane )
   {
     $University = new University(self::UUID );
-    $University->Teachers = new db\Node();
-    $University->Students = new db\Node();
+    $University->Teachers = new node\Node();
+    $University->Students = new node\Node();
     $University->Decane = $Decane;
     $University->Name = $Name;
     $University->DateFounded = \DateTime::createFromFormat( 'j-M-Y', '15-Feb-2009' );

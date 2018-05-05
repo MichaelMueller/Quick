@@ -1,7 +1,8 @@
 <?php
 
-namespace qck\exp\tests;
-use qck\exp\Expression as ex;
+namespace qck\db\tests;
+
+use qck\db\Expressions as ex;
 
 /**
  *
@@ -17,6 +18,7 @@ class ExpTest extends \qck\core\abstracts\Test
     $TrueRegistrationData[ "Pw" ] = "12345";
     $TrueRegistrationData[ "PwConfirm" ] = "12345";
     $TrueRegistrationData[ "Age" ] = 18;
+    $TrueRegistrationData[ "Submit" ] = "OK";
 
     // validation expression: strlen(Name) > 4 && strlen(Pw) > 3 && Pw == PwConfirm && Age >= 18
     $NameValidator = ex::gt( ex::strlen( ex::id( "Name" ) ), ex::val( 4 ) );
@@ -25,6 +27,8 @@ class ExpTest extends \qck\core\abstracts\Test
     $AgeValidator = ex::ge( ex::id( "Age" ), ex::val( 18 ) );
     $Complete = ex::and_( [ $NameValidator, $PwEqualsValidator, $PwValidator, $AgeValidator ] );
     $this->assert( $Complete->evaluate( $TrueRegistrationData ) );
+    $Filtered = $Complete->filterVar( $TrueRegistrationData );
+    $this->assert( count( $Filtered ) == 4 && isset( $Filtered[ "Submit" ] ) == false );
   }
 
   public function getRequiredTests()

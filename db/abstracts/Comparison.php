@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\exp;
+namespace qck\db\abstracts;
 
 /**
  *
@@ -9,8 +9,7 @@ namespace qck\exp;
 abstract class Comparison extends BooleanExpression
 {
 
-  function __construct( AtomicExpression $LeftOperand,
-                        AtomicExpression $RightOperand )
+  function __construct( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
     $this->LeftOperand = $LeftOperand;
     $this->RightOperand = $RightOperand;
@@ -26,16 +25,15 @@ abstract class Comparison extends BooleanExpression
     return $this->RightOperand;
   }
 
-
   /**
    *
-   * @var AtomicExpression 
+   * @var ValueExpression
    */
   protected $LeftOperand;
 
   /**
    *
-   * @var AtomicExpression 
+   * @var ValueExpression 
    */
   protected $RightOperand;
 

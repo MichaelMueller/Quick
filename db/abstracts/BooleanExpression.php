@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\exp;
+namespace qck\db\abstracts;
 
 /**
  *

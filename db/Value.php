@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\exp;
+namespace qck\db;
 
 /**
  *
  * @author muellerm
  */
-class Value extends AtomicExpression
+class Value extends abstracts\ValueExpression
 {
 
   function __construct( $Value )
@@ -19,14 +19,14 @@ class Value extends AtomicExpression
     return $this->Value;
   }
 
-  public function evaluate( array $Data )
+  public function evaluate( array $Data, &$FilteredArray = [], &$FailedExpressions = [] )
   {
     return $this->Value;
   }
 
   /**
    *
-   * @var AtomicExpression
+   * @var abstracts\ValueExpression
    */
   protected $Value;
 

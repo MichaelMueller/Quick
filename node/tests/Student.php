@@ -6,16 +6,16 @@ use \qck\node;
 
 /**
  * @property string $Name Description
- * @property db\Node $Teachers Description
+ * @property node\Node $Teachers Description
  * @author muellerm
  */
-class Student extends db\Node
+class Student extends node\Node
 {
 
   static function create( $Name )
   {
     $Student = new Student();
-    $Student->Teachers = new db\Node();
+    $Student->Teachers = new node\Node();
     $Student->Name = $Name;
     return $Student;
   }

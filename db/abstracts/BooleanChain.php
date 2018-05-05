@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\exp;
+namespace qck\db\abstracts;
 
 /**
  *
@@ -15,7 +15,7 @@ abstract class BooleanChain extends BooleanExpression
       $this->add( $Expression );
   }
 
-  function add( Expression $Expression )
+  function add( \qck\db\interfaces\Expression $Expression )
   {
     $this->Expressions[] = $Expression;
   }

@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\exp;
+namespace qck\db\abstracts;
 
 /**
  *
  * @author muellerm
  */
-abstract class SingleParamFunction extends AtomicExpression
+abstract class SingleParamFunction extends ValueExpression
 {
 
-  function __construct( AtomicExpression $Param )
+  function __construct( ValueExpression $Param )
   {
     $this->Param = $Param;
   }
@@ -21,7 +21,7 @@ abstract class SingleParamFunction extends AtomicExpression
 
   /**
    *
-   * @var AtomicExpression
+   * @var ValueExpression
    */
   protected $Param;
 
