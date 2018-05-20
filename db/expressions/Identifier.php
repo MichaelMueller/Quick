@@ -1,17 +1,18 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Identifier extends abstracts\ValueExpression
+class Identifier extends ValueExpression
 {
 
-  function __construct( $Name )
+  function __construct( $Name, $UseForFilteredArray = true )
   {
     $this->Name = $Name;
+    $this->UseForFilteredArray = $UseForFilteredArray;
   }
 
   function getName()
@@ -26,14 +27,17 @@ class Identifier extends abstracts\ValueExpression
       $FailedExpressions[] = $this;
       return null;
     }
+    if($this->UseForFilteredArray)
     $FilteredArray[ $this->Name ] = $Data[ $this->Name ];
     return $Data[ $this->Name ];
   }
 
   /**
    *
-   * @var abstracts\ValueExpression
+   * @var ValueExpression
    */
   protected $Name;
+  
+  protected $UseForFilteredArray;
 
 }

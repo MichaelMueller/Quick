@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Or_ extends abstracts\BooleanChain
+class Or_ extends BooleanChain
 {
 
   function __construct( array $Expressions = [] )

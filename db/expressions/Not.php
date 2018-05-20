@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Not extends abstracts\BooleanExpression
+class Not extends BooleanExpression
 {
 
-  function __construct( abstracts\BooleanExpression $BooleanExpression )
+  function __construct( BooleanExpression $BooleanExpression )
   {
     $this->BooleanExpression = $BooleanExpression;
   }
@@ -21,7 +21,7 @@ class Not extends abstracts\BooleanExpression
 
   /**
    *
-   * @var abstracts\BooleanExpression 
+   * @var BooleanExpression 
    */
   protected $BooleanExpression;
 

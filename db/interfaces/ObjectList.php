@@ -1,18 +1,13 @@
 <?php
+
 namespace qck\db\interfaces;
 
 /**
  *
  * @author muellerm
  */
-interface ObjectList
+interface ObjectList extends Object
 {
 
-  function add( Object $Object );
-
-  function remove( Object $Object );
-
-  function size();
-
-  function at( $index );
+  function addObjectListObserver( ObjectListObserver $ListObserver );
 }

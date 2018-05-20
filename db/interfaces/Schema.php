@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\db\interfaces;
 
 /**
@@ -7,5 +8,12 @@ namespace qck\db\interfaces;
  */
 interface Schema
 {
-  //put your code here
+
+  /**
+   * @param string ObjectSchemaId
+   * @return ObjectSchema
+   */
+  function getTableDefinition( $TableName );
+  
+  function getDiff(Schema $PreviousSchema);
 }

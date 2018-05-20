@@ -8,7 +8,7 @@ namespace qck\db\interfaces;
 interface ObjectListObserver
 {
 
-  function onObjectAdded( ObjectList $List, Object $Object );
+  function onObjectAdded( ObjectList $ObjectList, Object $Object );
 
-  function onObjectRemoved( ObjectList $List, Object $Object );
+  function onObjectRemoved( ObjectList $ObjectList, Object $Object );
 }

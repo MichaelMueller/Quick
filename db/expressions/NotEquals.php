@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class NotEquals extends abstracts\Comparison
+class NotEquals extends Comparison
 {
 
-  function __construct( abstracts\ValueExpression $LeftOperand, abstracts\ValueExpression $RightOperand )
+  function __construct( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
     parent::__construct( $LeftOperand, $RightOperand );
   }

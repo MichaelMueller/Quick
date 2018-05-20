@@ -16,4 +16,6 @@ interface Database
   function delete( $Fqcn, Expression $Expression );
 
   function select( $Fqcn, Expression $Expression, $offset = null, $limit = null );
+
+  function selectById( $Fqcn, $IdValue );
 }

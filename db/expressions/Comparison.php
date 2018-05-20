@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\db\abstracts;
+namespace qck\db\expressions;
 
 /**
  *

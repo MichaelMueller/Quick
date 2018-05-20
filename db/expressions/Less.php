@@ -1,16 +1,16 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Less extends abstracts\Comparison
+class Less extends Comparison
 {
 
-  function __construct( abstracts\ValueExpression $LeftOperand,
-                        abstracts\ValueExpression $RightOperand )
+  function __construct( ValueExpression $LeftOperand,
+                        ValueExpression $RightOperand )
   {
     parent::__construct( $LeftOperand, $RightOperand );
   }

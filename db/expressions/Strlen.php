@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Strlen extends abstracts\SingleParamFunction
+class Strlen extends SingleParamFunction
 {
 
-  function __construct( abstracts\ValueExpression $Param )
+  function __construct( ValueExpression $Param )
   {
     parent::__construct( $Param );
   }

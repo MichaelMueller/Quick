@@ -2,13 +2,13 @@
 
 namespace qck\db\tests;
 
-use qck\db\Expressions as ex;
+use qck\db\expressions\Expression as ex;
 
 /**
  *
  * @author muellerm
  */
-class ExpTest extends \qck\core\abstracts\Test
+class ExpressionTest extends \qck\core\abstracts\Test
 {
 
   public function run( \qck\core\interfaces\AppConfig $config )
@@ -23,12 +23,12 @@ class ExpTest extends \qck\core\abstracts\Test
     // validation expression: strlen(Name) > 4 && strlen(Pw) > 3 && Pw == PwConfirm && Age >= 18
     $NameValidator = ex::gt( ex::strlen( ex::id( "Name" ) ), ex::val( 4 ) );
     $PwValidator = ex::gt( ex::strlen( ex::id( "Pw" ) ), ex::val( 3 ) );
-    $PwEqualsValidator = ex::eq( ex::id( "Pw" ), ex::id( "PwConfirm" ) );
+    $PwEqualsValidator = ex::eq( ex::id( "Pw" ), ex::id( "PwConfirm", false ) );
     $AgeValidator = ex::ge( ex::id( "Age" ), ex::val( 18 ) );
     $Complete = ex::and_( [ $NameValidator, $PwEqualsValidator, $PwValidator, $AgeValidator ] );
     $this->assert( $Complete->evaluate( $TrueRegistrationData ) );
     $Filtered = $Complete->filterVar( $TrueRegistrationData );
-    $this->assert( count( $Filtered ) == 4 && isset( $Filtered[ "Submit" ] ) == false );
+    $this->assert( count( $Filtered ) == 3 && isset( $Filtered[ "Submit" ] ) == false );
   }
 
   public function getRequiredTests()

@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\db;
+namespace qck\db\expressions;
 
 /**
  *
  * @author muellerm
  */
-class Value extends abstracts\ValueExpression
+class Value extends ValueExpression
 {
 
   function __construct( $Value )
@@ -26,7 +26,7 @@ class Value extends abstracts\ValueExpression
 
   /**
    *
-   * @var abstracts\ValueExpression
+   * @var ValueExpression
    */
   protected $Value;
 
