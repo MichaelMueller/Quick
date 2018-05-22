@@ -1,23 +1,20 @@
 <?php
 
-namespace qck\db\interfaces;
+namespace qck\db\Sql;
 
 /**
  *
  * @author muellerm
  */
-interface SqlSelect
+interface Select
 {
-
-  const ASC = 0;
-  const DESC = 1;
 
   function getTableName();
   function getExpression();
   function getOffset();
   function getLimit();
   function getOrderByColName();
-  function getOrder();
+  function isDescendingOrder();
   function shouldReturnFirst();
   
 }

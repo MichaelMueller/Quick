@@ -6,32 +6,35 @@ namespace qck\db;
  *
  * @author muellerm
  */
-class ObjectSchema
+class MetaObject implements SchemaElement
 {
 
-  function addProperty( $Id, Property $Property )
+  function __construct( $Id, $Fqcn )
   {
-    $this->ObjectSchemas[ $Id ] = $Property;
+    $this->Id = $Id;
+    $this->Fqcn = $Fqcn;
+    $this->addProperty( new IdProperty() );
   }
 
-  function getPropertyIds()
+  function getId()
   {
-    return array_keys( $this->Properties );
+    return $this->Id;
   }
 
-  /**
-   * 
-   * @param type $Id
-   * @return Property
-   */
-  function getProperty( $Id )
+  function addProperty( Property $Property )
   {
-    return isset( $this->Properties[ $Id ] ) ? $this->Properties[ $Id ] : null;
+    $Property->setMetaObject( $this );
+    $this->Properties[ $Property->getId() ] = $Property;
   }
 
-  function getSqlTableName()
+  function getProperties()
   {
-    return str_replace( "\\", ".", $this->Fqcn );
+    return $this->Properties;
+  }
+
+  function getName()
+  {
+    return str_replace( "\\", "_", $this->Fqcn );
   }
 
   function getFqcn()
@@ -39,7 +42,18 @@ class ObjectSchema
     return $this->Fqcn;
   }
 
+  function hasChanged( SchemaElement $Other )
+  {
+    return get_class( $this ) != get_class( $Other );
+  }
+
+  public function getSqlMapper()
+  {
+    return new MetaObjectSqlMapper( $this );
+  }
+
+  protected $Id;
   protected $Fqcn;
-  protected $Properties;
+  protected $Properties = [];
 
 }
