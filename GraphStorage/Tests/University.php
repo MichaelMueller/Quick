@@ -9,27 +9,27 @@ use \qck\GraphStorage;
  * @property Teacher $Decane
  * @property GraphStorage\Node $Teachers
  * @property GraphStorage\Node $Students
- * @property \DateTime $DateFounded
+ * @property string $DateFounded
  * @author muellerm
  */
-class University extends GraphStorage\Node
+class University extends GraphStorage\Root
 {
 
-  const UUID = "University";
+  const UUID = "2e6a4315-7c94-4086-9c33-c477adac32e7";
 
-  static function create( $Name, Teacher $Decane )
+  static function create( $DataDir, $Name, Teacher $Decane )
   {
-    $University = new University(self::UUID );
+    $University = new University( $DataDir );
     $University->Teachers = new GraphStorage\Node();
     $University->Students = new GraphStorage\Node();
     $University->Decane = $Decane;
     $University->Name = $Name;
-    $University->DateFounded = \DateTime::createFromFormat( 'j-M-Y', '15-Feb-2009' );
+    $University->DateFounded = '15-Feb-2009';
     return $University;
   }
 
-  public function __construct( $Uuid = null )
+  public function __construct( $DataDir )
   {
-    parent::__construct( $Uuid );
+    parent::__construct( self::UUID, $DataDir );
   }
 }

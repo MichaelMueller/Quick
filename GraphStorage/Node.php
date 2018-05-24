@@ -11,7 +11,7 @@ class Node
 
   function __construct( $Uuid = null )
   {
-    parent::__construct( $Uuid );
+    $this->Uuid = null;
   }
 
   function add( $value )
@@ -24,7 +24,7 @@ class Node
 
   public function set( $key, $value )
   {
-    $Valid = is_scalar( $value ) || $value instanceof Node || $value instanceof NodeRef;
+    $Valid = is_scalar( $value ) || $value instanceof Node || $value instanceof Uuid;
     if ( !$Valid )
       throw new \InvalidArgumentException( "Nodes can only contain scalar values or other Node or NodeRef Objects" );
     $this->Data[ $key ] = $value;
@@ -128,20 +128,26 @@ class Node
 
   /**
    *
+   * @var string
+   */
+  protected $Uuid;
+
+  /**
+   *
    * @var array the actual data
    */
-  protected $Data = [];
+  protected $Data;
 
   /**
    *
    * @var Loader
    */
-  protected $Loader = 0;
+  protected $Loader = null;
 
   /**
    *
    * @var int date of last modifcation to the Data array
    */
-  protected $ModifiedTime = 0;
+  protected $ModifiedTime;
 
 }

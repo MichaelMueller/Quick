@@ -16,26 +16,6 @@ class NodeTest extends \qck\core\abstracts\Test
     $this->createTests( $config );
   }
 
-  /**
-   * 
-   * @return \qck\GraphStorage\interfaces\NodeDb
-   */
-  function getFileDatabase()
-  {
-    $JsonSerializer = new \qck\GraphStorage\JsonSerializer();
-    $FileDatabase = new \qck\GraphStorage\FileNodeDb( $this->Dir, $JsonSerializer );
-    return $FileDatabase;
-  }
-
-  /**
-   * 
-   * @return \qck\GraphStorage\interfaces\NodeDb
-   */
-  function getDb()
-  {
-    return $this->getFileDatabase();
-  }
-
   function testCreate()
   {
     $Sally = Student::create( "Sally Miller" );
@@ -64,10 +44,10 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function createStudentMatcher( $name )
   {
-    return \qck\GraphStorage\Matcher::create( function($value) use($name)
-        {
-          return $value instanceof Student && $value->Name == $name;
-        } );
+    return function($value) use($name)
+    {
+      return $value instanceof Student && $value->Name == $name;
+    };
   }
 
   function testRead()
@@ -109,10 +89,10 @@ class NodeTest extends \qck\core\abstracts\Test
     $Db2 = $this->getFileDatabase();
     $Uni2 = $Db2->get( University::UUID );
 
-    $Uni1->Students->remove( \qck\GraphStorage\Matcher::create( function($val)
-        {
-          return $val instanceof Student && ($val->Name == "Sally Miller" || $val->Name == "Michael Air Jordan");
-        } ) );
+    $Uni1->Students->remove( function($val)
+    {
+      return $val instanceof Student && ($val->Name == "Sally Miller" || $val->Name == "Michael Air Jordan");
+    } );
 
     $NewStud = Student::create( "Sally The Real Miller" );
     $Uni2->Students->add( $NewStud );
@@ -128,24 +108,6 @@ class NodeTest extends \qck\core\abstracts\Test
 
     $Michael = $Uni3->Students->findFirst( $this->createStudentMatcher( "Michael Air Jordan" ) );
     $this->assert( $Michael === null );
-  }
-
-  function createTests( \qck\core\interfaces\AppConfig $config )
-  {
-    /* @var $config \qck\ext\abstracts\AppConfig */
-    $this->Dir = $this->getTempDir( "NodeTest_" . University::UUID, true, true );
-    try
-    {
-      $this->testCreate();
-      $MichaelUuid = $this->testRead();
-      $this->testModify( $MichaelUuid );
-      $this->testConcurrentModify();
-    }
-    finally
-    {
-      #$config->getFileService()->delete( $this->Dir );
-      #$this->rrmdir($this->Dir);
-    }
   }
 
   public function getRequiredTests()
