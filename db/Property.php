@@ -6,30 +6,17 @@ namespace qck\db;
  *
  * @author muellerm
  */
-abstract class Property implements SchemaElement
+abstract class Property
 {
 
-  abstract function toSqlDatatype( Sql\DatabaseDictionary $Dict );
+  /**
+   * @return Sql\Column
+   */
+  abstract function toSqlColumn( Sql\DatabaseDictionary $Dict );
 
-  function __construct( $Id, $Name )
+  function __construct( $Name )
   {
-    $this->Id = $Id;
     $this->Name = $Name;
-  }
-
-  function getMetaObject()
-  {
-    return $this->MetaObject;
-  }
-
-  function setMetaObject( MetaObject $MetaObject )
-  {
-    $this->MetaObject = $MetaObject;
-  }
-
-  function getId()
-  {
-    return $this->Id;
   }
 
   function getName()
@@ -37,23 +24,6 @@ abstract class Property implements SchemaElement
     return $this->Name;
   }
 
-  function getSqlMapper()
-  {
-    return new PropertySqlMapper( $this );
-  }
-
-  public function hasChanged( SchemaElement $Other )
-  {
-    return get_class( $this ) != get_class( $Other );
-  }
-
-  protected $Id;
-
-  /**
-   *
-   * @var MetaObject 
-   */
-  protected $MetaObject;
   protected $Name;
 
 }

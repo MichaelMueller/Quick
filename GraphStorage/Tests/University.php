@@ -1,27 +1,27 @@
 <?php
 
-namespace qck\node\tests;
+namespace qck\GraphStorage\Tests;
 
-use \qck\node;
+use \qck\GraphStorage;
 
 /**
  * @property string $Name Description
  * @property Teacher $Decane
- * @property node\Node $Teachers
- * @property node\Node $Students
+ * @property GraphStorage\Node $Teachers
+ * @property GraphStorage\Node $Students
  * @property \DateTime $DateFounded
  * @author muellerm
  */
-class University extends node\Node
+class University extends GraphStorage\Node
 {
 
-  const UUID = "2e6a4315-7c94-4086-9c33-c477adac32e7";
+  const UUID = "University";
 
   static function create( $Name, Teacher $Decane )
   {
     $University = new University(self::UUID );
-    $University->Teachers = new node\Node();
-    $University->Students = new node\Node();
+    $University->Teachers = new GraphStorage\Node();
+    $University->Students = new GraphStorage\Node();
     $University->Decane = $Decane;
     $University->Name = $Name;
     $University->DateFounded = \DateTime::createFromFormat( 'j-M-Y', '15-Feb-2009' );

@@ -9,6 +9,11 @@ namespace qck\db\Sql;
 interface Database extends TransactionalDatabase
 {
 
+  /**
+   * @return DatabaseSchemaInterface
+   */
+  function getDatabaseSchemaInterface();
+
   // DML
   function insert( $TableName, array $ColumnNames, array $Values );
 

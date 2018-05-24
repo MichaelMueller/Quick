@@ -1,21 +1,21 @@
 <?php
 
-namespace qck\node\tests;
+namespace qck\GraphStorage\Tests;
 
-use \qck\node;
+use \qck\GraphStorage;
 
 /**
  * @property string $Name Description
- * @property node\Node $Students Description
+ * @property GraphStorage\Node $Students Description
  * @author muellerm
  */
-class Teacher extends node\Node
+class Teacher extends GraphStorage\Node
 {
 
   static function create( $Name )
   {
     $Teacher = new Teacher();
-    $Teacher->Students = new node\Node();
+    $Teacher->Students = new GraphStorage\Node();
     $Teacher->Name = $Name;
     return $Teacher;
   }

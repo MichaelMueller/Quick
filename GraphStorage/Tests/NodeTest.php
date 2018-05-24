@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\node\tests;
+namespace qck\GraphStorage\Tests;
 
 /**
  *
@@ -18,18 +18,18 @@ class NodeTest extends \qck\core\abstracts\Test
 
   /**
    * 
-   * @return \qck\node\interfaces\NodeDb
+   * @return \qck\GraphStorage\interfaces\NodeDb
    */
   function getFileDatabase()
   {
-    $JsonSerializer = new \qck\node\JsonSerializer();
-    $FileDatabase = new \qck\node\FileNodeDb( $this->Dir, $JsonSerializer );
+    $JsonSerializer = new \qck\GraphStorage\JsonSerializer();
+    $FileDatabase = new \qck\GraphStorage\FileNodeDb( $this->Dir, $JsonSerializer );
     return $FileDatabase;
   }
 
   /**
    * 
-   * @return \qck\node\interfaces\NodeDb
+   * @return \qck\GraphStorage\interfaces\NodeDb
    */
   function getDb()
   {
@@ -64,7 +64,7 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function createStudentMatcher( $name )
   {
-    return \qck\node\Matcher::create( function($value) use($name)
+    return \qck\GraphStorage\Matcher::create( function($value) use($name)
         {
           return $value instanceof Student && $value->Name == $name;
         } );
@@ -109,7 +109,7 @@ class NodeTest extends \qck\core\abstracts\Test
     $Db2 = $this->getFileDatabase();
     $Uni2 = $Db2->get( University::UUID );
 
-    $Uni1->Students->remove( \qck\node\Matcher::create( function($val)
+    $Uni1->Students->remove( \qck\GraphStorage\Matcher::create( function($val)
         {
           return $val instanceof Student && ($val->Name == "Sally Miller" || $val->Name == "Michael Air Jordan");
         } ) );

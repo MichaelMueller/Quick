@@ -24,6 +24,11 @@ class Table
     return $this->Columns;
   }
 
+  function setUniqueColumns( $UniqueColumns )
+  {
+    $this->UniqueColumns = $UniqueColumns;
+  }
+
   function getUniqueColumns()
   {
     return $this->UniqueColumns;
