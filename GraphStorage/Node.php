@@ -6,12 +6,12 @@ namespace qck\GraphStorage;
  *
  * @author muellerm
  */
-class Node
+class Node implements PersistableNode
 {
 
   function __construct( $Uuid = null )
   {
-    $this->Uuid = null;
+    $this->Uuid = $Uuid;
   }
 
   function add( $value )
@@ -24,20 +24,17 @@ class Node
 
   public function set( $key, $value )
   {
-    $Valid = is_scalar( $value ) || $value instanceof Node || $value instanceof Uuid;
-    if ( !$Valid )
-      throw new \InvalidArgumentException( "Nodes can only contain scalar values or other Node or NodeRef Objects" );
     $this->Data[ $key ] = $value;
     $this->ModifiedTime = time();
   }
 
   public function remove( callable $Matcher )
   {
-    foreach ( $this->find( $Matcher ) as $key )
-    {
+    $deletedKeys = $this->findKeys( $Matcher );
+    foreach ( $deletedKeys as $key )
       unset( $this->Data[ $key ] );
+    if ( count( $deletedKeys ) > 0 )
       $this->ModifiedTime = time();
-    }
   }
 
   function __set( $key, $value )
@@ -55,10 +52,9 @@ class Node
   {
     if ( isset( $this->Data[ $key ] ) )
     {
-      $val = $this->Data[ $key ];
-      if ( $val instanceof Uuid )
-        $val = $this->Loader->load( $val->getUuid() );
-      return $val;
+      if ( $this->Data[ $key ] instanceof UnloadedNode )
+        $this->Data[ $key ] = $this->Data[ $key ]->load();
+      return $this->Data[ $key ];
     }
     else
       return null;
@@ -74,44 +70,44 @@ class Node
     return isset( $this->Data[ $key ] );
   }
 
-  function getRawData()
-  {
-    return $this->Data();
-  }
-
   function keys()
   {
     return array_keys( $this->Data );
   }
 
-  function find( callable $Matcher )
+  function contains( $Value )
   {
-    return $this->findInternal( $Matcher, false );
+    return $this->findValue(
+            function($OtherValue) use ($Value)
+        {
+          return $OtherValue === $Value;
+        } );
   }
 
-  function findFirst( callable $Matcher )
+  function findKeys( callable $Matcher )
   {
-    return $this->findInternal( $Matcher );
+    return $this->findKeysInternal( $Matcher, false );
   }
 
-  protected function findInternal( callable $Matcher, $findFirst = false )
+  function findValue( callable $Matcher )
+  {
+    $Keys = $this->findKeys( $Matcher, true );
+    return count( $Keys ) > 0 ? $this->get( $Keys[ 0 ] ) : null;
+  }
+
+  protected function findKeysInternal( callable $Matcher, $findFirst = false )
   {
     $Matchings = [];
     foreach ( $this->keys() as $key )
     {
       if ( call_user_func( $Matcher, $this->get( $key ) ) === true )
       {
-        if ( $findFirst )
-          return $key;
         $Matchings[] = $key;
+        if ( $findFirst )
+          break;
       }
     }
-    return $findFirst ? null : $Matchings;
-  }
-
-  public function getModifiedTime()
-  {
-    return $this->ModifiedTime;
+    return $Matchings;
   }
 
   function getUuid()
@@ -121,9 +117,19 @@ class Node
     return $this->Uuid;
   }
 
-  function setLoader( Loader $Loader )
+  public function getData()
   {
-    $this->Loader = $Loader;
+    return $this->Data;
+  }
+
+  public function getModifiedTime()
+  {
+    return $this->ModifiedTime;
+  }
+
+  public function setModifiedTime( $ModifiedTime )
+  {
+    $this->ModifiedTime = $ModifiedTime;
   }
 
   /**
@@ -136,18 +142,12 @@ class Node
    *
    * @var array the actual data
    */
-  protected $Data;
+  protected $Data = [];
 
   /**
    *
-   * @var Loader
+   * @var int
    */
-  protected $Loader = null;
-
-  /**
-   *
-   * @var int date of last modifcation to the Data array
-   */
-  protected $ModifiedTime;
+  protected $ModifiedTime = -1;
 
 }

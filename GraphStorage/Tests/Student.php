@@ -9,7 +9,7 @@ use \qck\GraphStorage;
  * @property GraphStorage\Node $Teachers Description
  * @author muellerm
  */
-class Student extends Node
+class Student extends GraphStorage\Node
 {
 
   static function create( $Name )
@@ -27,7 +27,7 @@ class Student extends Node
 
   function addTeacher( Teacher $NewTeacher )
   {
-    if ( $this->Teachers->findFirst( $NewTeacher ) === null )
+    if ( !$this->Teachers->contains( $NewTeacher ) )
     {
       $this->Teachers->add( $NewTeacher );
       $NewTeacher->addStudent( $this );

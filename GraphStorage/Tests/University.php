@@ -12,14 +12,14 @@ use \qck\GraphStorage;
  * @property string $DateFounded
  * @author muellerm
  */
-class University extends GraphStorage\Root
+class University extends GraphStorage\Node
 {
 
   const UUID = "2e6a4315-7c94-4086-9c33-c477adac32e7";
 
-  static function create( $DataDir, $Name )
+  static function create( $Name )
   {
-    $University = new University( $DataDir );
+    $University = new University();
     $University->Teachers = new GraphStorage\Node();
     $University->Students = new GraphStorage\Node();
     $University->Name = $Name;
@@ -27,8 +27,8 @@ class University extends GraphStorage\Root
     return $University;
   }
 
-  public function __construct( $DataDir )
+  public function __construct()
   {
-    parent::__construct( self::UUID, $DataDir );
+    parent::__construct( self::UUID );
   }
 }

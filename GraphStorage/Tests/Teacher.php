@@ -27,7 +27,7 @@ class Teacher extends GraphStorage\Node
 
   function addStudent( Student $NewStudent )
   {
-    if ( $this->Students->findFirst( $NewStudent ) === null )
+    if ( !$this->Students->contains($NewStudent) )
     {
       $this->Students->add( $NewStudent );
       $NewStudent->addTeacher( $this );

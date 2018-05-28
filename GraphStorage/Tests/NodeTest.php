@@ -11,21 +11,23 @@ class NodeTest extends \qck\core\abstracts\Test
 
   public function run( \qck\core\interfaces\AppConfig $config )
   {
-    $this->Dir = $this->getTempDir( "GraphStorage" );
-    $this->testCreate();
+    $this->Dir = $this->getTempDir( "GraphStorage", true, true );
+    $this->testCreateAndSave();
     $this->testRead();
+    $this->testReadModfiySave();
   }
 
-  function testCreate()
+  function testCreateAndSave()
   {
-    $MyUniversity = University::create( $this->Dir, "My University" );
+    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
+    $MyUniversity = University::create( "My University" );
     $ProfSteinberg = Teacher::create( "Prof. Steinberg" );
     $ProfPipen = Teacher::create( "Prof. Pipen" );
     $Sally = Student::create( "Sally Miller" );
     $John = Student::create( "Jon Smith" );
     $Michael = Student::create( "Michael Jordan" );
 
-    $MyUniversity->Decane = $ProfSteinberg;
+    $MyUniversity->Decane = $ProfPipen;
     $MyUniversity->Teachers->add( $ProfPipen );
     $MyUniversity->Teachers->add( $ProfSteinberg );
     $MyUniversity->Students->add( $Sally );
@@ -36,31 +38,36 @@ class NodeTest extends \qck\core\abstracts\Test
     $ProfPipen->addStudent( $John );
     $ProfPipen->addStudent( $Michael );
 
-    $MyUniversity->save();
+    $Db->register( $MyUniversity );
+    $Db->commit();
   }
-  
+
   function testRead()
   {
-    $MyUniversity = University::create( $this->Dir, "My University" );
-    
+    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
+    $MyUniversity = $Db->load( University::UUID );
+
     $this->assert( $MyUniversity->Decane->Name == "Prof. Pipen" );
 
-    $Michael = $MyUniversity->Students->findFirst( $this->createStudentMatcher( "Michael Jordan" ) );
+    $Michael = $MyUniversity->Students->findValue( $this->createStudentMatcher( "Michael Jordan" ) );
     $this->assert( $Michael );
   }
 
-  function testModify()
+  function testReadModfiySave()
   {
-    $University = University::create( $this->Dir, "My University" );
-    
-    $Michael = $University->Students->findFirst( $this->createStudentMatcher( "Michael Jordan" ) );
+    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
+    $University = $Db->load( University::UUID );
+
+    $Michael = $University->Students->findValue( $this->createStudentMatcher( "Michael Jordan" ) );
     $this->assert( $Michael );
     /* @var $Michael Student */
     $Michael->Name = "Michael Air Jordan";
-    $University->save();
+    $Db->commit();
 
-    $University2 = University::create( $this->Dir, "My University" );
-    $Michael2 = $University2->Students->findFirst( $this->createStudentMatcher( "Michael Air Jordan" ) );
+    $Db2 = new \qck\GraphStorage\GraphDb( $this->Dir );
+    $University2 = $Db2->load( University::UUID );
+    $Michael2 = $University2->Students->findValue( $this->createStudentMatcher( "Michael Air Jordan" ) );
+    $this->assert( $Michael2 );
 
     $this->assert( $Michael->Name == $Michael2->Name, $Michael->Name . "is not equals " . $Michael2->Name );
   }
