@@ -1,0 +1,89 @@
+<?php
+
+namespace qck\Sql\Abstracts;
+
+/**
+ *
+ * @author muellerm
+ */
+abstract class Db implements Interfaces\Db, Interfaces\DbSchema, Interfaces\DbDictionary
+{
+
+  /**
+   * @return \PDO
+   */
+  abstract protected function getPdo();
+
+  public function beginTransaction()
+  {
+    $this->getPdo()->beginTransaction();
+  }
+
+  public function commit()
+  {
+    $this->getPdo()->commit();
+  }
+
+  public function createTable( \qck\Sql\Interfaces\Table $Table, $IfNotExists = false,
+                               $DropIfExists = false )
+  {
+    $Sql = $DropIfExists ? "DROP TABLE IF EXISTS " . $Table->getName() . ";" : "";
+    $Sql .= "CREATE TABLE" . ($IfNotExists ? " IF NOT EXISTS" : "") . " " . $Table->getName() . " ( ";
+    $Sql .= $Table->getColumnSql( $this->getDbDictionary() ) . ");";
+    foreach ( $Table->getUniqueIndexes() as $ColName )
+      $Sql .= "CREATE UNIQUE INDEX " . $ColName . "_Index  ON " . $Table->getName() . " (" . $ColName . ");";
+    $this->getPdo()->exec( $Sql );
+  }
+
+  public function dropTable( $TableName )
+  {
+    $this->getPdo()->exec( "DROP TABLE IF EXISTS " . $TableName );
+  }
+
+  public function insert( $TableName, array $ColumnNames, array $Values )
+  {
+    $PlaceHolder = [];
+    for ( $i = 0; $i < count( $Values ); $i++ )
+      $PlaceHolder[] = "?";
+    $Sql = "INSERT INTO " . $TableName . " (" . implode( ", ", $ColumnNames ) . ") VALUES (" . implode( ", ", $PlaceHolder ) . ")";
+    $Statement = $this->getPdo()->prepare( $Sql );
+    $Statement->execute( $Values );
+    return $this->Pdo->lastInsertId();
+  }
+
+  public function update( $TableName, array $ColumnNames, array $Values,
+                          \qck\Expressions\Interfaces\Expression $Expression )
+  {
+    $ColAndPlaceHolder = [];
+    foreach ( $ColumnNames as $ColName )
+      $ColAndPlaceHolder[] = $ColName . " = ?";
+    $Sql = "UPDATE " . $TableName . " SET " . implode( ", ", $ColAndPlaceHolder ) . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Values );
+    $Statement = $this->getPdo()->prepare( $Sql );
+    $Statement->execute( $Values );
+  }
+
+  public function delete( $TableName, \qck\Expressions\Interfaces\Expression $Expression )
+  {
+    $Params = [];
+    $Sql = "DROP FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Params );
+    $Statement = $this->getPdo()->prepare( $Sql );
+    $Statement->execute( $Params );
+  }
+
+  public function getDbDictionary()
+  {
+    return $this;
+  }
+
+  public function getDbSchema()
+  {
+    return $this;
+  }
+
+  /**
+   *
+   * @var \PDO
+   */
+  protected $Pdo;
+
+}
