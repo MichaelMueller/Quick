@@ -20,9 +20,9 @@ class Teacher extends GraphStorage\Node
     return $Teacher;
   }
 
-  public function __construct( $Uuid = null )
+  public function __construct( $Id = null )
   {
-    parent::__construct( $Uuid );
+    parent::__construct( $Id );
   }
 
   function addStudent( Student $NewStudent )

@@ -15,7 +15,7 @@ use \qck\GraphStorage;
 class University extends GraphStorage\Node
 {
 
-  const UUID = "2e6a4315-7c94-4086-9c33-c477adac32e7";
+  const Id = 0;
 
   static function create( $Name )
   {
@@ -29,6 +29,6 @@ class University extends GraphStorage\Node
 
   public function __construct()
   {
-    parent::__construct( self::UUID );
+    parent::__construct( self::Id );
   }
 }

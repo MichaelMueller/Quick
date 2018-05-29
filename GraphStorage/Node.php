@@ -9,9 +9,9 @@ namespace qck\GraphStorage;
 class Node implements PersistableNode
 {
 
-  function __construct( $Uuid = null )
+  function __construct( $Id = null )
   {
-    $this->Uuid = $Uuid;
+    $this->Id = $Id;
   }
 
   function add( $value )
@@ -25,7 +25,7 @@ class Node implements PersistableNode
   public function set( $key, $value )
   {
     $this->Data[ $key ] = $value;
-    $this->ModifiedTime = time();
+    $this->Version++;
   }
 
   public function remove( callable $Matcher )
@@ -34,7 +34,7 @@ class Node implements PersistableNode
     foreach ( $deletedKeys as $key )
       unset( $this->Data[ $key ] );
     if ( count( $deletedKeys ) > 0 )
-      $this->ModifiedTime = time();
+      $this->Version++;
   }
 
   function __set( $key, $value )
@@ -110,11 +110,9 @@ class Node implements PersistableNode
     return $Matchings;
   }
 
-  function getUuid()
+  function getId()
   {
-    if ( !$this->Uuid )
-      $this->Uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
-    return $this->Uuid;
+    return $this->Id;
   }
 
   public function getData()
@@ -122,21 +120,31 @@ class Node implements PersistableNode
     return $this->Data;
   }
 
-  public function getModifiedTime()
+  public function getVersion()
   {
-    return $this->ModifiedTime;
+    return $this->Version;
   }
 
-  public function setModifiedTime( $ModifiedTime )
+  public function setVersion( $Version )
   {
-    $this->ModifiedTime = $ModifiedTime;
+    $this->Version = $Version;
+  }
+
+  public function setId( $Id )
+  {
+    $this->Id = $Id;
+  }
+
+  public function getFqcn()
+  {
+    return get_class( $this );
   }
 
   /**
    *
    * @var string
    */
-  protected $Uuid;
+  protected $Id;
 
   /**
    *
@@ -148,6 +156,6 @@ class Node implements PersistableNode
    *
    * @var int
    */
-  protected $ModifiedTime = -1;
+  protected $Version = -1;
 
 }

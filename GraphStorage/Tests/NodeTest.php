@@ -19,7 +19,7 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function testCreateAndSave()
   {
-    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
+    $Db = new \qck\GraphStorage\FileNodeDb( $this->Dir );
     $MyUniversity = University::create( "My University" );
     $ProfSteinberg = Teacher::create( "Prof. Steinberg" );
     $ProfPipen = Teacher::create( "Prof. Pipen" );
@@ -44,8 +44,8 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function testRead()
   {
-    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
-    $MyUniversity = $Db->load( University::UUID );
+    $Db = new \qck\GraphStorage\FileNodeDb( $this->Dir );
+    $MyUniversity = $Db->load( University::class, University::Id );
 
     $this->assert( $MyUniversity->Decane->Name == "Prof. Pipen" );
 
@@ -55,8 +55,8 @@ class NodeTest extends \qck\core\abstracts\Test
 
   function testReadModfiySave()
   {
-    $Db = new \qck\GraphStorage\GraphDb( $this->Dir );
-    $University = $Db->load( University::UUID );
+    $Db = new \qck\GraphStorage\FileNodeDb( $this->Dir );
+    $University = $Db->load( University::class, University::Id );
 
     $Michael = $University->Students->findValue( $this->createStudentMatcher( "Michael Jordan" ) );
     $this->assert( $Michael );
@@ -64,8 +64,8 @@ class NodeTest extends \qck\core\abstracts\Test
     $Michael->Name = "Michael Air Jordan";
     $Db->commit();
 
-    $Db2 = new \qck\GraphStorage\GraphDb( $this->Dir );
-    $University2 = $Db2->load( University::UUID );
+    $Db2 = new \qck\GraphStorage\FileNodeDb( $this->Dir );
+    $University2 = $Db2->load( University::class, University::Id );
     $Michael2 = $University2->Students->findValue( $this->createStudentMatcher( "Michael Air Jordan" ) );
     $this->assert( $Michael2 );
 

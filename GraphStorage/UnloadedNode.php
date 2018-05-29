@@ -6,7 +6,7 @@ namespace qck\GraphStorage;
  *
  * @author muellerm
  */
-interface UnloadedNode extends UuidProvider
+interface UnloadedNode extends IdProvider
 {
 
   /**

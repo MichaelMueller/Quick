@@ -6,8 +6,15 @@ namespace qck\GraphStorage;
  *
  * @author muellerm
  */
-interface PersistableNode extends UuidProvider
+interface PersistableNode extends IdProvider
 {
+
+  /**
+   * 
+   * @param int $Id
+   */
+  function setId( $Id );
+
   /**
    * set data with arbitrary key values
    * @param array $Data
@@ -21,12 +28,12 @@ interface PersistableNode extends UuidProvider
 
   /**
    * 
-   * @param int $ModifiedTime
+   * @param int $Version
    */
-  function setModifiedTime( $ModifiedTime );
+  function setVersion( $Version );
 
   /**
    * @return int The time of the last data modification
    */
-  function getModifiedTime();
+  function getVersion();
 }

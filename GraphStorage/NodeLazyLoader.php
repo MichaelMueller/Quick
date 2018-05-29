@@ -9,38 +9,54 @@ namespace qck\GraphStorage;
 class NodeLazyLoader implements UnloadedNode
 {
 
-  function __construct( $Uuid, \NodeLoader $NodeLoader = null )
+  function __construct( $Fqcn, $Id, \NodeDb $NodeDb = null )
   {
-    $this->Uuid = $Uuid;
-    $this->NodeLoader = $NodeLoader;
+    $this->Fqcn = $Fqcn;
+    $this->Id = $Id;
+    $this->NodeDb = $NodeDb;
   }
 
-  function setNodeLoader( NodeLoader $NodeLoader )
+  function setNodeDb( NodeDb $NodeDb )
   {
-    $this->NodeLoader = $NodeLoader;
+    $this->NodeDb = $NodeDb;
   }
 
-  function unsetNodeLoader()
+  function unsetNodeDb()
   {
-    $this->NodeLoader = null;
+    $this->NodeDb = null;
   }
 
-  function getUuid()
+  function getId()
   {
-    return $this->Uuid;
+    return $this->Id;
   }
 
   public function load()
   {
-    return $this->NodeLoader->load( $this->Uuid );
+    return $this->NodeDb->load( $this->Fqcn, $this->Id );
   }
 
-  protected $Uuid;
+  public function getFqcn()
+  {
+    return $this->Fqcn;
+  }
 
   /**
    *
-   * @var NodeLoader 
+   * @var string 
    */
-  protected $NodeLoader;
+  protected $Fqcn;
+
+  /**
+   *
+   * @var int 
+   */
+  protected $Id;
+
+  /**
+   *
+   * @var NodeDb 
+   */
+  protected $NodeDb;
 
 }
