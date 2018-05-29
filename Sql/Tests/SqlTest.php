@@ -2,6 +2,8 @@
 
 namespace qck\Sql\Tests;
 
+use qck\Expressions\Abstracts\Expression as x;
+
 /**
  *
  * @author muellerm
@@ -24,9 +26,32 @@ class SqlTest extends \qck\core\abstracts\Test
     $SqliteFile = $this->getTempFile( $FilesToDelete );
     $Sqlite = new \qck\Sql\SqliteDb( $SqliteFile );
     $Sqlite->createTable( $Table );
-    $Id = $Sqlite->insert( $Table->getName(), [ "Name", "Admin", "LastLogin", "Picture" ], [ "Michael", true, 0.2312, null ] );
+    $Id = $Sqlite->insert( $Table->getName(), $Table->getColumnNames( true ), [ "Michael", true, 0.2312, null ] );
 
-    //$Sqlite->update( $Table->getName(), [ "Name" ], [ "Michael Jordan" ], new \qck\Expressions\IdEquals( $Id, "Id" ) );
+    // Read
+    $ReadByName = x::eq( x::id( "Name" ), x::val( "Michael" ) );
+    $Select = new \qck\Sql\Select( $Table->getName(), $ReadByName );
+    $Select->setColumns( [ "Id" ] );
+    $Results = $Sqlite->select( $Select )->fetchAll();
+    $this->assert( $Results[ 0 ][ 0 ] == $Id );
+
+    // Update
+    $NewName = "Michael Jordan";
+    $Sqlite->update( $Table->getName(), [ "Name" ], [ $NewName ], new \qck\Expressions\IdEquals( $Id, "Id" ) );
+
+    // Read again
+    $ReadById = x::eq( x::id( "Id" ), x::val( $Id ) );
+    $Select = new \qck\Sql\Select( $Table->getName(), $ReadById );
+    $Select->setColumns( [ "Name" ] );
+    $Results = $Sqlite->select( $Select )->fetchAll();
+    $this->assert( $Results[ 0 ][ 0 ] == $NewName );
+
+    // Delete
+    $this->assert( $Sqlite->delete( $Table->getName(), $ReadById ) == 1 );
+
+    // Read again
+    $Results = $Sqlite->select( $Select )->fetchAll();
+    $this->assert( count( $Results ) == 0 );
   }
 
   public function getRequiredTests()

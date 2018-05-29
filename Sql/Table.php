@@ -16,12 +16,18 @@ class Table implements Interfaces\Table
     $this->UniqueIndexes = $UniqueIndexes;
   }
 
-  public function getColumnNames()
+  public function getColumnNames( $SkipPrimaryKeyCol = true )
   {
     $ColNames = [];
     foreach ( $this->Columns as $Column )
-      $ColNames[] = $Column->getName();
+      if ( !$Column instanceof PrimaryKeyCol || $SkipPrimaryKeyCol == false )
+        $ColNames[] = $Column->getName();
     return $ColNames;
+  }
+
+  public function getColumnNamesAsString( $SkipPrimaryKeyCol = true )
+  {
+    return implode( ", ", $this->getColumnNames( $SkipPrimaryKeyCol ) );
   }
 
   public function getColumnSql( Interfaces\DbDictionary $DbDictionary )

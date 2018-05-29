@@ -22,5 +22,11 @@ abstract class Column implements \qck\Sql\Interfaces\Column
     return implode( " ", $Elements );
   }
 
+  function getName()
+  {
+    return $this->Name;
+  }
+
   protected $Name;
+
 }

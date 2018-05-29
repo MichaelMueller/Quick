@@ -60,14 +60,30 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $Sql = "UPDATE " . $TableName . " SET " . implode( ", ", $ColAndPlaceHolder ) . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Values );
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Values );
+    return $Statement->rowCount();
   }
 
   public function delete( $TableName, \qck\Expressions\Interfaces\Expression $Expression )
   {
     $Params = [];
-    $Sql = "DROP FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Params );
+    $Sql = "DELETE FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Params );
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Params );
+    return $Statement->rowCount();
+  }
+
+  /**
+   * 
+   * @param \qck\Sql\Interfaces\Select $Select
+   * @return \PDOStatement
+   */
+  function select( \qck\Sql\Interfaces\Select $Select )
+  {
+    $Params = [];
+    $Sql = $Select->toSql( $this->getDbDictionary(), $Params );
+    $Statement = $this->getPdo()->prepare( $Sql );
+    $Statement->execute( $Params );
+    return $Statement;
   }
 
   public function getDbDictionary()

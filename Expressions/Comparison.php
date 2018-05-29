@@ -28,7 +28,7 @@ abstract class Comparison extends BooleanExpression
 
   public function toSql( \qck\Sql\Interfaces\DbDictionary $DbDictionary, array &$Params = array () )
   {
-    return $this->LeftOperand->toSql( $DbDictionary, $Params ) . " ".$this->getOperator( $Dictionary )." " . $this->RightOperand->toSql( $DbDictionary, $Params );
+    return $this->LeftOperand->toSql( $DbDictionary, $Params ) . " ".$this->getOperator( $DbDictionary )." " . $this->RightOperand->toSql( $DbDictionary, $Params );
   }
 
   /**
