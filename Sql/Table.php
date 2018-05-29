@@ -9,11 +9,16 @@ namespace qck\Sql;
 class Table implements Interfaces\Table
 {
 
-  function __construct( $Name, array $Columns, array $UniqueIndexes = [] )
+  function __construct( $Name, array $Columns = [], array $UniqueIndexes = [] )
   {
     $this->Name = $Name;
     $this->Columns = $Columns;
     $this->UniqueIndexes = $UniqueIndexes;
+  }
+
+  function addColumn( Interfaces\Column $Column )
+  {
+    $this->Columns[] = $Column;
   }
 
   public function getColumnNames( $SkipPrimaryKeyCol = true )

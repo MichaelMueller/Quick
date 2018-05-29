@@ -21,11 +21,12 @@ class SqlTest extends \qck\core\abstracts\Test
     $UserLastLogin = new \qck\Sql\FloatColumn( "LastLogin" );
     $UserPicture = new \qck\Sql\StringColumn( "Picture", 0, 16777215, true );
     $Table = new \qck\Sql\Table( "Users", [ $UserIdCol, $UserNameCol, $UserAdminCol, $UserLastLogin, $UserPicture ], [ "Name" ] );
+    $Schema = new \qck\Sql\Schema( [ $Table ] );
 
     // Sqlite
     $SqliteFile = $this->getTempFile( $FilesToDelete );
     $Sqlite = new \qck\Sql\SqliteDb( $SqliteFile );
-    $Sqlite->createTable( $Table );
+    $Sqlite->install( $Schema, true );
     $Id = $Sqlite->insert( $Table->getName(), $Table->getColumnNames( true ), [ "Michael", true, 0.2312, null ] );
 
     // Read
@@ -47,7 +48,7 @@ class SqlTest extends \qck\core\abstracts\Test
     $this->assert( $Results[ 0 ][ 0 ] == $NewName );
 
     // Delete
-    $this->assert( $Sqlite->delete( $Table->getName(), $ReadById ) == 1 );
+    $this->assert( $Sqlite->delete( $Table->getName(), new \qck\Expressions\IdEquals( $Id ) ) == 1 );
 
     // Read again
     $Results = $Sqlite->select( $Select )->fetchAll();

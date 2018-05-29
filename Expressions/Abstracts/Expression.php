@@ -11,7 +11,6 @@ use qck\Expressions\ValueExpression;
 abstract class Expression implements \qck\Expressions\Interfaces\Expression
 {
 
-
   function filterVar( array $Data, &$FailedExpressions = [] )
   {
     $FilteredArray = [];
@@ -68,4 +67,5 @@ abstract class Expression implements \qck\Expressions\Interfaces\Expression
   {
     return new \qck\Expressions\LessEquals( $LeftOperand, $RightOperand );
   }
+
 }

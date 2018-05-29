@@ -39,7 +39,7 @@ class AppConfig extends \qck\ext\abstracts\AppConfig
   public function getTests()
   {
     return array ( \qck\ext\tests\DailyLogTest::class, \qck\Data\Tests\NodeTest::class, \qck\Expressions\Tests\ExpressionsTest::class,
-      \qck\Sql\Tests\SqlTest::class );
+      \qck\Sql\Tests\SqlTest::class, \qck\StructuredData\Tests\StructuredDataTest::class );
   }
 
   private $Argv;

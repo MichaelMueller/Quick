@@ -35,11 +35,21 @@ abstract class NodeDb implements \qck\Data\Interfaces\NodeDb
 
   protected function findNode( $Fqcn, $Id )
   {
-    /* @var $Node Node */
     foreach ( $this->Nodes as $Node )
-      if ( $Node->getId() == $Id && $Node->getFqcn() == $Fqcn )
+      if ( $Node->getFqcn() == $Fqcn && $Node->getId() == $Id )
         return $Node;
+
     return null;
+  }
+
+  protected function forgetNode( $Fqcn, $Id )
+  {
+    $index = 0;
+    for ( $index = 0; $index < count( $this->Nodes ); $index++ )
+      if ( $this->Nodes[ $index ]->getFqcn() == $Fqcn && $this->Nodes[ $index ]->getId() == $Id )
+        break;
+    if ( $index < count( $this->Nodes ) )
+      unset( $this->Nodes[ $index ] );
   }
 
   protected $Nodes = [];

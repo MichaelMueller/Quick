@@ -1,6 +1,7 @@
 <?php
 
 namespace qck\Data;
+
 use qck\Data\Interfaces\PersistableNode;
 use qck\Data\Interfaces\IdProvider;
 
@@ -87,8 +88,7 @@ class FileNodeDb extends Abstracts\NodeDb
       unlink( $File );
     if ( file_exists( $VerFile ) )
       unlink( $VerFile );
-    if ( isset( $this->Nodes[ $Id ] ) )
-      unset( $this->Nodes[ $Id ] );
+    $this->forgetNode( $Fqcn, $Id );
   }
 
   protected function getVersion( $Fqcn, $Id )

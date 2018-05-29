@@ -20,10 +20,6 @@ class Teacher extends Data\Node
     return $Teacher;
   }
 
-  public function __construct( $Id = null )
-  {
-    parent::__construct( $Id );
-  }
 
   function addStudent( Student $NewStudent )
   {

@@ -23,11 +23,6 @@ class NodeLazyLoader implements Interfaces\UnloadedNode
     $this->NodeDb = $NodeDb;
   }
 
-  function unsetNodeDb()
-  {
-    $this->NodeDb = null;
-  }
-
   function getId()
   {
     return $this->Id;

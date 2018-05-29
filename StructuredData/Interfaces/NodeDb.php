@@ -11,17 +11,18 @@ interface NodeDb extends \qck\Data\Interfaces\NodeDb
 
   /**
    * 
-   * @param \qck\StructuredData\Interfaces\NodeSelect $NodeSelect
-   * @return array an array of UnloadedNodes
+   * @param \qck\StructuredData\Interfaces\Select $NodeSelect
+   * @return \qck\Data\Node Containing UnloadedNodes
    */
-  function select( NodeSelect $NodeSelect );
+  function select( $Fqcn, \qck\Expressions\Interfaces\Expression $Expression,
+                   $Offset = null, $Limit = null, $OrderCol = null, $Descending = true );
 
   /**
    * 
    * @param type $Fqcn
    * @param \qck\StructuredData\Interfaces\Expression $Expression
    */
-  function delete( $Fqcn, Expression $Expression );
+  function deleteWhere( $Fqcn, Expression $Expression );
 
   /**
    * 

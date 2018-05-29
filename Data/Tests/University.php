@@ -27,8 +27,4 @@ class University extends Data\Node
     return $University;
   }
 
-  public function __construct()
-  {
-    parent::__construct( self::Id );
-  }
 }

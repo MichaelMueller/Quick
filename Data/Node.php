@@ -9,11 +9,6 @@ namespace qck\Data;
 class Node implements Interfaces\PersistableNode
 {
 
-  function __construct( $Id = null )
-  {
-    $this->Id = $Id;
-  }
-
   function add( $value )
   {
     $newIndex = count( $this->Data );

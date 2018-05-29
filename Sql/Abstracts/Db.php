@@ -24,7 +24,13 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $this->getPdo()->commit();
   }
 
-  public function createTable( \qck\Sql\Interfaces\Table $Table, $IfNotExists = false,
+  function install( \qck\Sql\Interfaces\Schema $Schema, $DropTables = false )
+  {
+    foreach ( $Schema->getTables() as $Table )
+      $this->createTable( $Table, true, $DropTables );
+  }
+
+  public function createTable( \qck\Sql\Interfaces\Table $Table, $IfNotExists = true,
                                $DropIfExists = false )
   {
     $Sql = $DropIfExists ? "DROP TABLE IF EXISTS " . $Table->getName() . ";" : "";
