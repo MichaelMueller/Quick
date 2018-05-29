@@ -6,7 +6,7 @@ namespace qck\ext;
  *
  * @author muellerm
  */
-class ScriptRunner implements \qck\interfaces\ScriptRunner
+class ScriptRunner implements \qck\ext\interfaces\ScriptRunner
 {
 
   function __construct( interfaces\CmdLineRunner $Runner, $tempDir = null )
