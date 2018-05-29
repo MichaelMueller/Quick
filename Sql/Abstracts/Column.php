@@ -19,7 +19,7 @@ abstract class Column implements \qck\Sql\Interfaces\Column
   function toSql( \qck\Sql\Interfaces\DbDictionary $DbDictionary )
   {
     $Elements = [ $this->Name, $this->getDatatype( $DbDictionary ) ];
-    return implode( ", ", $Elements );
+    return implode( " ", $Elements );
   }
 
   protected $Name;

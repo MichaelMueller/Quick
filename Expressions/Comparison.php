@@ -26,9 +26,9 @@ abstract class Comparison extends BooleanExpression
     return $this->RightOperand;
   }
 
-  public function toSql( $DriverName, array &$Params = array () )
+  public function toSql( \qck\Sql\Interfaces\DbDictionary $DbDictionary, array &$Params = array () )
   {
-    return $this->LeftOperand->toSql( $DriverName, $Params ) . " ".$this->getOperator( $Dictionary )." " . $this->RightOperand->toSql( $DriverName, $Params );
+    return $this->LeftOperand->toSql( $DbDictionary, $Params ) . " ".$this->getOperator( $Dictionary )." " . $this->RightOperand->toSql( $DbDictionary, $Params );
   }
 
   /**

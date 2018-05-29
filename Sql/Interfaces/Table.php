@@ -17,7 +17,7 @@ interface Table
   /**
    * @return string
    */
-  function getColumnSql(Interfaces\DbDictionary $DbDictionary);
+  function getColumnSql(DbDictionary $DbDictionary);
   
   /**
    * @return array of strings

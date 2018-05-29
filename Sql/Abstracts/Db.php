@@ -6,7 +6,7 @@ namespace qck\Sql\Abstracts;
  *
  * @author muellerm
  */
-abstract class Db implements Interfaces\Db, Interfaces\DbSchema, Interfaces\DbDictionary
+abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchema, \qck\Sql\Interfaces\DbDictionary
 {
 
   /**

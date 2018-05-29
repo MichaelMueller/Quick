@@ -9,7 +9,7 @@ namespace qck\ext\tests;
  */
 class DailyLogTest extends \qck\core\abstracts\Test
 {
-  public function run( \qck\core\interfaces\AppConfig $config )
+  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = []  )
   {
     $Dir = $this->getTempDir("Log", true);
     $DailyLog = new \qck\ext\DailyLog($Dir);

@@ -16,7 +16,15 @@ class Table implements Interfaces\Table
     $this->UniqueIndexes = $UniqueIndexes;
   }
 
-  public function getColumnSql( Interfaces\Interfaces\DbDictionary $DbDictionary )
+  public function getColumnNames()
+  {
+    $ColNames = [];
+    foreach ( $this->Columns as $Column )
+      $ColNames[] = $Column->getName();
+    return $ColNames;
+  }
+
+  public function getColumnSql( Interfaces\DbDictionary $DbDictionary )
   {
     $ColumnSqlParts = [];
     /* @var $Column Interfaces\Column */

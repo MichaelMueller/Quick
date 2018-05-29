@@ -16,7 +16,7 @@ abstract class BooleanChain extends BooleanExpression
       $this->add( $Expression );
   }
 
-  function add( \qck\Expressions\Expressions $Expression )
+  function add( BooleanExpression $Expression )
   {
     $this->Expressions[] = $Expression;
   }

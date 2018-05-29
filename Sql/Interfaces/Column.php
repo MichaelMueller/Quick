@@ -12,5 +12,5 @@ interface Column
   /**
    * @return string
    */
-  function toSql(Interfaces\DbDictionary $DbDictionary);
+  function toSql( DbDictionary $DbDictionary );
 }

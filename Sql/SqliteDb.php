@@ -20,7 +20,7 @@ class SqliteDb extends Abstracts\Db
   protected function getPdo()
   {
     if ( !$this->Pdo )
-      $this->Pdo = new PDO( 'sqlite:' . $this->SqliteFile, null, null, [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION ] );
+      $this->Pdo = new \PDO( 'sqlite:' . $this->SqliteFile, null, null, [ \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION ] );
 
     return $this->Pdo;
   }
@@ -30,9 +30,9 @@ class SqliteDb extends Abstracts\Db
     return "INTEGER";
   }
 
-  public function getStringDatatype( $MinLength = 0, $MaxLength = 255 )
+  public function getStringDatatype( $MinLength = 0, $MaxLength = 255, $IsBlob = false )
   {
-    return "TEXT";
+    return $IsBlob ? "BLOB" : "TEXT";
   }
 
   public function getRegExpOperator()
@@ -69,6 +69,7 @@ class SqliteDb extends Abstracts\Db
   }
 
   protected $SqliteFile;
+
   /**
    *
    * @var bool

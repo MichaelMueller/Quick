@@ -11,7 +11,7 @@ use qck\Expressions\Abstracts\Expression as ex;
 class ExpressionsTest extends \qck\core\abstracts\Test
 {
 
-  public function run( \qck\core\interfaces\AppConfig $config )
+  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
     $TrueRegistrationData = [];
     $TrueRegistrationData[ "Name" ] = "Michi";

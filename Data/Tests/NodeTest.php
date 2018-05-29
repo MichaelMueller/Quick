@@ -9,7 +9,7 @@ namespace qck\Data\Tests;
 class NodeTest extends \qck\core\abstracts\Test
 {
 
-  public function run( \qck\core\interfaces\AppConfig $config )
+  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
     $this->Dir = $this->getTempDir( "GraphStorage", true, true );
     $this->testCreateAndSave();

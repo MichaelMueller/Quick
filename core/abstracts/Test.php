@@ -20,6 +20,19 @@ abstract class Test implements \qck\core\interfaces\Test
       print ("Warning: " . $messageIfTrue . PHP_EOL );
   }
 
+  protected function getTempFile( $dir = false, &$FilesToDelete = null )
+  {
+    do
+    {
+      $File = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid();
+    }
+    while ( file_exists( $File ) );
+    $dir ? mkdir( $File, 0777, true ) : touch( $File );
+    if ( is_array( $FilesToDelete ) )
+      $FilesToDelete[] = $File;
+    return $File;
+  }
+
   protected function getTempDir( $folderName = null, $deleteIfExists = false,
                                  $create = false )
   {

@@ -13,12 +13,12 @@ class RunTestsController implements \qck\core\interfaces\Controller
   public function run( \qck\core\interfaces\AppConfig $config )
   {
     /* @var $config \qck\apps\testapp\AppConfig */
-    
+
     // if no tests available go back to start
     $testClasses = $config->getTests();
     if ( count( $testClasses ) == 0 )
     {
-      throw new \Exception("No tests found");
+      throw new \Exception( "No tests found" );
       //header( "Location: " . $config->mkLink( $config->getControllerFactory()->getStartControllerClassName() ) );
       //return null;
     }
@@ -34,13 +34,17 @@ class RunTestsController implements \qck\core\interfaces\Controller
     $testsFailed = array ();
     foreach ( $testClasses as $testClass )
     {
+      $FilesToDelete = [];
       try
       {
-        $this->runTest( $config, $testClass, $testClass, $testsRun, $testsFailed );
+        $this->runTest( $config, $testClass, $testClass, $testsRun, $testsFailed, $FilesToDelete );
       }
       catch ( \Exception $ex )
       {
-        print "********** FAILED: test case " . $testClass . " (Reason: " . strval($ex) . ")" . PHP_EOL;
+        foreach ( $FilesToDelete as $FileToDelete )
+          $this->rmfile( $File );
+
+        print "********** FAILED: test case " . $testClass . " (Reason: " . strval( $ex ) . ")" . PHP_EOL;
         $testsFailed[] = $testClass;
       }
     }
@@ -51,7 +55,31 @@ class RunTestsController implements \qck\core\interfaces\Controller
     print PHP_EOL . PHP_EOL . "********** RESULTS: " . count( $testClasses ) . " tests run. " . $text . PHP_EOL;
   }
 
-  protected function runTest( $config, $testClass, $filenodedbTestClass, &$testsRun, &$testsFailed )
+  protected function rmfile( $File )
+  {
+    if ( is_dir( $File ) )
+    {
+      $dir = $File;
+      $objects = scandir( $dir );
+      foreach ( $objects as $object )
+      {
+        if ( $object != "." && $object != ".." )
+        {
+          if ( is_dir( $dir . "/" . $object ) )
+            $this->rrmdir( $dir . "/" . $object, false );
+          else
+            unlink( $dir . "/" . $object );
+        }
+      }
+
+      rmdir( $dir );
+    }
+    else if ( is_file( $File ) )
+      unlink( $File );
+  }
+
+  protected function runTest( $config, $testClass, $filenodedbTestClass, &$testsRun,
+                              &$testsFailed, &$FilesToDelete = [] )
   {
     if ( in_array( $testClass, $testsRun ) )
       return;
@@ -68,12 +96,12 @@ class RunTestsController implements \qck\core\interfaces\Controller
 
         if ( !class_exists( $requiredTest, true ) )
           throw new \Exception( $requiredTest . " not found as required Test for " . $testClass );
-        $this->runTest( $config, $requiredTest, $filenodedbTestClass, $testsRun, $testsFailed );
+        $this->runTest( $config, $requiredTest, $filenodedbTestClass, $testsRun, $testsFailed, $FilesToDelete );
       }
     }
 
     print PHP_EOL . "********** Running test class " . $testClass . PHP_EOL;
-    $testObj->run( $config );
+    $testObj->run( $config, $FilesToDelete );
     print "********** PASSED: " . $testClass . PHP_EOL;
     $testsRun[] = $testClass;
   }
