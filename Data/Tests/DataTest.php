@@ -18,20 +18,24 @@ class DataTest extends \qck\core\abstracts\Test
     $SqliteDb = new \qck\Sql\SqliteDb( $SqliteFile );
 
     // create schema for Test Object
-    $TestObjectSchema = new \qck\Data\ObjectSchema( TestObject::class );
-    $TestObjectSchema->addProperty( new \qck\Data\StringProperty( "Name" ) );
+    $UserSchema = new \qck\Data\ObjectSchema( User::class );
+    $UserSchema->addProperty( new \qck\Data\StringProperty( "Name" ) );
+    $UserSchema->addProperty( new \qck\Data\ObjectProperty( "Organisations", \qck\Data\Vector::class ) );
 
     // create ObjectDbSchema for ObjectDb
     $ObjectDbSchema = new \qck\Data\ObjectDbSchema();
-    $ObjectDbSchema->add( $TestObjectSchema );
-    $ObjectDbSchema->add( new \qck\Data\VectorSchema() );
+    $ObjectDbSchema->add( $UserSchema );
+    $ObjectDbSchema->applyTo( $SqliteDb );
 
     // create ObjectDb
     $ObjectDb = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
 
-    // create TestObject
-    $TestObject = new TestObject();
-    $TestObject->setName( "Michael" );
+    // create User
+    $User = new User();
+    $User->setName( "Michael" );
+    $Orgs = $User->getOrganisations();
+    $Orgs->add( "GE" );
+    $Orgs->add( "Siemens" );
 
     // create List
     $TestVector = new \qck\Data\Vector();
@@ -40,24 +44,23 @@ class DataTest extends \qck\core\abstracts\Test
     $TestVector->add( true );
 
     // run
-    $ObjectDbSchema->applyTo( $SqliteDb );
-    $ObjectDb->register( $TestObject );
+    $ObjectDb->register( $User );
     $ObjectDb->register( $TestVector );
     $ObjectDb->commit();
-    $TestObject->setName( "Michael Air" );
+    $User->setName( "Michael Air" );
     $ObjectDb->commit();
 
     // load again
     $Db2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
-    $LoadedObject = $Db2->load( TestObject::class, $TestObject->getId() );
-    $this->assert( $TestObject == $LoadedObject );
-    $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getId() );
+    $LoadedUser = $Db2->load( User::class, $User->getUuid() );
+    $this->assert( $User == $LoadedUser );
+    $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
     $this->assert( $TestVector == $LoadedVector );
 
-    $TestObject->setName( "Michael Air2" );
+    $User->setName( "Michael Air2" );
     $ObjectDb->commit();
-    $LoadedObject = $Db2->load( TestObject::class, $TestObject->getId() );
-    $this->assert( $TestObject == $LoadedObject );
+    $LoadedUser = $Db2->load( User::class, $User->getUuid() );
+    $this->assert( $User == $LoadedUser );
   }
 
   public function getRequiredTests()

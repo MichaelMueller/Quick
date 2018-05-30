@@ -8,8 +8,9 @@ namespace qck\Data;
  */
 class Vector extends Abstracts\Object
 {
+
   const ELEMENTS_NAME = "Elements";
-  
+
   function __construct()
   {
     $this->Data[ self::ELEMENTS_NAME ] = [];

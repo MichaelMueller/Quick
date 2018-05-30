@@ -9,9 +9,16 @@ namespace qck\Data\Abstracts;
 abstract class Object implements \qck\Data\Interfaces\Object
 {
 
-  function getId()
+  function __construct( $Uuid = null )
   {
-    return $this->Id;
+    $this->Uuid = $Uuid;
+  }
+
+  function getUuid()
+  {
+    if ( is_null( $this->Uuid ) )
+      $this->Uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
+    return $this->Uuid;
   }
 
   function getData()
@@ -23,11 +30,6 @@ abstract class Object implements \qck\Data\Interfaces\Object
   {
     $this->Data = $Data;
     $this->Version++;
-  }
-
-  function setId( $Id )
-  {
-    $this->Id = $Id;
   }
 
   public function getFqcn()
@@ -49,7 +51,7 @@ abstract class Object implements \qck\Data\Interfaces\Object
    *
    * @var int
    */
-  protected $Id;
+  protected $Uuid;
 
   /**
    *

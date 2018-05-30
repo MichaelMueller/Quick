@@ -18,13 +18,13 @@ interface ObjectSchema
    * 
    * @return array
    */
-  function getPropertyNames( $WithIdProperty = false );
+  function getPropertyNames( $WithUuidProperty = false );
 
   /**
    * @param array $Data the orignal Data obtained from an object using getData()
    * @return array
    */
-  function prepare( array $Data, $WithVersionProperty = true, $WithIdProperty = false );
+  function prepare( array $Data, $WithVersionProperty = true, $WithUuidProperty = false );
 
   /**
    * @param array $Data the orignal Data obtained from an object using getData()
@@ -35,7 +35,7 @@ interface ObjectSchema
   /**
    * @return string
    */
-  function getIdPropertyName();
+  function getUuidPropertyName();
 
   /**
    * @return Property

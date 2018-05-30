@@ -12,16 +12,16 @@ interface ObjectDb
   /**
    * 
    * @param string $Fqcn
-   * @param int $Id
+   * @param int $Uuid
    */
-  function load( $Fqcn, $Id );
+  function load( $Fqcn, $Uuid );
 
   /**
    * 
    * @param type $Fqcn
    * @param \qck\StructuredData\Interfaces\Expression $Expression
    */
-  function delete( $Fqcn, $Id );
+  function delete( $Fqcn, $Uuid );
 
   /**
    * 

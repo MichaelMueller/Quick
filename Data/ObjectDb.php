@@ -14,6 +14,12 @@ class ObjectDb implements Interfaces\ObjectDb
   {
     $this->ObjectDb = $ObjectDb;
     $this->ObjectDbSchema = $ObjectDbSchema;
+    $this->KeyPool = $this->load( KeyPool::class, 1 );
+    if ( !$this->KeyPool )
+    {
+      $this->KeyPool = new KeyPool();
+      $this->register( $this->KeyPool );
+    }
   }
 
   public function commit()
@@ -21,25 +27,25 @@ class ObjectDb implements Interfaces\ObjectDb
     /* @var $Object Interfaces\Object */
     foreach ( $this->Objects as $Object )
     {
-      if ( $Object->getId() === null )
+      if ( $Object->getUuid() === null )
       {
-        $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
-        $Data = $Object->getData();
-        $Id = $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getVersion() ) );
-        $Object->setId( $Id );
-        $Hash = spl_object_hash( $Object );
-        $this->KnownVersions[ $Hash ] = $Object->getVersion();
+        $Object->setUuid( $this->KeyPool->getNextKey() );
       }
     }
 
     foreach ( $this->Objects as $Object )
     {
       $Hash = spl_object_hash( $Object );
-      if ( $this->KnownVersions[ $Hash ] < $Object->getVersion() )
+      $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
+      $Data = $Object->getData();
+      if ( !isset( $this->KnownVersions[ $Hash ] ) )
       {
-        $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
-        $Data = $Object->getData();
-        $Exp = new \qck\Expressions\IdEquals( $Object->getId(), $Schema->getIdPropertyName() );
+        $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( true ), $Schema->prepare( $Data, $Object->getVersion(), $Object->getUuid() ) );
+        $this->KnownVersions[ $Hash ] = $Object->getVersion();
+      }
+      else if ( $this->KnownVersions[ $Hash ] < $Object->getVersion() )
+      {
+        $Exp = new \qck\Expressions\UuidEquals( $Object->getUuid(), $Schema->getUuidPropertyName() );
         $this->ObjectDb->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getVersion() ), $Exp );
         $this->KnownVersions[ $Hash ] = $Object->getVersion();
       }
@@ -48,26 +54,26 @@ class ObjectDb implements Interfaces\ObjectDb
 
   public function deleteWhere( $Fqcn, Interfaces\Expression $Expression )
   {
-    $Ids = $this->select( $Fqcn, $Expression );
+    $Uuids = $this->select( $Fqcn, $Expression );
     $i = 0;
-    for ( $i = 0; $i < count( $Ids ); $i++ )
-      $this->delete( $Fqcn, $Ids[ $i ] );
+    for ( $i = 0; $i < count( $Uuids ); $i++ )
+      $this->delete( $Fqcn, $Uuids[ $i ] );
     return $i + 1;
   }
 
-  public function delete( $Fqcn, $Id )
+  public function delete( $Fqcn, $Uuid )
   {
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
-    $Exp = new \qck\Expressions\IdEquals( $Id, $Schema->getIdPropertyName() );
-    $this->forgetObject( $Fqcn, $Id );
+    $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
+    $this->forgetObject( $Fqcn, $Uuid );
     return $this->ObjectDb->delete( $Schema->getSqlTableName(), $Exp );
   }
 
-  public function load( $Fqcn, $Id )
+  public function load( $Fqcn, $Uuid )
   {
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
-    $Exp = new \qck\Expressions\IdEquals( $Id, $Schema->getIdPropertyName() );
-    $Object = $this->findObject( $Fqcn, $Id );
+    $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
+    $Object = $this->findObject( $Fqcn, $Uuid );
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Exp );
     $VersionPropName = $Schema->getVersionPropertyName();
     $Version = -1;
@@ -90,7 +96,7 @@ class ObjectDb implements Interfaces\ObjectDb
       $Object = $Object ? $Object : new $Fqcn();
 
       $Object->setData( $Schema->recover( $Data, $this, $Version ) );
-      $Object->setId( $Id );
+      $Object->setUuid( $Uuid );
       $Object->setVersion( $Version );
       $this->register( $Object );
       return $Object;
@@ -110,15 +116,15 @@ class ObjectDb implements Interfaces\ObjectDb
   {
     $LazyLoaders = [];
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
-    $IdPropName = $Schema->getIdPropName();
+    $UuidPropName = $Schema->getUuidPropName();
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Expression );
     $Select->setLimit( $Limit );
     $Select->setOffset( $Offset );
     $Select->setOrderParams( $OrderPropName, $Descending );
-    $Select->setColumns( [ $IdPropName ] );
+    $Select->setColumns( [ $UuidPropName ] );
     $Results = $this->ObjectDb->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
     foreach ( $Results as $Result )
-      $LazyLoaders[] = new LazyLoader( $Fqcn, $Result[ $IdPropName ], $this );
+      $LazyLoaders[] = new LazyLoader( $Fqcn, $Result[ $UuidPropName ], $this );
     return $LazyLoaders;
   }
 
@@ -140,21 +146,21 @@ class ObjectDb implements Interfaces\ObjectDb
   /**
    * 
    * @param string $Fqcn
-   * @param int $Id
+   * @param int $Uuid
    * @return Interfaces\Object
    */
-  protected function findObject( $Fqcn, $Id )
+  protected function findObject( $Fqcn, $Uuid )
   {
     foreach ( $this->Objects as $Object )
-      if ( $Object->getFqcn() == $Fqcn && $Object->getId() == $Id )
+      if ( $Object->getFqcn() == $Fqcn && $Object->getUuid() == $Uuid )
         return $Object;
 
     return null;
   }
 
-  protected function forgetObject( $Fqcn, $Id )
+  protected function forgetObject( $Fqcn, $Uuid )
   {
-    $Object = $this->findObject( $Fqcn, $Id );
+    $Object = $this->findObject( $Fqcn, $Uuid );
     if ( $Object )
     {
       $Hash = spl_object_hash( $Object );
@@ -163,6 +169,12 @@ class ObjectDb implements Interfaces\ObjectDb
         unset( $this->KnownVersions[ $Hash ] );
     }
   }
+
+  /**
+   *
+   * @var KeyPool 
+   */
+  protected $KeyPool;
 
   /**
    *

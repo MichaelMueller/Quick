@@ -9,10 +9,10 @@ namespace qck\Data;
 class LazyLoader implements Interfaces\UnloadedObject
 {
 
-  function __construct( $Fqcn, $Id, Interfaces\ObjectDb $ObjectDb = null )
+  function __construct( $Fqcn, $Uuid, Interfaces\ObjectDb $ObjectDb = null )
   {
     $this->Fqcn = $Fqcn;
-    $this->Id = $Id;
+    $this->Uuid = $Uuid;
     $this->ObjectDb = $ObjectDb;
   }
 
@@ -21,14 +21,14 @@ class LazyLoader implements Interfaces\UnloadedObject
     $this->ObjectDb = $ObjectDb;
   }
 
-  function getId()
+  function getUuid()
   {
-    return $this->Id;
+    return $this->Uuid;
   }
 
   public function load()
   {
-    return $this->ObjectDb->load( $this->Fqcn, $this->Id );
+    return $this->ObjectDb->load( $this->Fqcn, $this->Uuid );
   }
 
   public function getFqcn()
@@ -46,7 +46,7 @@ class LazyLoader implements Interfaces\UnloadedObject
    *
    * @var int 
    */
-  protected $Id;
+  protected $Uuid;
 
   /**
    *

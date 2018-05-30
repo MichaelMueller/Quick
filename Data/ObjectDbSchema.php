@@ -12,6 +12,7 @@ class ObjectDbSchema implements Interfaces\ObjectDbSchema
   function __construct( array $Schemas = [] )
   {
     $this->Schemas = $Schemas;
+    $this->add( new VectorSchema() );
   }
 
   function add( Interfaces\ObjectSchema $Schema )

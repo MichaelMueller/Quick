@@ -58,10 +58,15 @@ class SqliteDb extends Abstracts\Db
     return "LENGTH";
   }
 
-  public function getPrimaryKeyAutoincrementAttribute()
+  public function getPrimaryKeyAttribute()
   {
-    return "PRIMARY KEY AUTOINCREMENT";
+    return "PRIMARY KEY";
   }
+  public function getAutoincrementAttribute()
+  {
+    return "AUTOINCREMENT";
+  }
+
 
   public function getBoolDatatype()
   {

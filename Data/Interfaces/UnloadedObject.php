@@ -6,7 +6,7 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface UnloadedObject extends IdProvider
+interface UnloadedObject extends UuidProvider
 {
 
   /**

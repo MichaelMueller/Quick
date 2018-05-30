@@ -6,12 +6,14 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface IdProvider
+interface UuidProvider
 {
+
   /**
-   * @return string A Id (if none is
+   * @return string A Uuid (if none is
    */
-  function getId();
+  function getUuid();
+
   /**
    * @return string of the object
    */

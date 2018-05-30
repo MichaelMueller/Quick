@@ -6,14 +6,8 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface Object extends IdProvider
+interface Object extends UuidProvider
 {
-
-  /**
-   * 
-   * @param int $Id
-   */
-  function setId( $Id );
 
   /**
    * set data with arbitrary key values

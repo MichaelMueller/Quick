@@ -18,11 +18,17 @@ interface DbDictionary
    * @return string
    */
   function getIntDatatype();
+  
+  /**
+   * @return string
+   */
+  function getPrimaryKeyAttribute();
+
 
   /**
    * @return string
    */
-  function getPrimaryKeyAutoincrementAttribute();
+  function getAutoincrementAttribute();
 
   /**
    * @return string

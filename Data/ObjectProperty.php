@@ -17,7 +17,8 @@ class ObjectProperty extends IntProperty
 
   public function prepare( $Value )
   {
-    return $Value instanceof Interfaces\IdProvider ? $Value->getId() : null;
+    $Uuid = $Value->getUuid();
+    return $Uuid;
   }
 
   public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
