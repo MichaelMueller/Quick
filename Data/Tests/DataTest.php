@@ -24,6 +24,7 @@ class DataTest extends \qck\core\abstracts\Test
     // create ObjectDbSchema for ObjectDb
     $ObjectDbSchema = new \qck\Data\ObjectDbSchema();
     $ObjectDbSchema->add( $TestObjectSchema );
+    $ObjectDbSchema->add( new \qck\Data\VectorSchema() );
 
     // create ObjectDb
     $ObjectDb = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
@@ -32,9 +33,16 @@ class DataTest extends \qck\core\abstracts\Test
     $TestObject = new TestObject();
     $TestObject->setName( "Michael" );
 
+    // create List
+    $TestVector = new \qck\Data\Vector();
+    $TestVector->add( "First" );
+    $TestVector->add( 2 );
+    $TestVector->add( true );
+
     // run
     $ObjectDbSchema->applyTo( $SqliteDb );
     $ObjectDb->register( $TestObject );
+    $ObjectDb->register( $TestVector );
     $ObjectDb->commit();
     $TestObject->setName( "Michael Air" );
     $ObjectDb->commit();
@@ -43,7 +51,9 @@ class DataTest extends \qck\core\abstracts\Test
     $Db2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
     $LoadedObject = $Db2->load( TestObject::class, $TestObject->getId() );
     $this->assert( $TestObject == $LoadedObject );
-    
+    $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getId() );
+    $this->assert( $TestVector == $LoadedVector );
+
     $TestObject->setName( "Michael Air2" );
     $ObjectDb->commit();
     $LoadedObject = $Db2->load( TestObject::class, $TestObject->getId() );
