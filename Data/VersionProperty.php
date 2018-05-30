@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *

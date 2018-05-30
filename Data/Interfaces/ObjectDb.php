@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Data2\Interfaces;
+namespace qck\Data\Interfaces;
 
 /**
  *
  * @author muellerm
  */
-interface Db
+interface ObjectDb
 {
 
   /**

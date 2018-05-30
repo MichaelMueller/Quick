@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *
@@ -57,22 +57,31 @@ class ObjectSchema implements interfaces\ObjectSchema
     $PreparedData = [];
     foreach ( $this->Properties as $Name => $Property )
     {
-      if ( $Name == $this->getIdPropertyName() && $Id )
-        $PreparedData[ $Name ] = $Property->prepare( $Id );
-      else if ( $Name == $this->getVersionPropertyName() && $Version )
-        $PreparedData[ $Name ] = $Property->prepare( $Version );
+      if ( $Name == $this->getVersionPropertyName() )
+      {
+        if ( $Version === null )
+          continue;
+        $PreparedData[] = $Property->prepare( $Version );
+      }
+      else if ( $Name == $this->getIdPropertyName() )
+      {
+        if ( $Id === null )
+          continue;
+        $PreparedData[] = $Property->prepare( $Id );
+      }
       else
-        $PreparedData[ $Name ] = isset( $Data[ $Name ] ) ? $Property->prepare( $Data[ $Name ] ) : null;
+        $PreparedData[] = isset( $Data[ $Name ] ) ? $Property->prepare( $Data[ $Name ] ) : null;
     }
     return $PreparedData;
   }
 
-  public function recover( array $Data, Interfaces\Db $Db, &$Version = null, &$Id = null )
+  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb, &$Version = null,
+                           &$Id = null )
   {
     $RecoveredData = [];
     foreach ( $this->Properties as $Name => $Property )
     {
-      $Value = isset( $Data[ $Name ] ) ? $Property->recover( $Data[ $Name ], $Db ) : null;
+      $Value = isset( $Data[ $Name ] ) ? $Property->recover( $Data[ $Name ], $ObjectDb ) : null;
       if ( $Name == $this->getIdPropertyName() )
         $Id = $Value;
       else if ( $Name == $this->getVersionPropertyName() )
@@ -83,13 +92,13 @@ class ObjectSchema implements interfaces\ObjectSchema
     return $RecoveredData;
   }
 
-  public function applyTo( \qck\Sql\Interfaces\DbSchema $DbSchema )
+  public function applyTo( \qck\Sql\Interfaces\DbSchema $ObjectDbSchema )
   {
     $Table = new \qck\Sql\Table( $this->getSqlTableName() );
     foreach ( $this->Properties as $Property )
       $Property->applyTo( $Table );
 
-    $DbSchema->createTable( $Table );
+    $ObjectDbSchema->createTable( $Table );
   }
 
   /**

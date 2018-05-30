@@ -1,18 +1,19 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *
  * @author muellerm
  */
-class Db implements Interfaces\Db
+class ObjectDb implements Interfaces\ObjectDb
 {
 
-  function __construct( \qck\Sql\Interfaces\Db $Db, Interfaces\DbSchema $DbSchema )
+  function __construct( \qck\Sql\Interfaces\Db $ObjectDb,
+                        Interfaces\ObjectDbSchema $ObjectDbSchema )
   {
-    $this->Db = $Db;
-    $this->DbSchema = $DbSchema;
+    $this->ObjectDb = $ObjectDb;
+    $this->ObjectDbSchema = $ObjectDbSchema;
   }
 
   public function commit()
@@ -22,25 +23,24 @@ class Db implements Interfaces\Db
     {
       if ( $Object->getId() === null )
       {
-        $Schema = $this->DbSchema->getObjectSchema( $Object->getFqcn() );
+        $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
         $Data = $Object->getData();
-        $Id = $this->Db->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data ) );
+        $Id = $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getVersion() ) );
         $Object->setId( $Id );
         $Hash = spl_object_hash( $Object );
         $this->KnownVersions[ $Hash ] = $Object->getVersion();
       }
     }
 
-    /* @var $Object Interfaces\Object */
     foreach ( $this->Objects as $Object )
     {
       $Hash = spl_object_hash( $Object );
       if ( $this->KnownVersions[ $Hash ] < $Object->getVersion() )
       {
-        $Schema = $this->DbSchema->getObjectSchema( $Object->getFqcn() );
+        $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
         $Data = $Object->getData();
         $Exp = new \qck\Expressions\IdEquals( $Object->getId(), $Schema->getIdPropertyName() );
-        $this->Db->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data ), $Exp );
+        $this->ObjectDb->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getVersion() ), $Exp );
         $this->KnownVersions[ $Hash ] = $Object->getVersion();
       }
     }
@@ -57,15 +57,15 @@ class Db implements Interfaces\Db
 
   public function delete( $Fqcn, $Id )
   {
-    $Schema = $this->DbSchema->getObjectSchema( $Fqcn );
+    $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
     $Exp = new \qck\Expressions\IdEquals( $Id, $Schema->getIdPropertyName() );
     $this->forgetObject( $Fqcn, $Id );
-    return $this->Db->delete( $Schema->getSqlTableName(), $Exp );
+    return $this->ObjectDb->delete( $Schema->getSqlTableName(), $Exp );
   }
 
   public function load( $Fqcn, $Id )
   {
-    $Schema = $this->DbSchema->getObjectSchema( $Fqcn );
+    $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
     $Exp = new \qck\Expressions\IdEquals( $Id, $Schema->getIdPropertyName() );
     $Object = $this->findObject( $Fqcn, $Id );
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Exp );
@@ -75,7 +75,7 @@ class Db implements Interfaces\Db
     if ( $Object )
     {
       $Select->setColumns( [ $VersionPropName ] );
-      $Data = $this->Db->select( $Select )->fetch( \PDO::FETCH_ASSOC );
+      $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
       if ( $Data !== false )
         $Version = $Data[ $VersionPropName ];
       if ( $Object->getVersion() >= $Version )
@@ -83,13 +83,13 @@ class Db implements Interfaces\Db
     }
     // Load object (No prior object available or version changed)
     $Select->setColumns( $Schema->getPropertyNames( false ) );
-    $Data = $this->Db->select( $Select )->fetch( \PDO::FETCH_ASSOC );
+    $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
 
     if ( $Data !== false )
     {
       $Object = $Object ? $Object : new $Fqcn();
 
-      $Object->setData( $Schema->recover( $Data, $this, $Version, $Id ) );
+      $Object->setData( $Schema->recover( $Data, $this, $Version ) );
       $Object->setId( $Id );
       $Object->setVersion( $Version );
       $this->register( $Object );
@@ -109,14 +109,14 @@ class Db implements Interfaces\Db
                           $Descending = true )
   {
     $LazyLoaders = [];
-    $Schema = $this->DbSchema->getObjectSchema( $Fqcn );
+    $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
     $IdPropName = $Schema->getIdPropName();
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Expression );
     $Select->setLimit( $Limit );
     $Select->setOffset( $Offset );
     $Select->setOrderParams( $OrderPropName, $Descending );
     $Select->setColumns( [ $IdPropName ] );
-    $Results = $this->Db->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
+    $Results = $this->ObjectDb->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
     foreach ( $Results as $Result )
       $LazyLoaders[] = new LazyLoader( $Fqcn, $Result[ $IdPropName ], $this );
     return $LazyLoaders;
@@ -168,13 +168,13 @@ class Db implements Interfaces\Db
    *
    * @var \qck\Sql\Interfaces\Db
    */
-  protected $Db;
+  protected $ObjectDb;
 
   /**
    *
-   * @var Interfaces\DbSchema
+   * @var Interfaces\ObjectDbSchema
    */
-  protected $DbSchema;
+  protected $ObjectDbSchema;
 
   /**
    *

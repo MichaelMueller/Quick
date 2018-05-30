@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *
@@ -19,7 +19,7 @@ class IntProperty extends Abstracts\Property
     return intval( $Value );
   }
 
-  public function recover( $Value, Interfaces\Db $Db )
+  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
   {
     return intval( $Value );
   }

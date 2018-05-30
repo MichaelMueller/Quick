@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2\Interfaces;
+namespace qck\Data\Interfaces;
 
 /**
  *
@@ -30,7 +30,7 @@ interface ObjectSchema
    * @param array $Data the orignal Data obtained from an object using getData()
    * @return array
    */
-  function recover( array $Data, Db $Db );
+  function recover( array $Data, ObjectDb $ObjectDb );
 
   /**
    * @return string
@@ -49,7 +49,7 @@ interface ObjectSchema
 
   /**
    * 
-   * @param \qck\Sql\Interfaces\DbSchema $DbSchema
+   * @param \qck\Sql\Interfaces\DbSchema $ObjectDbSchema
    */
-  function applyTo( \qck\Sql\Interfaces\DbSchema $DbSchema );
+  function applyTo( \qck\Sql\Interfaces\DbSchema $ObjectDbSchema );
 }

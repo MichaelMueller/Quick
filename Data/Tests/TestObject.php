@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Data2\Tests;
+namespace qck\Data\Tests;
 
 /**
  *
  * @author muellerm
  */
-class TestObject extends \qck\Data2\Abstracts\Object
+class TestObject extends \qck\Data\Abstracts\Object
 {
 
   function setName( $Name )
@@ -14,7 +14,5 @@ class TestObject extends \qck\Data2\Abstracts\Object
     $this->Data[ "Name" ] = $Name;
     $this->Version++;
   }
-
-  protected $Name;
 
 }

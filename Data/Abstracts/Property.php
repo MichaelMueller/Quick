@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2\Abstracts;
+namespace qck\Data\Abstracts;
 
 /**
  *
@@ -17,7 +17,7 @@ abstract class Property
   /**
    * @return mixed
    */
-  abstract function recover( $Value, \qck\Data2\Interfaces\Db $Db );
+  abstract function recover( $Value, \qck\Data\Interfaces\ObjectDb $ObjectDb );
 
   /**
    * @return \qck\Sql\Interfaces\Column
@@ -39,8 +39,6 @@ abstract class Property
   function __construct( $Name )
   {
     $this->Name = $Name;
-    $this->Unique = $Unique;
-    $this->Index = $Index;
   }
 
   function getName()
@@ -61,7 +59,7 @@ abstract class Property
   }
 
   protected $Name;
-  protected $Unique=false;
-  protected $Index=false;
+  protected $Unique = false;
+  protected $Index = false;
 
 }

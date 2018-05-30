@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *
  * @author muellerm
  */
-class DbSchema implements Interfaces\DbSchema
+class ObjectDbSchema implements Interfaces\ObjectDbSchema
 {
 
   function __construct( array $Schemas = [] )
@@ -24,10 +24,10 @@ class DbSchema implements Interfaces\DbSchema
     return $this->Schemas[ $Fqcn ];
   }
 
-  public function applyTo( \qck\Sql\Interfaces\DbSchema $DbSchema )
+  public function applyTo( \qck\Sql\Interfaces\DbSchema $ObjectDbSchema )
   {
     foreach ( $this->Schemas as $Schema )
-      $Schema->applyTo( $DbSchema );
+      $Schema->applyTo( $ObjectDbSchema );
   }
 
   protected $Schemas;

@@ -13,7 +13,7 @@ interface Table
    * 
    * @param \qck\Sql\Interfaces\Interfaces\Column $Column
    */
-  function addColumn( Interfaces\Column $Column );
+  function addColumn( Column $Column );
 
   /**
    * 

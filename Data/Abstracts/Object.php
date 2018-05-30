@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Data2\Abstracts;
+namespace qck\Data\Abstracts;
 
 /**
  *
  * @author muellerm
  */
-abstract class Object implements \qck\Data2\Interfaces\Object
+abstract class Object implements \qck\Data\Interfaces\Object
 {
 
   function getId()

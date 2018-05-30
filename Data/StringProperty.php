@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Data2;
+namespace qck\Data;
 
 /**
  *
@@ -11,7 +11,7 @@ class StringProperty extends Abstracts\Property
 
   public function __construct( $Name, $MinLength = 0, $MaxLength = 255 )
   {
-    parent::__construct( $Name, $Unique, $Index );
+    parent::__construct( $Name );
     $this->MinLength = $MinLength;
     $this->MaxLength = $MaxLength;
   }
@@ -21,7 +21,7 @@ class StringProperty extends Abstracts\Property
     return strval( $Value );
   }
 
-  public function recover( $Value, Interfaces\Db $Db )
+  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
   {
     return strval( $Value );
   }
