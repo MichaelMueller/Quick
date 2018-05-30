@@ -27,7 +27,7 @@ class CmdLineRunner implements interfaces\CmdLineRunner
     exec( $theCmd, $output, $returnVal );
     $output = implode( "\n", $output );
     //error_log( "command " . $theCmd . " was run with return value " . $returnVal . " and output " . $output, E_USER_NOTICE );
-    
+
     return $returnVal;
   }
 

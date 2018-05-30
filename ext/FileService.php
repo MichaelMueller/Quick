@@ -98,8 +98,8 @@ class FileService extends FileInfoService implements interfaces\FileService
   public function clearFolder( $path )
   {
     if ( !is_dir( $path ) )
-      return [ ];
-    $files = [ ];
+      return [];
+    $files = [];
     $theDir = realpath( $path );
     $handle = opendir( $theDir );
 
@@ -112,7 +112,7 @@ class FileService extends FileInfoService implements interfaces\FileService
       $files[] = $filePath;
     }
     closedir( $handle );
-    foreach($files as $file)
-      $this->delete ( $file );
+    foreach ( $files as $file )
+      $this->delete( $file );
   }
 }

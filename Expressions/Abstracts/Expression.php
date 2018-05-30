@@ -67,5 +67,4 @@ abstract class Expression implements \qck\Expressions\Interfaces\Expression
   {
     return new \qck\Expressions\LessEquals( $LeftOperand, $RightOperand );
   }
-
 }

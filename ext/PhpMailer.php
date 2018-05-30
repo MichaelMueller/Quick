@@ -17,7 +17,9 @@ class PhpMailer implements interfaces\Mailer
     $this->password = $password;
   }
 
-  public function send( $recepients, $subject, $message, $fromName = null, $isHtml = false, $attachments = array (), $embeddedImages = array () )
+  public function send( $recepients, $subject, $message, $fromName = null,
+                        $isHtml = false, $attachments = array (),
+                        $embeddedImages = array () )
   {
     $mail = new \PHPMailer;
     $mail->isSMTP();

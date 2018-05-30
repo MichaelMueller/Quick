@@ -8,4 +8,5 @@ namespace qck\Expressions;
  */
 abstract class ValueExpression extends Abstracts\Expression
 {
+  
 }

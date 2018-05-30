@@ -53,6 +53,7 @@ class DataTest extends \qck\core\abstracts\Test
     // load again
     $Db2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
     $LoadedUser = $Db2->load( User::class, $User->getUuid() );
+    $this->assert( $Orgs == $LoadedUser->Organisations );
     $this->assert( $User == $LoadedUser );
     $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
     $this->assert( $TestVector == $LoadedVector );
@@ -60,7 +61,8 @@ class DataTest extends \qck\core\abstracts\Test
     $User->setName( "Michael Air2" );
     $ObjectDb->commit();
     $LoadedUser = $Db2->load( User::class, $User->getUuid() );
-    $this->assert( $User == $LoadedUser );
+    $this->assert( $Orgs == $LoadedUser->Organisations );
+      $this->assert( $User == $LoadedUser );
   }
 
   public function getRequiredTests()

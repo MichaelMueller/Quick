@@ -19,7 +19,8 @@ class Strlen extends SingleParamFunction
     return mb_strlen( $this->Param->evaluate( $Data, $FilteredArray, $FailedExpressions ) );
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary, array &$Params = array () )
+  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary,
+                         array &$Params = array () )
   {
     return $Dictionary->getStrlenFunctionName() . " ( " . $this->Param->toSql( $Dictionary, $Params ) . " ) ";
   }

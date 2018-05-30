@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\ext\interfaces;
 
 /**
@@ -6,11 +7,11 @@ namespace qck\ext\interfaces;
  *
  * @author muellerm
  */
-interface Log 
-{  
+interface Log
+{
+
   /**
    * send a msg to the log. this should be plain message. time or anything will be added by the log
    */
-  public function msg( $msg );  
-  
+  public function msg( $msg );
 }

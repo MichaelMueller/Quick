@@ -27,5 +27,4 @@ class Or_ extends BooleanChain
   {
     return "or";
   }
-
 }

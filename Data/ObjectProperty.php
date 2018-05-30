@@ -6,12 +6,12 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class ObjectProperty extends IntProperty
+class ObjectProperty extends StringProperty
 {
 
   public function __construct( $Name, $Fqcn )
   {
-    parent::__construct( $Name );
+    parent::__construct( $Name, 36, 36 );
     $this->Fqcn = $Fqcn;
   }
 

@@ -17,7 +17,8 @@ class Response implements \qck\core\interfaces\Response
    * @param int $ResponseCode
    * @param array $Headers
    */
-  function __construct( $Contents = null, $ResponseCode = 200, $Headers = array (), $ContentType = "Content-Type: text/html; charset=utf-8" )
+  function __construct( $Contents = null, $ResponseCode = 200, $Headers = array (),
+                        $ContentType = "Content-Type: text/html; charset=utf-8" )
   {
     $this->Contents = $Contents;
     $this->ContentType = $ContentType;

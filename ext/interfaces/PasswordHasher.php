@@ -14,6 +14,7 @@ interface PasswordHasher
    * @return string a hashed password
    */
   function createHash( $PlainTextPassword );
+
   /**
    * 
    * @param bool

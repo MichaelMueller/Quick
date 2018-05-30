@@ -8,5 +8,6 @@ namespace qck\Sql\Interfaces;
  */
 interface Select
 {
+
   function toSql( DbDictionary $DbDictionary, &$Params = [] );
 }

@@ -16,18 +16,18 @@ abstract class Controller extends \qck\core\abstracts\Controller
       $this->throwUnauthorized();
   }
 
-  protected function assertAdminLoggedIn( \qck\ext\interfaces\UserDb $UserDb)
+  protected function assertAdminLoggedIn( \qck\ext\interfaces\UserDb $UserDb )
   {
     $User = $UserDb->getUser( $this->getUsername() );
     if ( $User == null || $User->isAdmin() !== true )
       $this->throwUnauthorized();
   }
-  
+
   function isAuthenticated()
   {
     return $this->getUsername() !== null;
   }
-  
+
   function getUsername()
   {
     return $this->getAppConfig()->getSession()->getUsername();

@@ -18,5 +18,4 @@ class PasswordHasher implements interfaces\PasswordHasher
   {
     return password_hash( $plainTextPassword, PASSWORD_DEFAULT );
   }
-
 }

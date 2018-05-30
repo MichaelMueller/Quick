@@ -21,6 +21,18 @@ abstract class Object implements \qck\Data\Interfaces\Object
     return $this->Uuid;
   }
 
+  function __get( $Key )
+  {
+    if ( isset( $this->Data[ $Key ] ) )
+    {
+      $Value = $this->Data[ $Key ];
+      if ( $Value instanceof \qck\Data\Interfaces\UnloadedObject )
+        $this->Data[ $Key ] = $Value->load();
+      return $this->Data[ $Key ];
+    }
+    return null;
+  }
+
   function getData()
   {
     return $this->Data;

@@ -8,5 +8,5 @@ namespace qck\Expressions;
  */
 abstract class BooleanExpression extends Abstracts\Expression
 {
-
+  
 }

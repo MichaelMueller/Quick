@@ -18,12 +18,12 @@ abstract class Controller implements \qck\core\interfaces\Controller
     return $this->proxyRun();
   }
 
-  function redirect($ControllerName, $args = array ())
+  function redirect( $ControllerName, $args = array () )
   {
-    header("Location: ".$this->getAppConfig()->mkLink( $ControllerName, $args ));
+    header( "Location: " . $this->getAppConfig()->mkLink( $ControllerName, $args ) );
     return null;
   }
-  
+
   /**
    * @return \qck\core\interfaces\AppConfig
    */

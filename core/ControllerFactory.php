@@ -80,7 +80,7 @@ class ControllerFactory implements \qck\core\interfaces\ControllerFactory
     }
     return $CurrentControllerClassName;
   }
-  
+
   public function getQueryKey()
   {
     return $this->queryKey;

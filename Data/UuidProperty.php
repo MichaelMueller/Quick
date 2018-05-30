@@ -6,12 +6,12 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class UuidProperty extends IntProperty
+class UuidProperty extends StringProperty
 {
 
   public function __construct()
   {
-    parent::__construct( "Uuid" );
+    parent::__construct( "Uuid", 36, 36 );
     $this->setUnique();
   }
 

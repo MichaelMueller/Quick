@@ -14,25 +14,10 @@ class ObjectDb implements Interfaces\ObjectDb
   {
     $this->ObjectDb = $ObjectDb;
     $this->ObjectDbSchema = $ObjectDbSchema;
-    $this->KeyPool = $this->load( KeyPool::class, 1 );
-    if ( !$this->KeyPool )
-    {
-      $this->KeyPool = new KeyPool();
-      $this->register( $this->KeyPool );
-    }
   }
 
   public function commit()
   {
-    /* @var $Object Interfaces\Object */
-    foreach ( $this->Objects as $Object )
-    {
-      if ( $Object->getUuid() === null )
-      {
-        $Object->setUuid( $this->KeyPool->getNextKey() );
-      }
-    }
-
     foreach ( $this->Objects as $Object )
     {
       $Hash = spl_object_hash( $Object );
@@ -93,10 +78,9 @@ class ObjectDb implements Interfaces\ObjectDb
 
     if ( $Data !== false )
     {
-      $Object = $Object ? $Object : new $Fqcn();
+      $Object = $Object ? $Object : new $Fqcn( $Uuid );
 
       $Object->setData( $Schema->recover( $Data, $this, $Version ) );
-      $Object->setUuid( $Uuid );
       $Object->setVersion( $Version );
       $this->register( $Object );
       return $Object;
@@ -169,12 +153,6 @@ class ObjectDb implements Interfaces\ObjectDb
         unset( $this->KnownVersions[ $Hash ] );
     }
   }
-
-  /**
-   *
-   * @var KeyPool 
-   */
-  protected $KeyPool;
 
   /**
    *

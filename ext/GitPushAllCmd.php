@@ -12,7 +12,7 @@ class GitPushAllCmd extends Cmd
 
   function __construct( $StartDirectory = null )
   {
-    parent::__construct(null, $StartDirectory);
+    parent::__construct( null, $StartDirectory );
   }
 
   public function __toString()
@@ -21,10 +21,8 @@ class GitPushAllCmd extends Cmd
     $commitMsg .= " " . date_default_timezone_get();
     $commitMsg .= ", from " . get_current_user();
     $commitMsg .= " on " . gethostname();
-    $cmd = 'git add -A && git commit -am"'.$commitMsg.'" && git push origin';
-    
+    $cmd = 'git add -A && git commit -am"' . $commitMsg . '" && git push origin';
+
     return $cmd;
   }
-
-
 }

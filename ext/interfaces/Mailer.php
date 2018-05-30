@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\ext\interfaces;
 
 /**
@@ -7,5 +8,8 @@ namespace qck\ext\interfaces;
  */
 interface Mailer
 {
-  public function send($recepients, $subject, $message, $fromName=null, $isHtml=false, $attachments=array(), $embeddedImages=array());
+
+  public function send( $recepients, $subject, $message, $fromName = null,
+                        $isHtml = false, $attachments = array (),
+                        $embeddedImages = array () );
 }

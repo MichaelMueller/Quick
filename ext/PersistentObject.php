@@ -17,7 +17,7 @@ class PersistentObject extends DataObject implements interfaces\PersistentObject
 
   function save()
   {
-    fwrite( $this->Fp,  serialize( $this->Data ));
+    fwrite( $this->Fp, serialize( $this->Data ) );
     fflush( $this->Fp );
   }
 

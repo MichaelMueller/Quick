@@ -12,8 +12,8 @@ class FileInfoService implements interfaces\FileInfoService
   public function getFiles( $Dir, $Recursive = false, $OnlyFiles = false )
   {
     if ( !is_dir( $Dir ) )
-      return [ ];
-    $files = [ ];
+      return [];
+    $files = [];
     $theDir = realpath( $Dir );
     $handle = opendir( $theDir );
 
@@ -26,7 +26,7 @@ class FileInfoService implements interfaces\FileInfoService
 
       if ( $OnlyFiles == false || !is_dir( $filePath ) )
       {
-         $files[] = $filePath;
+        $files[] = $filePath;
       }
 
       if ( is_dir( $filePath ) && $Recursive )
@@ -72,8 +72,8 @@ class FileInfoService implements interfaces\FileInfoService
   public function getContents( $filePath )
   {
     if ( !file_exists( $filePath ) || filesize( $filePath ) == 0 )
-      return null;    
-    
+      return null;
+
     $f = fopen( $filePath, "r" );
     $locked = flock( $f, LOCK_SH );
     $content = fread( $f, filesize( $filePath ) );

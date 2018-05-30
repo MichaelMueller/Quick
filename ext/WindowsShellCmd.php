@@ -21,7 +21,7 @@ class WindowsShellCmd implements interfaces\Cmd
     $this->guessShellExe();
 
     $Cmd = new Cmd( ( string ) $this );
-    return $Cmd->run($output);
+    return $Cmd->run( $output );
   }
 
   public function guessShellExe( $preferMsysGit = true )

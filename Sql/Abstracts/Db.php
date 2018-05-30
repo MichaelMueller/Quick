@@ -56,7 +56,7 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $Sql = "INSERT INTO " . $TableName . " (" . implode( ", ", $ColumnNames ) . ") VALUES (" . implode( ", ", $PlaceHolder ) . ")";
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Values );
-    return $this->Pdo->lastInsertUuid();
+    return $this->Pdo->lastInsertId();
   }
 
   public function update( $TableName, array $ColumnNames, array $Values,

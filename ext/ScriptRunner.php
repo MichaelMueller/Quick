@@ -15,7 +15,8 @@ class ScriptRunner implements \qck\ext\interfaces\ScriptRunner
     $this->TempDir = $tempDir ? realpath( $tempDir ) : sys_get_temp_dir();
   }
 
-  public function run( $scriptContents, &$output = null, $command = null, $scriptExt = null )
+  public function run( $scriptContents, &$output = null, $command = null,
+                       $scriptExt = null )
   {
     $scriptFile = null;
     do
@@ -23,7 +24,7 @@ class ScriptRunner implements \qck\ext\interfaces\ScriptRunner
       $scriptFile = $this->TempDir . DIRECTORY_SEPARATOR . uniqid() . $scriptExt;
     }
     while ( file_exists( $scriptFile ) );
-    touch($scriptFile);
+    touch( $scriptFile );
 
     try
     {

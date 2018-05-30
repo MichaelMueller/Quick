@@ -32,14 +32,14 @@ class App
 
     // handle error if no controller is found
     if ( is_null( $cntrllr ) )
-      throw new \Exception( "Controller ".$cntrllrFctry->getCurrentControllerClassName()." was not found", \qck\core\interfaces\Response::CODE_PAGE_NOT_FOUND );
+      throw new \Exception( "Controller " . $cntrllrFctry->getCurrentControllerClassName() . " was not found", \qck\core\interfaces\Response::CODE_PAGE_NOT_FOUND );
 
     /* @var $response \qck\core\interfaces\Response */
     $response = $cntrllr->run( $Config );
-    
+
     // send the response
     // if there is a null response, the controller has sent everything himself
-    if(!is_null($response))
+    if ( !is_null( $response ) )
       $response->send();
   }
 

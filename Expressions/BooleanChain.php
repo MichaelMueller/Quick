@@ -8,8 +8,9 @@ namespace qck\Expressions;
  */
 abstract class BooleanChain extends BooleanExpression
 {
+
   abstract function getOperator( \qck\Sql\Interfaces\DbDictionary $Dictionary );
-  
+
   function __construct( array $Expressions = [] )
   {
     foreach ( $Expressions as $Expression )
@@ -21,7 +22,8 @@ abstract class BooleanChain extends BooleanExpression
     $this->Expressions[] = $Expression;
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary, array &$Params = array () )
+  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary,
+                         array &$Params = array () )
   {
     $Sql = "(";
 
@@ -31,7 +33,7 @@ abstract class BooleanChain extends BooleanExpression
       $Xpression = $this->Expressions[ $i ];
       $Sql .= $Xpression->toSql( $Dictionary, $Params );
       if ( $i + 1 < $ExpCount )
-        $Sql .= " ".$this->getOperator( $Dictionary )." ";
+        $Sql .= " " . $this->getOperator( $Dictionary ) . " ";
     }
 
     $Sql .= ")";

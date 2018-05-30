@@ -14,6 +14,4 @@ class AppConfigFactory implements \qck\core\interfaces\AppConfigFactory
   {
     return file_exists( "AppConfigLocal.php" ) ? new AppConfigLocal() : new AppConfig();
   }
-
-
 }

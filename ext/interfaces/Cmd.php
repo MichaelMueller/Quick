@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\ext\interfaces;
 
 /**
@@ -6,19 +7,21 @@ namespace qck\ext\interfaces;
  *
  * @author muellerm
  */
-interface Cmd 
-{  
+interface Cmd
+{
+
   /**
    * runs a command
    * @param string $output if set to false output will be printed
    * @return int the return value of the command or -1 if it failed for any reason
    */
   function run( &$output = false );
-  
+
   /**
    * @return string 
    */
   function __toString();
+
   /**
    * @return string 
    */

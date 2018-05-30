@@ -12,8 +12,10 @@ class AppConfig extends \qck\core\abstracts\AppConfig
 
   public function getControllerFactory()
   {
-    return $this->getSingleton("ControllerFactory", 
-        function(){ return new \qck\core\ControllerFactory( "\\qck\\apps\\helloworld\\controller" ); });
+    return $this->getSingleton( "ControllerFactory", function()
+        {
+          return new \qck\core\ControllerFactory( "\\qck\\apps\\helloworld\\controller" );
+        } );
   }
 
   public function getAppName()

@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\core\interfaces;
 
 /**
@@ -7,5 +8,6 @@ namespace qck\core\interfaces;
  */
 interface Template
 {
+
   public function render();
 }

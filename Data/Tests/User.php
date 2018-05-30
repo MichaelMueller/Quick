@@ -9,10 +9,16 @@ namespace qck\Data\Tests;
 class User extends \qck\Data\Abstracts\Object
 {
 
+  public function __construct( $Uuid = null )
+  {
+    parent::__construct( $Uuid );
+
+    $this->Data[ "Organisations" ] = new \qck\Data\Vector();
+  }
+
   function setName( $Name )
   {
     $this->Data[ "Name" ] = $Name;
-    $this->Data[ "Organisations" ] = new \qck\Data\Vector();
     $this->Version++;
   }
 
@@ -22,6 +28,7 @@ class User extends \qck\Data\Abstracts\Object
    */
   function getOrganisations()
   {
+    print spl_object_hash( $this->Data[ "Organisations" ] ) . PHP_EOL;
     return $this->Data[ "Organisations" ];
   }
 }

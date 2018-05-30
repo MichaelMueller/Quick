@@ -21,7 +21,7 @@ class FileTrash implements interfaces\FileTrash
   function run()
   {
     $Files = $this->Files;
-    $this->Files = [ ];
+    $this->Files = [];
     foreach ( $Files as $file )
     {
       if ( !file_exists( $file ) )
@@ -36,7 +36,7 @@ class FileTrash implements interfaces\FileTrash
       $this->run();
   }
 
-  protected $Files = [ ];
+  protected $Files = [];
 
   /**
    *

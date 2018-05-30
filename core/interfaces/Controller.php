@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\core\interfaces;
 
 /**
@@ -7,7 +8,8 @@ namespace qck\core\interfaces;
  * @author muellerm
  */
 interface Controller
-{  
+{
+
   /**
    * @return Response 
    */

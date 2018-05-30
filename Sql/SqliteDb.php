@@ -62,11 +62,11 @@ class SqliteDb extends Abstracts\Db
   {
     return "PRIMARY KEY";
   }
+
   public function getAutoincrementAttribute()
   {
     return "AUTOINCREMENT";
   }
-
 
   public function getBoolDatatype()
   {

@@ -13,8 +13,8 @@ class DefaultErrorController implements \qck\core\interfaces\ErrorController
   public function run( \qck\core\interfaces\AppConfig $config )
   {
     $errorCode = $this->ErrorCode;
-    $error = "Server Error. Code: ".$errorCode;
-    
+    $error = "Server Error. Code: " . $errorCode;
+
     return new \qck\core\Response( $error, $errorCode );
   }
 
@@ -22,6 +22,7 @@ class DefaultErrorController implements \qck\core\interfaces\ErrorController
   {
     $this->ErrorCode = $errorCode;
   }
-  
+
   protected $ErrorCode = null;
+
 }

@@ -10,7 +10,7 @@ namespace qck\ext;
 class DefaultAppConfig extends abstracts\AppConfig
 {
 
-  function __construct($AppName, $ControllerNameSpace = "", $Argv = null)
+  function __construct( $AppName, $ControllerNameSpace = "", $Argv = null )
   {
     $this->AppName = $AppName;
     $this->ControllerNameSpace = $ControllerNameSpace;
@@ -24,14 +24,14 @@ class DefaultAppConfig extends abstracts\AppConfig
 
   public function getControllerFactory()
   {
-    return $this->getSingleton("ControllerFactory", function()
-            {
-              return new ControllerFactory($this->ControllerNameSpace, $this->Argv);
-            });
+    return $this->getSingleton( "ControllerFactory", function()
+        {
+          return new ControllerFactory( $this->ControllerNameSpace, $this->Argv );
+        } );
   }
 
-  private $AppName = array();
-  private $ControllerNameSpace = array();
-  private $Argv = array();
+  private $AppName = array ();
+  private $ControllerNameSpace = array ();
+  private $Argv = array ();
 
 }

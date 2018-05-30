@@ -14,7 +14,8 @@ class Session implements interfaces\Session
   const LAST_LOGIN_KEY = "__LT__";
   const USER_ID_KEY = "__ID__";
 
-  function __construct( interfaces\ClientInfo $ClientInfo, $SessionDir, $LoginTtlSecs = 600 )
+  function __construct( interfaces\ClientInfo $ClientInfo, $SessionDir,
+                        $LoginTtlSecs = 600 )
   {
     $this->ClientInfo = $ClientInfo;
     $this->SessionDir = $SessionDir;

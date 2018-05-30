@@ -14,20 +14,20 @@ namespace qck\ext\interfaces;
  */
 interface DataObject
 {
+
   function add( $key );
-  
+
   function set( $key, $value );
 
   function remove( $key );
-  
-  function removeWhere( callable $Matcher );
-  
-  function keys();
-  
-  function has( $key );  
-  
-  function get( $key );
-  
-  function getWhere( callable $Matcher );
 
+  function removeWhere( callable $Matcher );
+
+  function keys();
+
+  function has( $key );
+
+  function get( $key );
+
+  function getWhere( callable $Matcher );
 }

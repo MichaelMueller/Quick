@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\ext\interfaces;
 
 /**
@@ -7,6 +8,7 @@ namespace qck\ext\interfaces;
  */
 interface ScriptRunner
 {
+
   /**
    * will create a temp script file, run it via exec or similar, return the return value of the commandline
    * execution and delete the temp script file
@@ -18,5 +20,6 @@ interface ScriptRunner
    * 
    * @return int return the return value of the commandline execution
    */
-  public function run( $scriptContents, &$output=null, $command=null, $scriptExt=null );
+  public function run( $scriptContents, &$output = null, $command = null,
+                       $scriptExt = null );
 }

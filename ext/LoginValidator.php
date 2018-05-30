@@ -9,7 +9,8 @@ namespace qck\ext;
 class LoginValidator extends abstracts\Validator
 {
 
-  function __construct( interfaces\Authenticator $Authenticator, interfaces\Session $Session )
+  function __construct( interfaces\Authenticator $Authenticator,
+                        interfaces\Session $Session )
   {
     $this->Session = $Session;
     $this->Authenticator = $Authenticator;

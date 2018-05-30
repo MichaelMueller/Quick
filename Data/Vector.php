@@ -11,8 +11,9 @@ class Vector extends Abstracts\Object
 
   const ELEMENTS_NAME = "Elements";
 
-  function __construct()
+  function __construct( $Uuid = null )
   {
+    parent::__construct( $Uuid );
     $this->Data[ self::ELEMENTS_NAME ] = [];
   }
 

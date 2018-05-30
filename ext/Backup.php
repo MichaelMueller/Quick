@@ -14,7 +14,8 @@ class Backup implements \qck\core\interfaces\Functor
 {
 
   function __construct( \qck\core\interfaces\AdminMailer $AdminMailer, $LogFile,
-                        array $Cmds = array (), array $AllowedReturnValuesPerCmd = array () )
+                        array $Cmds = array (),
+                        array $AllowedReturnValuesPerCmd = array () )
   {
     $this->AdminMailer = $AdminMailer;
     $this->LogFile = $LogFile;

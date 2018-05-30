@@ -32,7 +32,8 @@ class Identifier extends ValueExpression
     return $Data[ $this->Name ];
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary, array &$Params = array () )
+  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary,
+                         array &$Params = array () )
   {
     return $this->Name;
   }

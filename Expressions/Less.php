@@ -9,8 +9,7 @@ namespace qck\Expressions;
 class Less extends Comparison
 {
 
-  function __construct( ValueExpression $LeftOperand,
-                        ValueExpression $RightOperand )
+  function __construct( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
     parent::__construct( $LeftOperand, $RightOperand );
   }
@@ -19,6 +18,7 @@ class Less extends Comparison
   {
     return $this->LeftOperand->evaluate( $Data, $FilteredArray, $FailedExpressions ) < $this->RightOperand->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }
+
   public function getOperator( \qck\Sql\Interfaces\DbDictionary $Dictionary )
   {
     return "<";

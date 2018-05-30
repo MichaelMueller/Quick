@@ -1,4 +1,5 @@
 <?php
+
 namespace qck\core\interfaces;
 
 /**
@@ -8,38 +9,47 @@ namespace qck\core\interfaces;
  */
 interface AppConfig extends Linker
 {
+
   /**
    * @return string the name identifying this web app
    */
   function getAppName();
+
   /**
    * @return ControllerFactory
    */
   function getControllerFactory();
+
   /**
    * @return string
    */
   function getWorkingDir();
+
   /**
    * @return string
    */
-  function getDataDir($createIfNotExists=true);
+  function getDataDir( $createIfNotExists = true );
+
   /**
    * @return string
    */
-  function getCacheDir($createIfNotExists=true);
+  function getCacheDir( $createIfNotExists = true );
+
   /**
    * @return ErrorController The default error dialog for this application
    */
   function getErrorController();
+
   /**
    * @return AdminMailer
    */
   function getAdminMailer();
+
   /**
    * @return string an identifier for the current host. may use gethostname() implementation
    */
   function getHostInfo();
+
   /**
    * @return array an array of classnames for testcases
    */
