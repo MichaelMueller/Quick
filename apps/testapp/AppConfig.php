@@ -23,14 +23,6 @@ class AppConfig extends \qck\ext\abstracts\AppConfig
     return $var;
   }
 
-  public function getErrorController()
-  {
-    static $var = null;
-    if ( !$var )
-      $var = new ErrorController( );
-    return $var;
-  }
-
   public function getAppName()
   {
     return "testapp";

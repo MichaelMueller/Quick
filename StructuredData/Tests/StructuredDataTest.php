@@ -12,7 +12,10 @@ class StructuredDataTest extends \qck\core\abstracts\Test
   public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
 
-    $SqliteFile = $this->getTempFile( $FilesToDelete );
+    $SqliteFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_replace( "\\", "_", StructuredDataTest::class ) . ".sqlite";
+    if ( file_exists( $SqliteFile ) )
+      unlink( $SqliteFile );
+
     $SqliteDb = new \qck\Sql\SqliteDb( $SqliteFile );
 
     $BrokerRegistry = new \qck\StructuredData\SqlBrokerRegistry();
@@ -25,8 +28,13 @@ class StructuredDataTest extends \qck\core\abstracts\Test
     $UserNode->Name = "Michael";
     $UserNode->Admin = true;
 
-    $SqlNodeDb->register( $Node );
+    $SqlNodeDb->register( $UserNode );
     $SqlNodeDb->commit();
+    $SqliteDb->closeConnection();
+
+    $SqlNodeDb2 = new \qck\StructuredData\SqlNodeDb( $SqliteDb, $BrokerRegistry );
+    $LoadedNode = $SqlNodeDb2->load( \qck\Data\Node::class, $UserNode->getId() );
+    $this->assert( $LoadedNode == $UserNode );
   }
 
   public function getRequiredTests()

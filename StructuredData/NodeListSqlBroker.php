@@ -6,14 +6,18 @@ namespace qck\StructuredData;
  *
  * @author muellerm
  */
-class NodeSqlBroker implements Interfaces\SqlBroker
+class NodeListSqlBroker extends Abstracts\SqlBroker
 {
 
-  const TABLE_NAME = "Nodes";
-
-  public function delete( \qck\Sql\Interfaces\Db $Db, $Id )
+  function delete( \qck\Sql\Interfaces\Db $Db, $Id )
   {
-    $Db->delete( self::TABLE_NAME, new \qck\Expressions\IdEquals( $Id ) );
+    parent::delete( $Db, $Id );
+    $Db->delete( $this->getDataTableName(), new \qck\Expressions\IdEquals( $Id ) );
+  }
+
+  protected function getDataTableName()
+  {
+    return $this->getTableName() . "_Data";
   }
 
   public function getVersion( \qck\Sql\Interfaces\Db $Db, $Id )
@@ -87,5 +91,10 @@ class NodeSqlBroker implements Interfaces\SqlBroker
     $Table->addColumn( new \qck\Sql\IntColumn( "Version" ) );
     $Table->addColumn( new \qck\Sql\StringColumn( "Data", 0, \qck\Sql\StringColumn::MEDIUMTEXT ) );
     $DbSchema->createTable( $Table );
+  }
+
+  protected function getFqcn()
+  {
+    return NodeList::class;
   }
 }

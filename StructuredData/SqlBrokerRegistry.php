@@ -24,6 +24,13 @@ class SqlBrokerRegistry implements Interfaces\SqlBrokerRegistry
     return $this->Brokers[ $Fqcn ];
   }
 
+  public function addToSchema( \qck\Sql\Interfaces\DbSchema $DbSchema )
+  {
+    /* @var $Broker Interfaces\SqlBroker */
+    foreach ( $this->Brokers as $Broker )
+      $Broker->addToSchema( $DbSchema );
+  }
+
   /**
    *
    * @var array

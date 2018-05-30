@@ -15,7 +15,7 @@ use \qck\Data;
 class University extends Data\Node
 {
 
-  const Id = 0;
+  const Id = 1;
 
   static function create( $Name )
   {

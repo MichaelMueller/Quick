@@ -14,6 +14,11 @@ class SqliteDb extends Abstracts\Db
     $this->SqliteFile = $SqliteFile;
   }
 
+  public function closeConnection()
+  {
+    $this->Pdo = null;
+  }
+
   /**
    * @return \PDO
    */

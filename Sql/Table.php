@@ -9,16 +9,28 @@ namespace qck\Sql;
 class Table implements Interfaces\Table
 {
 
-  function __construct( $Name, array $Columns = [], array $UniqueIndexes = [] )
+  function __construct( $Name, array $Columns = [], array $UniqueIndexes = [],
+                        array $Indexes = [] )
   {
     $this->Name = $Name;
     $this->Columns = $Columns;
     $this->UniqueIndexes = $UniqueIndexes;
+    $this->Indexes = $Indexes;
   }
 
   function addColumn( Interfaces\Column $Column )
   {
     $this->Columns[] = $Column;
+  }
+
+  function addUniqueIndex( $ColumnName )
+  {
+    $this->UniqueIndexes[] = $ColumnName;
+  }
+
+  function addIndex( $ColumnName )
+  {
+    $this->Indexes[] = $ColumnName;
   }
 
   public function getColumnNames( $SkipPrimaryKeyCol = true )
@@ -54,6 +66,11 @@ class Table implements Interfaces\Table
     return $this->UniqueIndexes;
   }
 
+  function getIndexes()
+  {
+    return $this->Indexes;
+  }
+
   /**
    *
    * @var string 
@@ -71,5 +88,11 @@ class Table implements Interfaces\Table
    * @var array 
    */
   protected $UniqueIndexes;
+
+  /**
+   *
+   * @var array 
+   */
+  protected $Indexes;
 
 }

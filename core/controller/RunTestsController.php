@@ -42,7 +42,7 @@ class RunTestsController implements \qck\core\interfaces\Controller
       catch ( \Exception $ex )
       {
         foreach ( $FilesToDelete as $FileToDelete )
-          $this->rmfile( $File );
+          $this->rmfile( $FileToDelete );
 
         print "********** FAILED: test case " . $testClass . " (Reason: " . strval( $ex ) . ")" . PHP_EOL;
         $testsFailed[] = $testClass;

@@ -37,7 +37,9 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $Sql .= "CREATE TABLE" . ($IfNotExists ? " IF NOT EXISTS" : "") . " " . $Table->getName() . " ( ";
     $Sql .= $Table->getColumnSql( $this->getDbDictionary() ) . ");";
     foreach ( $Table->getUniqueIndexes() as $ColName )
-      $Sql .= "CREATE UNIQUE INDEX " . $ColName . "_Index  ON " . $Table->getName() . " (" . $ColName . ");";
+      $Sql .= "CREATE UNIQUE INDEX " . $ColName . "_UniqueIndex  ON " . $Table->getName() . " (" . $ColName . ");";
+    foreach ( $Table->getIndexes() as $ColName )
+      $Sql .= "CREATE INDEX " . $ColName . "_Index  ON " . $Table->getName() . " (" . $ColName . ");";
     $this->getPdo()->exec( $Sql );
   }
 
