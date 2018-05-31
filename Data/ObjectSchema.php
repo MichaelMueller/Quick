@@ -12,11 +12,11 @@ class ObjectSchema implements interfaces\ObjectSchema
   function __construct( $Fqcn, array $Properties = [] )
   {
     $this->UuidProperty = new UuidProperty();
-    $this->VersionProperty = new VersionProperty();
+    $this->ModifiedTimeProperty = new ModifiedTimeProperty();
     $this->Fqcn = $Fqcn;
     $this->Properties = $Properties;
     $this->addProperty( $this->UuidProperty );
-    $this->addProperty( $this->VersionProperty );
+    $this->addProperty( $this->ModifiedTimeProperty );
   }
 
   function addProperty( Abstracts\Property $Property )
@@ -29,9 +29,9 @@ class ObjectSchema implements interfaces\ObjectSchema
     return $this->UuidProperty->getName();
   }
 
-  public function getVersionPropertyName()
+  public function getModifiedTimePropertyName()
   {
-    return $this->VersionProperty->getName();
+    return $this->ModifiedTimeProperty->getName();
   }
 
   function getFqcn()
@@ -52,16 +52,16 @@ class ObjectSchema implements interfaces\ObjectSchema
     return str_replace( "\\", "_", $this->Fqcn );
   }
 
-  public function prepare( array $Data, $Version = null, $Uuid = null )
+  public function prepare( array $Data, $ModifiedTime = null, $Uuid = null )
   {
     $PreparedData = [];
     foreach ( $this->Properties as $Name => $Property )
     {
-      if ( $Name == $this->getVersionPropertyName() )
+      if ( $Name == $this->getModifiedTimePropertyName() )
       {
-        if ( $Version === null )
+        if ( $ModifiedTime === null )
           continue;
-        $PreparedData[] = $Property->prepare( $Version );
+        $PreparedData[] = $Property->prepare( $ModifiedTime );
       }
       else if ( $Name == $this->getUuidPropertyName() )
       {
@@ -75,7 +75,7 @@ class ObjectSchema implements interfaces\ObjectSchema
     return $PreparedData;
   }
 
-  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb, &$Version = null,
+  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb, &$ModifiedTime = null,
                            &$Uuid = null )
   {
     $RecoveredData = [];
@@ -84,8 +84,8 @@ class ObjectSchema implements interfaces\ObjectSchema
       $Value = isset( $Data[ $Name ] ) ? $Property->recover( $Data[ $Name ], $ObjectDb ) : null;
       if ( $Name == $this->getUuidPropertyName() )
         $Uuid = $Value;
-      else if ( $Name == $this->getVersionPropertyName() )
-        $Version = $Value;
+      else if ( $Name == $this->getModifiedTimePropertyName() )
+        $ModifiedTime = $Value;
       else
         $RecoveredData[ $Name ] = $Value;
     }
@@ -109,9 +109,9 @@ class ObjectSchema implements interfaces\ObjectSchema
 
   /**
    *
-   * @var VersionProperty
+   * @var ModifiedTimeProperty
    */
-  protected $VersionProperty;
+  protected $ModifiedTimeProperty;
 
   /**
    *

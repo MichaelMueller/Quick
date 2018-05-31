@@ -40,23 +40,29 @@ abstract class Object implements \qck\Data\Interfaces\Object
 
   function setData( array $Data )
   {
-    $this->Data = $Data;
-    $this->Version++;
+    $this->Data = $Data;    
+    $this->setModified();
   }
+
+  protected function setModified()
+  {
+    $this->ModifiedTime = microtime();    
+  }
+
 
   public function getFqcn()
   {
     return get_class( $this );
   }
 
-  function getVersion()
+  function getModifiedTime()
   {
-    return $this->Version;
+    return $this->ModifiedTime;
   }
 
-  function setVersion( $Version )
+  function setModifiedTime( $ModifiedTime )
   {
-    $this->Version = $Version;
+    $this->ModifiedTime = $ModifiedTime;
   }
 
   /**
@@ -69,7 +75,7 @@ abstract class Object implements \qck\Data\Interfaces\Object
    *
    * @var int
    */
-  protected $Version = 0;
+  protected $ModifiedTime = 0;
 
   /**
    *

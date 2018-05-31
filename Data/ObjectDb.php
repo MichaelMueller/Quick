@@ -23,16 +23,16 @@ class ObjectDb implements Interfaces\ObjectDb
       $Hash = spl_object_hash( $Object );
       $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
       $Data = $Object->getData();
-      if ( !isset( $this->KnownVersions[ $Hash ] ) )
+      if ( !isset( $this->KnownModifiedTimes[ $Hash ] ) )
       {
-        $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( true ), $Schema->prepare( $Data, $Object->getVersion(), $Object->getUuid() ) );
-        $this->KnownVersions[ $Hash ] = $Object->getVersion();
+        $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( true ), $Schema->prepare( $Data, $Object->getModifiedTime(), $Object->getUuid() ) );
+        $this->KnownModifiedTimes[ $Hash ] = $Object->getModifiedTime();
       }
-      else if ( $this->KnownVersions[ $Hash ] < $Object->getVersion() )
+      else if ( $this->compare( $this->KnownModifiedTimes[ $Hash ], $Object->getModifiedTime() ) < 0 )
       {
         $Exp = new \qck\Expressions\UuidEquals( $Object->getUuid(), $Schema->getUuidPropertyName() );
-        $this->ObjectDb->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getVersion() ), $Exp );
-        $this->KnownVersions[ $Hash ] = $Object->getVersion();
+        $this->ObjectDb->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getModifiedTime() ), $Exp );
+        $this->KnownModifiedTimes[ $Hash ] = $Object->getModifiedTime();
       }
     }
   }
@@ -60,19 +60,19 @@ class ObjectDb implements Interfaces\ObjectDb
     $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
     $Object = $this->findObject( $Fqcn, $Uuid );
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Exp );
-    $VersionPropName = $Schema->getVersionPropertyName();
-    $Version = -1;
-    // if we have an object, check if we need to load it using the version
+    $ModifiedTimePropName = $Schema->getModifiedTimePropertyName();
+    $ModifiedTime = -1;
+    // if we have an object, check if we need to load it using the ModifiedTime
     if ( $Object )
     {
-      $Select->setColumns( [ $VersionPropName ] );
+      $Select->setColumns( [ $ModifiedTimePropName ] );
       $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
       if ( $Data !== false )
-        $Version = $Data[ $VersionPropName ];
-      if ( $Object->getVersion() >= $Version )
+        $ModifiedTime = $Data[ $ModifiedTimePropName ];
+      if ( $this->compare( $ModifiedTime, $Object->getModifiedTime() ) <= 0 )
         return $Object;
     }
-    // Load object (No prior object available or version changed)
+    // Load object (No prior object available or ModifiedTime changed)
     $Select->setColumns( $Schema->getPropertyNames( false ) );
     $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
 
@@ -80,8 +80,8 @@ class ObjectDb implements Interfaces\ObjectDb
     {
       $Object = $Object ? $Object : new $Fqcn( $Uuid );
 
-      $Object->setData( $Schema->recover( $Data, $this, $Version ) );
-      $Object->setVersion( $Version );
+      $Object->setData( $Schema->recover( $Data, $this, $ModifiedTime ) );
+      $Object->setModifiedTime( $ModifiedTime );
       $this->register( $Object );
       return $Object;
     }
@@ -149,9 +149,33 @@ class ObjectDb implements Interfaces\ObjectDb
     {
       $Hash = spl_object_hash( $Object );
       unset( $this->Objects[ $Hash ] );
-      if ( isset( $this->KnownVersions[ $Hash ] ) )
-        unset( $this->KnownVersions[ $Hash ] );
+      if ( isset( $this->KnownModifiedTimes[ $Hash ] ) )
+        unset( $this->KnownModifiedTimes[ $Hash ] );
     }
+  }
+
+  /**
+   * 
+   * @param string $time1
+   * @param string $time2
+   * @return int < 0 if $time1 is less than $time2; > 0 if $time1 is greater than $time2, and 0 if they are equal.
+   */
+  protected function compare( $time1, $time2 )
+  {
+    list($time1_usec, $time1_sec) = explode( " ", $time1 );
+    list($time2_usec, $time2_sec) = explode( " ", $time2 );
+    $sec1 = intval( $time1_sec );
+    $sec2 = intval( $time2_sec );
+    if ( $sec1 == $sec2 )
+    {
+      $msec1 = floatval( $time1_usec );
+      $msec2 = floatval( $time2_usec );
+      if ( $msec1 == $msec2 )
+        return 0;
+      return $msec1 < $msec2 ? -1 : 1;
+    }
+    else
+      return $sec1 < $sec2 ? -1 : 1;
   }
 
   /**
@@ -176,6 +200,6 @@ class ObjectDb implements Interfaces\ObjectDb
    *
    * @var array
    */
-  protected $KnownVersions = [];
+  protected $KnownModifiedTimes = [];
 
 }

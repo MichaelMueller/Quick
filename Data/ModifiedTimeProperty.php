@@ -6,11 +6,11 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class VersionProperty extends IntProperty
+class ModifiedTimeProperty extends StringProperty
 {
 
   public function __construct()
   {
-    parent::__construct( "Version" );
+    parent::__construct( "ModifiedTime", 0, 255 );
   }
 }

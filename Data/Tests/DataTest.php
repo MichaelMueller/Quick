@@ -54,7 +54,7 @@ class DataTest extends \qck\core\abstracts\Test
     $Db2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
     $LoadedUser = $Db2->load( User::class, $User->getUuid() );
     $this->assert( $Orgs == $LoadedUser->Organisations );
-    $this->assert( $User == $LoadedUser );
+    $this->assert( $User == $LoadedUser, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $LoadedUser, true ) );
     $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
     $this->assert( $TestVector == $LoadedVector );
 
@@ -62,7 +62,7 @@ class DataTest extends \qck\core\abstracts\Test
     $ObjectDb->commit();
     $LoadedUser = $Db2->load( User::class, $User->getUuid() );
     $this->assert( $Orgs == $LoadedUser->Organisations );
-      $this->assert( $User == $LoadedUser );
+    $this->assert( $User == $LoadedUser, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $LoadedUser, true ) );
   }
 
   public function getRequiredTests()

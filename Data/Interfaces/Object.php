@@ -22,13 +22,13 @@ interface Object extends UuidProvider
   function getData();
 
   /**
-   * @param int $Version
+   * @param int $ModifiedTime
    */
-  function setVersion( $Version );
+  function setModifiedTime( $ModifiedTime );
 
   /**
-   * get the Version
+   * get the ModifiedTime
    * @return int
    */
-  function getVersion();
+  function getModifiedTime();
 }

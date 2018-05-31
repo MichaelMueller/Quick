@@ -24,7 +24,7 @@ interface ObjectSchema
    * @param array $Data the orignal Data obtained from an object using getData()
    * @return array
    */
-  function prepare( array $Data, $WithVersionProperty = true, $WithUuidProperty = false );
+  function prepare( array $Data, $WithModifiedTimeProperty = true, $WithUuidProperty = false );
 
   /**
    * @param array $Data the orignal Data obtained from an object using getData()
@@ -40,7 +40,7 @@ interface ObjectSchema
   /**
    * @return Property
    */
-  function getVersionPropertyName();
+  function getModifiedTimePropertyName();
 
   /**
    * @return string

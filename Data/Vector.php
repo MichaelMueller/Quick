@@ -20,7 +20,7 @@ class Vector extends Abstracts\Object
   public function add( $Element )
   {
     $this->Data[ self::ELEMENTS_NAME ][] = $Element;
-    $this->Version++;
+    $this->setModified();
   }
 
   public function at( $Index )
@@ -31,7 +31,7 @@ class Vector extends Abstracts\Object
   public function removeAt( $Index )
   {
     unset( $this->Data[ self::ELEMENTS_NAME ][ $Index ] );
-    $this->Version++;
+    $this->setModified();
   }
 
   public function size()

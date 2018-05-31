@@ -19,7 +19,7 @@ class User extends \qck\Data\Abstracts\Object
   function setName( $Name )
   {
     $this->Data[ "Name" ] = $Name;
-    $this->Version++;
+    $this->setModified();
   }
 
   /**
@@ -28,7 +28,6 @@ class User extends \qck\Data\Abstracts\Object
    */
   function getOrganisations()
   {
-    print spl_object_hash( $this->Data[ "Organisations" ] ) . PHP_EOL;
     return $this->Data[ "Organisations" ];
   }
 }
