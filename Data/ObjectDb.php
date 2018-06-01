@@ -9,32 +9,19 @@ namespace qck\Data;
 class ObjectDb implements Interfaces\ObjectDb
 {
 
-  function __construct( \qck\Sql\Interfaces\Db $ObjectDb,
+  function __construct( \qck\Sql\Interfaces\Db $SqlDb,
                         Interfaces\ObjectDbSchema $ObjectDbSchema )
   {
-    $this->ObjectDb = $ObjectDb;
+    $this->SqlDb = $SqlDb;
     $this->ObjectDbSchema = $ObjectDbSchema;
   }
 
   public function commit()
   {
-    foreach ( $this->Objects as $Object )
-    {
-      $Hash = spl_object_hash( $Object );
-      $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
-      $Data = $Object->getData();
-      if ( !isset( $this->KnownModifiedTimes[ $Hash ] ) )
-      {
-        $this->ObjectDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( true ), $Schema->prepare( $Data, $Object->getModifiedTime(), $Object->getUuid() ) );
-        $this->KnownModifiedTimes[ $Hash ] = $Object->getModifiedTime();
-      }
-      else if ( $this->compare( $this->KnownModifiedTimes[ $Hash ], $Object->getModifiedTime() ) < 0 )
-      {
-        $Exp = new \qck\Expressions\UuidEquals( $Object->getUuid(), $Schema->getUuidPropertyName() );
-        $this->ObjectDb->update( $Schema->getSqlTableName(), $Schema->getPropertyNames( false ), $Schema->prepare( $Data, $Object->getModifiedTime() ), $Exp );
-        $this->KnownModifiedTimes[ $Hash ] = $Object->getModifiedTime();
-      }
-    }
+    $this->SqlDb->commit();
+    /* @var $Updater ObjectUpdater */
+    foreach ( $this->ObjectUpdaters as $Updater )
+      $Updater->setChangesCommited();
   }
 
   public function deleteWhere( $Fqcn, Interfaces\Expression $Expression )
@@ -50,39 +37,43 @@ class ObjectDb implements Interfaces\ObjectDb
   {
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
     $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
-    $this->forgetObject( $Fqcn, $Uuid );
-    return $this->ObjectDb->delete( $Schema->getSqlTableName(), $Exp );
+    if ( !$this->SqlDb->isInTransaction() )
+      $this->SqlDb->beginTransaction();
+    $this->SqlDb->delete( $Schema->getSqlTableName(), $Exp );
+    if ( isset( $this->Objects[ $Uuid ] ) )
+    {
+      $this->Objects[ $Uuid ]->removeObserver( $this->ObjectUpdaters[ $Uuid ] );
+      unset( $this->Objects[ $Uuid ] );
+      unset( $this->ObjectUpdaters[ $Uuid ] );
+    }
   }
 
   public function load( $Fqcn, $Uuid )
   {
+    /* @var $Updater ObjectUpdater */
+    $Updater = null;
+    if ( isset( $this->ObjectUpdaters[ $Uuid ] ) )
+    {
+      $Updater = $this->ObjectUpdaters[ $Uuid ];
+      if ( $Updater->hasUncomittedChanges() )
+        return $this->Objects[ $Uuid ];
+    }
+
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
     $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
-    $Object = $this->findObject( $Fqcn, $Uuid );
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Exp );
-    $ModifiedTimePropName = $Schema->getModifiedTimePropertyName();
-    $ModifiedTime = -1;
-    // if we have an object, check if we need to load it using the ModifiedTime
-    if ( $Object )
-    {
-      $Select->setColumns( [ $ModifiedTimePropName ] );
-      $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
-      if ( $Data !== false )
-        $ModifiedTime = $Data[ $ModifiedTimePropName ];
-      if ( $this->compare( $ModifiedTime, $Object->getModifiedTime() ) <= 0 )
-        return $Object;
-    }
-    // Load object (No prior object available or ModifiedTime changed)
     $Select->setColumns( $Schema->getPropertyNames( false ) );
-    $Data = $this->ObjectDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
-
+    $Data = $this->SqlDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
     if ( $Data !== false )
     {
-      $Object = $Object ? $Object : new $Fqcn( $Uuid );
-
+      $Object = $Updater ? $this->Objects[ $Uuid ] : new $Fqcn( $Uuid );
+      $ModifiedTime = null;
       $Object->setData( $Schema->recover( $Data, $this, $ModifiedTime ) );
       $Object->setModifiedTime( $ModifiedTime );
-      $this->register( $Object );
+      if ( !$Updater )
+        $this->registerAndAddUpdater( $Object, $Schema, true );
+      else
+        $Updater->setChangesCommited();
       return $Object;
     }
 
@@ -106,7 +97,7 @@ class ObjectDb implements Interfaces\ObjectDb
     $Select->setOffset( $Offset );
     $Select->setOrderParams( $OrderPropName, $Descending );
     $Select->setColumns( [ $UuidPropName ] );
-    $Results = $this->ObjectDb->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
+    $Results = $this->SqlDb->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
     foreach ( $Results as $Result )
       $LazyLoaders[] = new LazyLoader( $Fqcn, $Result[ $UuidPropName ], $this );
     return $LazyLoaders;
@@ -118,71 +109,40 @@ class ObjectDb implements Interfaces\ObjectDb
       return;
     $Visited[] = $Object;
 
-    $Hash = spl_object_hash( $Object );
-    if ( !isset( $this->Objects[ $Hash ] ) )
-      $this->Objects[ $Hash ] = $Object;
+    if ( !isset( $this->ObjectUpdaters[ $Object->getUuid() ] ) )
+    {
+      $Schema = $this->ObjectDbSchema->getObjectSchema( $Object->getFqcn() );
+      $Data = $Object->getData();
+
+      if ( !$this->SqlDb->isInTransaction() )
+        $this->SqlDb->beginTransaction();
+      $this->SqlDb->insert( $Schema->getSqlTableName(), $Schema->getPropertyNames( true ), $Schema->prepare( $Data, $Object->getModifiedTime(), $Object->getUuid() ) );
+      $this->registerAndAddUpdater( $Object, $Schema );
+    }
 
     foreach ( $Object->getData() as $value )
       if ( $value instanceof Interfaces\Object )
         $this->registerRecursively( $value, $Visited );
   }
 
-  /**
-   * 
-   * @param string $Fqcn
-   * @param int $Uuid
-   * @return Interfaces\Object
-   */
-  protected function findObject( $Fqcn, $Uuid )
+  protected function registerAndAddUpdater( Interfaces\Object $Object,
+                                            Interfaces\ObjectSchema $Schema,
+                                            $LoadedObject = false )
   {
-    foreach ( $this->Objects as $Object )
-      if ( $Object->getFqcn() == $Fqcn && $Object->getUuid() == $Uuid )
-        return $Object;
-
-    return null;
-  }
-
-  protected function forgetObject( $Fqcn, $Uuid )
-  {
-    $Object = $this->findObject( $Fqcn, $Uuid );
-    if ( $Object )
-    {
-      $Hash = spl_object_hash( $Object );
-      unset( $this->Objects[ $Hash ] );
-      if ( isset( $this->KnownModifiedTimes[ $Hash ] ) )
-        unset( $this->KnownModifiedTimes[ $Hash ] );
-    }
-  }
-
-  /**
-   * 
-   * @param string $time1
-   * @param string $time2
-   * @return int < 0 if $time1 is less than $time2; > 0 if $time1 is greater than $time2, and 0 if they are equal.
-   */
-  protected function compare( $time1, $time2 )
-  {
-    list($time1_usec, $time1_sec) = explode( " ", $time1 );
-    list($time2_usec, $time2_sec) = explode( " ", $time2 );
-    $sec1 = intval( $time1_sec );
-    $sec2 = intval( $time2_sec );
-    if ( $sec1 == $sec2 )
-    {
-      $msec1 = floatval( $time1_usec );
-      $msec2 = floatval( $time2_usec );
-      if ( $msec1 == $msec2 )
-        return 0;
-      return $msec1 < $msec2 ? -1 : 1;
-    }
-    else
-      return $sec1 < $sec2 ? -1 : 1;
+    $Uuid = $Object->getUuid();
+    $this->Objects[ $Uuid ] = $Object;
+    $Updater = new ObjectUpdater( $Schema, $this->SqlDb );
+    if ( $LoadedObject )
+      $Updater->setChangesCommited();
+    $Object->addObserver( $Updater );
+    $this->ObjectUpdaters[ $Uuid ] = $Updater;
   }
 
   /**
    *
    * @var \qck\Sql\Interfaces\Db
    */
-  protected $ObjectDb;
+  protected $SqlDb;
 
   /**
    *
@@ -200,6 +160,6 @@ class ObjectDb implements Interfaces\ObjectDb
    *
    * @var array
    */
-  protected $KnownModifiedTimes = [];
+  protected $ObjectUpdaters = [];
 
 }

@@ -31,4 +31,16 @@ interface Object extends UuidProvider
    * @return int
    */
   function getModifiedTime();
+
+  /**
+   * 
+   * @param \qck\Data\Interfaces\ObjectObserver $Observer
+   */
+  function addObserver( ObjectObserver $Observer );
+
+  /**
+   * 
+   * @param \qck\Data\Interfaces\ObjectObserver $Observer
+   */
+  function removeObserver( ObjectObserver $Observer );
 }

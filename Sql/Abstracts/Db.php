@@ -19,6 +19,11 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $this->getPdo()->beginTransaction();
   }
 
+  public function isInTransaction()
+  {
+    return $this->getPdo()->inTransaction();
+  }
+
   public function commit()
   {
     $this->getPdo()->commit();

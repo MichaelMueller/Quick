@@ -51,18 +51,25 @@ class DataTest extends \qck\core\abstracts\Test
     $ObjectDb->commit();
 
     // load again
-    $Db2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
-    $LoadedUser = $Db2->load( User::class, $User->getUuid() );
-    $this->assert( $Orgs == $LoadedUser->Organisations );
-    $this->assert( $User == $LoadedUser, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $LoadedUser, true ) );
-    $LoadedVector = $Db2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
+    $ObjectDb2 = new \qck\Data\ObjectDb( $SqliteDb, $ObjectDbSchema );
+    $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
+    $this->assert( $Orgs == $UserLoaded->Organisations );
+    $this->assert( $User == $UserLoaded, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $UserLoaded, true ) );
+    $LoadedVector = $ObjectDb2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
     $this->assert( $TestVector == $LoadedVector );
 
     $User->setName( "Michael Air2" );
     $ObjectDb->commit();
-    $LoadedUser = $Db2->load( User::class, $User->getUuid() );
-    $this->assert( $Orgs == $LoadedUser->Organisations );
-    $this->assert( $User == $LoadedUser, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $LoadedUser, true ) );
+    $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
+    $this->assert( $Orgs == $UserLoaded->Organisations, "Objects differ: " . print_r( $Orgs, true ) . " vs " . print_r( $UserLoaded->Organisations, true ) );
+    $this->assert( $User == $UserLoaded, "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $UserLoaded, true ) );
+
+    $ObjectDb->delete( User::class, $User->getUuid() );
+    $UserLoaded = $ObjectDb->load( User::class, $User->getUuid() );
+    $this->assert( $UserLoaded == null );
+    $ObjectDb->commit();
+    $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
+    $this->assert( $UserLoaded == null );
   }
 
   public function getRequiredTests()

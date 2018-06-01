@@ -27,8 +27,11 @@ abstract class Object implements \qck\Data\Interfaces\Object
     {
       $Value = $this->Data[ $Key ];
       if ( $Value instanceof \qck\Data\Interfaces\UnloadedObject )
-        $this->Data[ $Key ] = $Value->load();
-      return $this->Data[ $Key ];
+      {
+        $Value = $Value->load();
+        $this->Data[ $Key ] = $Value;
+      }
+      return $Value;
     }
     return null;
   }
@@ -40,15 +43,32 @@ abstract class Object implements \qck\Data\Interfaces\Object
 
   function setData( array $Data )
   {
-    $this->Data = $Data;    
+    $this->Data = $Data;
     $this->setModified();
   }
 
   protected function setModified()
   {
-    $this->ModifiedTime = microtime();    
+    $this->ModifiedTime = microtime();
+    foreach ( $this->Observer as $Observer )
+      $Observer->onModified( $this );
   }
 
+  /**
+   * 
+   * @param \qck\Data\Interfaces\ObjectObserver $Observer
+   */
+  function addObserver( \qck\Data\Interfaces\ObjectObserver $Observer )
+  {
+    $this->Observer[] = $Observer;
+  }
+
+  public function removeObserver( \qck\Data\Interfaces\ObjectObserver $Observer )
+  {
+    $Index = array_search( $Observer, $this->Observer );
+    if ( $Index !== false )
+      unset( $this->Observer[ $Index ] );
+  }
 
   public function getFqcn()
   {
@@ -63,6 +83,26 @@ abstract class Object implements \qck\Data\Interfaces\Object
   function setModifiedTime( $ModifiedTime )
   {
     $this->ModifiedTime = $ModifiedTime;
+  }
+
+  function isNewerThan( \qck\Data\Interfaces\Object $Other )
+  {
+    $time1 = $this->getModifiedTime();
+    $time2 = $Other->getModifiedTime();
+    list($time1_usec, $time1_sec) = explode( " ", $time1 );
+    list($time2_usec, $time2_sec) = explode( " ", $time2 );
+    $sec1 = intval( $time1_sec );
+    $sec2 = intval( $time2_sec );
+    if ( $sec1 == $sec2 )
+    {
+      $msec1 = floatval( $time1_usec );
+      $msec2 = floatval( $time2_usec );
+      if ( $msec1 == $msec2 )
+        return false;
+      return $msec1 > $msec2;
+    }
+    else
+      return $sec1 > $sec2;
   }
 
   /**
@@ -82,5 +122,11 @@ abstract class Object implements \qck\Data\Interfaces\Object
    * @var array the actual data
    */
   protected $Data = [];
+
+  /**
+   *
+   * @var array
+   */
+  protected $Observer = [];
 
 }

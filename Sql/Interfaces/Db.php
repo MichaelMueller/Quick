@@ -56,5 +56,10 @@ interface Db
   /**
    * 
    */
+  function isInTransaction();
+
+  /**
+   * 
+   */
   function commit();
 }
