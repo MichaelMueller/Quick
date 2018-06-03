@@ -39,8 +39,8 @@ class ObjectDbFactory
 
     // if not do the migration
     // create new db, apply new schema
-    $NewDbTempName = \Ramsey\Uuid\Uuid::uuid4()->toString();
-    $NewDb = $this->Dbms->createDatabase( $NewDbTempName );
+    $TempDbName = $this->TempDbName ? $this->TempDbName : \Ramsey\Uuid\Uuid::uuid4()->toString();
+    $NewDb = $this->Dbms->createDatabase( $TempDbName );
     $this->NewDbSchema->applyTo( $NewDb );
     $NewObjectDb = new ObjectDb( $NewDb, $this->NewDbSchema );
 
@@ -60,6 +60,9 @@ class ObjectDbFactory
 
     // close all backkup old if needed
     $NewObjectDb->commit();
+
+    $this->Dbms->dropDatabase( $OldDb );
+    $this->Dbms->renameDatabase( $NewDb, $OldDb->getName() );
     return $NewObjectDb;
   }
 
@@ -101,5 +104,11 @@ class ObjectDbFactory
    * @var string
    */
   protected $DbName;
+
+  /**
+   *
+   * @var string
+   */
+  protected $TempDbName;
 
 }
