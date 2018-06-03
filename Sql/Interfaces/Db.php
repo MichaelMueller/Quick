@@ -10,6 +10,16 @@ interface Db
 {
 
   /**
+   * @return string
+   */
+  function getName();
+  
+  /**
+   * 
+   */
+  function closeConnection();
+
+  /**
    * @return DbSchema
    */
   function getDbSchema();

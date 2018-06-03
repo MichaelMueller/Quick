@@ -8,7 +8,6 @@ namespace qck\Data\Interfaces;
  */
 interface ObjectDb
 {
-
   /**
    * 
    * @param string $Fqcn

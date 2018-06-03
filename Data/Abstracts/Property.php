@@ -25,6 +25,11 @@ abstract class Property
   abstract function toSqlColumn();
 
   /**
+   * create the appropriate control on a form
+   */
+  // abstract function applyToForm( \qck\Data\Interfaces\Form $Form );
+
+  /**
    * 
    */
   function applyTo( \qck\Sql\Interfaces\Table $Table )

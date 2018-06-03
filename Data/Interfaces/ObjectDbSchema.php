@@ -16,6 +16,18 @@ interface ObjectDbSchema
 
   /**
    * 
+   * @param string $Uuid
+   * @return ObjectSchema
+   */
+  function getObjectSchemaByUuid( $Uuid );
+
+  /**
+   * @return string
+   */
+  function getFqcns();
+
+  /**
+   * 
    * @param \qck\Sql\Interfaces\DbSchema $ObjectDbSchema
    */
   function applyTo( \qck\Sql\Interfaces\DbSchema $ObjectDbSchema );

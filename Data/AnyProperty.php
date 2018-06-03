@@ -28,4 +28,6 @@ class AnyProperty extends Abstracts\Property
   {
     return new \qck\Sql\StringColumn( $this->getName(), 0, \qck\Sql\StringColumn::MEDIUMTEXT );
   }
+  
+
 }
