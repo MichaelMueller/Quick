@@ -31,6 +31,20 @@ class ObjectDbSchema implements Interfaces\ObjectDbSchema
       $Schema->applyTo( $ObjectDbSchema );
   }
 
+  public function getFqcns()
+  {
+    return array_keys( $this->Schemas );
+  }
+
+  public function getObjectSchemaByUuid( $Uuid )
+  {
+    foreach ( $this->Schemas as $ObjectSchema )
+      if ( $ObjectSchema->getUuid() == $Uuid )
+        return $ObjectSchema;
+
+    return null;
+  }
+
   protected $Schemas;
 
 }

@@ -8,6 +8,13 @@ namespace qck\core\abstracts;
 abstract class Test implements \qck\core\interfaces\Test
 {
 
+  protected function assertCompareObjects( $Obj1, $Obj2, $strict = false )
+  {
+    $cond = $strict ? $Obj1 === $Obj2 : $Obj1 == $Obj2;
+    $message = "Objects are different: " . print_r( $Obj1, true ) . " vs. " . PHP_EOL . print_r( $Obj2, true );
+    $this->assert( $cond, $message );
+  }
+
   protected function assert( $condition, $messageIfNot = "" )
   {
     if ( !$condition )

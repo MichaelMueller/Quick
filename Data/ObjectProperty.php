@@ -9,9 +9,9 @@ namespace qck\Data;
 class ObjectProperty extends StringProperty
 {
 
-  public function __construct( $Name, $Fqcn )
+  public function __construct( $Name, $Uuid, $Fqcn )
   {
-    parent::__construct( $Name, 36, 36 );
+    parent::__construct( $Name, $Uuid, 36, 36 );
     $this->Fqcn = $Fqcn;
   }
 

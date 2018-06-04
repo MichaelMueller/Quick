@@ -41,14 +41,20 @@ abstract class Property
       $Table->addIndex( $this->getName() );
   }
 
-  function __construct( $Name )
+  function __construct( $Name, $Uuid )
   {
     $this->Name = $Name;
+    $this->Uuid = $Uuid;
   }
 
   function getName()
   {
     return $this->Name;
+  }
+
+  function getUuid()
+  {
+    return $this->Uuid;
   }
 
   function setUnique()
@@ -64,6 +70,7 @@ abstract class Property
   }
 
   protected $Name;
+  protected $Uuid;
   protected $Unique = false;
   protected $Index = false;
 

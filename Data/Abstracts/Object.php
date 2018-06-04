@@ -85,6 +85,28 @@ abstract class Object implements \qck\Data\Interfaces\Object
     $this->ModifiedTime = $ModifiedTime;
   }
 
+  function equals( \qck\Data\Interfaces\Object $Other )
+  {
+    if ( $this->getUuid() != $Other->getUuid() || $this->getModifiedTime() != $Other->getModifiedTime() )
+      return false;
+
+    $MyData = $this->getData();
+    $OtherData = $Other->getData();
+    foreach ( $MyData as $Key => $Value )
+    {
+      $ElementCompare = true;
+      if ( !isset( $OtherData[ $Key ] ) )
+        $ElementCompare = false;
+      else if ( $Value instanceof \qck\Data\Interfaces\Object && $OtherData[$Key] instanceof \qck\Data\Interfaces\Object )
+        $ElementCompare = $Value->equals( $OtherData[ $Key ] );
+      else
+        $ElementCompare = $Value == $OtherData[ $Key ];
+      if ( !$ElementCompare )
+        return false;
+    }
+    return true;
+  }
+
   function isNewerThan( \qck\Data\Interfaces\Object $Other )
   {
     $time1 = $this->getModifiedTime();

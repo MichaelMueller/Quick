@@ -9,9 +9,9 @@ namespace qck\Data;
 class StringProperty extends Abstracts\Property
 {
 
-  public function __construct( $Name, $MinLength = 0, $MaxLength = 255 )
+  public function __construct( $Name, $Uuid, $MinLength = 0, $MaxLength = 255 )
   {
-    parent::__construct( $Name );
+    parent::__construct( $Name, $Uuid );
     $this->MinLength = $MinLength;
     $this->MaxLength = $MaxLength;
   }

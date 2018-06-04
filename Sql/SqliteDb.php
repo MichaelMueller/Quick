@@ -6,7 +6,7 @@ namespace qck\Sql;
  *
  * @author muellerm
  */
-class SqliteDb extends Abstracts\Db implements Interfaces\Dbms
+class SqliteDb extends Abstracts\Db
 {
 
   function __construct( $SqliteFile = ":memory:" )
@@ -78,52 +78,12 @@ class SqliteDb extends Abstracts\Db implements Interfaces\Dbms
     return "REAL";
   }
 
-  public function createDatabase( $Name )
-  {
-    return new SqliteDb( $Name );
-  }
-
-  public function dropDatabase( Interfaces\Db $Db )
-  {
-    $Db->closeConnection();
-    unlink( $Db->getName() );
-  }
-
-  public function dumpDatabase( $Name, $File, $Zip = false )
-  {
-    $Cmd = $this->SqliteCmdExe . " " . $Name . " .dump > " . $File;
-    system( $Cmd );
-    if ( $Zip )
-    {
-      $zipArchive = new ZipArchive();
-      $filename = $File . ".zip";
-
-      $zipArchive->open( $filename, ZipArchive::CREATE );
-      $zipArchive->addFile( $File, pathinfo( $File, PATHINFO_FILENAME ) );
-      $zipArchive->close();
-      unlink( $File );
-    }
-  }
-
   public function getName()
   {
     return $this->SqliteFile;
   }
 
-  public function renameDatabase( Interfaces\Db $Db, $NewName )
-  {
-    $Db->closeConnection();
-    rename( $Db->getName(), $NewName );
-    return new SqliteDb( $NewName );
-  }
-
-  function setSqliteCmdExe( $SqliteCmdExe )
-  {
-    $this->SqliteCmdExe = $SqliteCmdExe;
-  }
-
   protected $SqliteFile;
-  protected $SqliteCmdExe = "sqlite3";
 
   /**
    *

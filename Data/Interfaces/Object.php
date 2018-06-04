@@ -43,4 +43,11 @@ interface Object extends UuidProvider
    * @param \qck\Data\Interfaces\ObjectObserver $Observer
    */
   function removeObserver( ObjectObserver $Observer );
+  
+  /**
+   * 
+   * @param \qck\Data\Interfaces\Object $Other
+   * @return bool
+   */
+  function equals( Object $Other );
 }

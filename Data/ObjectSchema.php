@@ -9,11 +9,12 @@ namespace qck\Data;
 class ObjectSchema implements interfaces\ObjectSchema
 {
 
-  function __construct( $Fqcn, array $Properties = [] )
+  function __construct( $Fqcn, $Uuid, array $Properties = [] )
   {
     $this->UuidProperty = new UuidProperty();
     $this->ModifiedTimeProperty = new ModifiedTimeProperty();
     $this->Fqcn = $Fqcn;
+    $this->Uuid = $Uuid;
     $this->Properties = $Properties;
     $this->addProperty( $this->UuidProperty );
     $this->addProperty( $this->ModifiedTimeProperty );
@@ -75,8 +76,8 @@ class ObjectSchema implements interfaces\ObjectSchema
     return $PreparedData;
   }
 
-  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb, &$ModifiedTime = null,
-                           &$Uuid = null )
+  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb,
+                           &$ModifiedTime = null, &$Uuid = null )
   {
     $RecoveredData = [];
     foreach ( $this->Properties as $Name => $Property )
@@ -101,6 +102,35 @@ class ObjectSchema implements interfaces\ObjectSchema
     $ObjectDbSchema->createTable( $Table );
   }
 
+  public function convertKeysToUuids( array $DataArray )
+  {
+    $Result = [];
+    foreach ( $this->Properties as $Property )
+      $Result[ $Property->getUuid() ] = isset( $DataArray[ $Property->getName() ] ) ? $DataArray[ $Property->getName() ] : null;
+    return $Result;
+  }
+
+  public function convertUuidsToKeys( array $DataArray )
+  {
+    $Result = [];
+    foreach ( $this->Properties as $Property )
+      $Result[ $Property->getName() ] = isset( $DataArray[ $Property->getUuid() ] ) ? $DataArray[ $Property->getUuid() ] : null;
+    return $Result;
+  }
+
+  public function filterArray( array $DataArray )
+  {
+    $Result = [];
+    foreach ( $this->Properties as $Property )
+      $Result[ $Property->getName() ] = isset( $DataArray[ $Property->getName() ] ) ? $DataArray[ $Property->getName() ] : null;
+    return $Result;
+  }
+
+  public function getUuid()
+  {
+    return $this->Uuid;
+  }
+
   /**
    *
    * @var UuidProperty
@@ -118,6 +148,12 @@ class ObjectSchema implements interfaces\ObjectSchema
    * @var string
    */
   protected $Fqcn;
+
+  /**
+   *
+   * @var string
+   */
+  protected $Uuid;
 
   /**
    *

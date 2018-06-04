@@ -37,14 +37,14 @@ interface ObjectSchema
    * @param type $DataArray
    * @return array
    */
-  function convertUuidsToKeys( $DataArray );
+  function convertUuidsToKeys( array $DataArray );
 
   /**
    * 
    * @param type $DataArray
    * @return array
    */
-  function filterArray( $DataArray );
+  function filterArray( array $DataArray );
 
   /**
    * @param array $Data the orignal Data obtained from an object using getData()

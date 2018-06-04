@@ -8,10 +8,9 @@ namespace qck\Data;
  */
 class BoolProperty extends Abstracts\Property
 {
-
-  public function __construct( $Name )
+  public function __construct( $Name, $Uuid )
   {
-    parent::__construct( $Name );
+    parent::__construct( $Name, $Uuid );
   }
 
   public function prepare( $Value )

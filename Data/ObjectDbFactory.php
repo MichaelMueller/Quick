@@ -9,50 +9,66 @@ namespace qck\Data;
 class ObjectDbFactory
 {
 
-  function __construct( $SchemaFile, Interfaces\ObjectDbSchema $ObjectDbSchema = null,
-                        \qck\Sql\Interfaces\Dbms $Dbms )
+  function __construct( $SchemaFile, Interfaces\ObjectDbSchema $ObjectDbSchema,
+                        \qck\Sql\Interfaces\Dbms $Dbms, $DbName, $TempDbName = null,
+                        $DumpFile = null )
   {
     $this->SchemaFile = $SchemaFile;
-    $this->NewDbSchema = $NewDbSchema;
+    $this->ObjectDbSchema = $ObjectDbSchema;
     $this->Dbms = $Dbms;
+    $this->DbName = $DbName;
+    $this->TempDbName = $TempDbName;
+    $this->DumpFile = $DumpFile;
   }
 
-  protected function createUsingOldDbSchema( $OldDbSchemaSerialized, &$OldDbSchema = null )
+  function setZipDumpFile( $ZipDumpFile )
   {
-    $OldDbSchema = unserialize( $OldDbSchemaSerialized );
-    $SqlDb = $this->Dbms->connectToDatabase( $this->DbName );
-    $Db = new ObjectDb( $SqlDb, $OldDbSchema );
-    return $Db;
+    $this->ZipDumpFile = $ZipDumpFile;
   }
 
+  /**
+   * 
+   * @return \qck\Data\ObjectDb
+   */
   function create()
   {
-    // workflow:
-    $OldDbSchemaSerialized = file_exists( $this->SchemaFile ) ? file_get_contents( $this->SchemaFile ) : null;
-    // no new schema
-    if ( !$this->NewDbSchema )
-      return $this->createUsingOldDbSchema( $OldDbSchemaSerialized );
+    // load prior schema as serialized string    
+    $OldObjectDbSchemaSerialized = file_exists( $this->SchemaFile ) ? file_get_contents( $this->SchemaFile ) : null;
+    // CASE I fresh and new install
+    if ( !$OldObjectDbSchemaSerialized && $this->ObjectDbSchema )
+    {
+      $SqlDb = $this->Dbms->createDatabase( $this->DbName );
+      $this->ObjectDbSchema->applyTo( $SqlDb );
+      file_put_contents( $this->SchemaFile, serialize( $this->ObjectDbSchema ) );
+      return new ObjectDb( $SqlDb, $this->ObjectDbSchema );
+    }
 
-    $NewDbSchemaSerialized = serialize( $this->NewDbSchema );
-    if ( crc32( $OldDbSchemaSerialized ) == crc32( $NewDbSchemaSerialized ) )
-      return $this->createUsingOldDbSchema( $OldDbSchemaSerialized );
+    // CASE II we have an old schema -> compare them and take action (if necessary)
+    $ObjectDbSchemaSerialized = serialize( $this->ObjectDbSchema );
+    if ( crc32( $OldObjectDbSchemaSerialized ) == crc32( $ObjectDbSchemaSerialized ) )
+    {
+      // nothing changed -> connect in standard way
+      $SqlDb = $this->Dbms->connectToDatabase( $this->DbName );
+      return new ObjectDb( $SqlDb, $this->ObjectDbSchema );
+    }
 
-    // if not do the migration
-    // create new db, apply new schema
+    // CASE III schema changed -> MIGRATE
+    // create temporary database for the new data and connect to the old db 
     $TempDbName = $this->TempDbName ? $this->TempDbName : \Ramsey\Uuid\Uuid::uuid4()->toString();
-    $NewDb = $this->Dbms->createDatabase( $TempDbName );
-    $this->NewDbSchema->applyTo( $NewDb );
-    $NewObjectDb = new ObjectDb( $NewDb, $this->NewDbSchema );
+    $NewSqlDb = $this->Dbms->createDatabase( $TempDbName );
+    $this->ObjectDbSchema->applyTo( $NewSqlDb );
+    $NewObjectDb = new ObjectDb( $NewSqlDb, $this->ObjectDbSchema );
+    $OldObjectDbSchema = unserialize( $OldObjectDbSchemaSerialized );
+    $OldSqlDb = $this->Dbms->connectToDatabase( $this->DbName );
+    $OldObjectDb = new ObjectDb( $OldSqlDb, $OldObjectDbSchema );
 
     // load every object from old schema and convert keys -> uuids -> keys and save to new database
-    /* @var $OldDbSchema qck\Data\Interfaces\ObjectDbSchema */
-    $OldDbSchema = null;
-    $OldDb = $this->createUsingOldDbSchema( $OldDbSchemaSerialized, $OldDbSchema );
-    foreach ( $OldDbSchema->getFqcns() as $Fqcn )
+    /* @var $OldObjectDbSchema qck\Data\Interfaces\ObjectDbSchema */
+    foreach ( $OldObjectDbSchema->getFqcns() as $Fqcn )
     {
-      foreach ( $OldDb->select( $Fqcn ) as $LazyLoader )
+      foreach ( $OldObjectDb->select( $Fqcn ) as $LazyLoader )
       {
-        $NewObj = $this->migrate( $LazyLoader->load(), $OldDbSchema, $this->NewDbSchema );
+        $NewObj = $this->migrate( $LazyLoader->load(), $OldObjectDbSchema, $this->ObjectDbSchema );
         if ( $NewObj )
           $NewObjectDb->register( $NewObj );
       }
@@ -60,22 +76,24 @@ class ObjectDbFactory
 
     // close all backkup old if needed
     $NewObjectDb->commit();
-
-    $this->Dbms->dropDatabase( $OldDb );
-    $this->Dbms->renameDatabase( $NewDb, $OldDb->getName() );
+    if ( $this->DumpFile )
+      $this->Dbms->dumpDatabase( $OldObjectDb->getSqlDb()->getName(), $this->DumpFile, $this->ZipDumpFile );
+    $this->Dbms->dropDatabase( $OldObjectDb->getSqlDb() );
+    $this->Dbms->renameDatabase( $NewSqlDb, $OldObjectDb->getSqlDb()->getName() );
+    file_put_contents( $this->SchemaFile, serialize( $this->ObjectDbSchema ) );
     return $NewObjectDb;
   }
 
   protected function migrate( Interfaces\Object $OldObject,
-                              \qck\Data\ObjectDbSchema $OldDbSchema,
-                              \qck\Data\ObjectDbSchema $NewDbSchema )
+                              \qck\Data\ObjectDbSchema $OldObjectDbSchema,
+                              \qck\Data\ObjectDbSchema $ObjectDbSchema )
   {
 
-    $PriorObjSchema = $OldDbSchema->getObjectSchema( $OldObject->getFqcn() );
-    $NewObjectSchema = $NewDbSchema->getObjectSchemaByUuid( $PriorObjSchema->getUuid() );
+    $PriorObjSchema = $OldObjectDbSchema->getObjectSchema( $OldObject->getFqcn() );
+    $NewObjectSchema = $ObjectDbSchema->getObjectSchemaByUuid( $PriorObjSchema->getUuid() );
 
     if ( !$NewObjectSchema )
-      return;
+      return null;
 
     $Data = $OldObject->getData();
     $Data = $PriorObjSchema->convertKeysToUuids( $Data );
@@ -85,13 +103,17 @@ class ObjectDbFactory
     return $OldObject;
   }
 
+  /**
+   *
+   * @var string
+   */
   protected $SchemaFile;
 
   /**
    *
    * @var Interfaces\ObjectDbSchema 
    */
-  protected $NewDbSchema;
+  protected $ObjectDbSchema;
 
   /**
    *
@@ -110,5 +132,17 @@ class ObjectDbFactory
    * @var string
    */
   protected $TempDbName;
+
+  /**
+   *
+   * @var string
+   */
+  protected $DumpFile;
+
+  /**
+   *
+   * @var string
+   */
+  protected $ZipDumpFile = true;
 
 }

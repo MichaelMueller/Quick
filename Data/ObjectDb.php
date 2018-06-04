@@ -13,7 +13,7 @@ class ObjectDb implements Interfaces\ObjectDb
                         Interfaces\ObjectDbSchema $ObjectDbSchema )
   {
     $this->SqlDb = $SqlDb;
-    $this->install( $ObjectDbSchema );
+    $this->ObjectDbSchema = $ObjectDbSchema;
   }
 
   public function commit()
@@ -138,10 +138,9 @@ class ObjectDb implements Interfaces\ObjectDb
     $this->ObjectUpdaters[ $Uuid ] = $Updater;
   }
 
-  public function install( ObjectDbSchema $Schema )
+  function getSqlDb()
   {
-    $Schema->applyTo( $this->SqlDb );
-    $this->ObjectDbSchema = $Schema;
+    return $this->SqlDb;
   }
 
   /**
