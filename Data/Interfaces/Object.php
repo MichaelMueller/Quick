@@ -12,6 +12,7 @@ interface Object extends UuidProvider
   /**
    * set data with arbitrary key values
    * @param array $Data
+   * @param bool $UpdateModifiedTime
    */
   function setData( array $Data );
 
@@ -22,32 +23,8 @@ interface Object extends UuidProvider
   function getData();
 
   /**
-   * @param int $ModifiedTime
-   */
-  function setModifiedTime( $ModifiedTime );
-
-  /**
    * get the ModifiedTime
    * @return int
    */
   function getModifiedTime();
-
-  /**
-   * 
-   * @param \qck\Data\Interfaces\ObjectObserver $Observer
-   */
-  function addObserver( ObjectObserver $Observer );
-
-  /**
-   * 
-   * @param \qck\Data\Interfaces\ObjectObserver $Observer
-   */
-  function removeObserver( ObjectObserver $Observer );
-  
-  /**
-   * 
-   * @param \qck\Data\Interfaces\Object $Other
-   * @return bool
-   */
-  function equals( Object $Other );
 }

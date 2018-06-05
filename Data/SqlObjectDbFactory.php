@@ -6,7 +6,7 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class ObjectDbFactory
+class SqlObjectDbFactory
 {
 
   function __construct( $SchemaFile, Interfaces\ObjectDbSchema $ObjectDbSchema,
@@ -28,7 +28,7 @@ class ObjectDbFactory
 
   /**
    * 
-   * @return \qck\Data\ObjectDb
+   * @return \qck\Data\SqlObjectDb
    */
   function create()
   {
@@ -40,7 +40,7 @@ class ObjectDbFactory
       $SqlDb = $this->Dbms->createDatabase( $this->DbName );
       $this->ObjectDbSchema->applyTo( $SqlDb );
       file_put_contents( $this->SchemaFile, serialize( $this->ObjectDbSchema ) );
-      return new ObjectDb( $SqlDb, $this->ObjectDbSchema );
+      return new SqlObjectDb( $SqlDb, $this->ObjectDbSchema );
     }
 
     // CASE II we have an old schema -> compare them and take action (if necessary)
@@ -49,7 +49,7 @@ class ObjectDbFactory
     {
       // nothing changed -> connect in standard way
       $SqlDb = $this->Dbms->connectToDatabase( $this->DbName );
-      return new ObjectDb( $SqlDb, $this->ObjectDbSchema );
+      return new SqlObjectDb( $SqlDb, $this->ObjectDbSchema );
     }
 
     // CASE III schema changed -> MIGRATE
@@ -57,10 +57,10 @@ class ObjectDbFactory
     $TempDbName = $this->TempDbName ? $this->TempDbName : \Ramsey\Uuid\Uuid::uuid4()->toString();
     $NewSqlDb = $this->Dbms->createDatabase( $TempDbName );
     $this->ObjectDbSchema->applyTo( $NewSqlDb );
-    $NewObjectDb = new ObjectDb( $NewSqlDb, $this->ObjectDbSchema );
+    $NewObjectDb = new SqlObjectDb( $NewSqlDb, $this->ObjectDbSchema );
     $OldObjectDbSchema = unserialize( $OldObjectDbSchemaSerialized );
     $OldSqlDb = $this->Dbms->connectToDatabase( $this->DbName );
-    $OldObjectDb = new ObjectDb( $OldSqlDb, $OldObjectDbSchema );
+    $OldObjectDb = new SqlObjectDb( $OldSqlDb, $OldObjectDbSchema );
 
     // load every object from old schema and convert keys -> uuids -> keys and save to new database
     /* @var $OldObjectDbSchema qck\Data\Interfaces\ObjectDbSchema */

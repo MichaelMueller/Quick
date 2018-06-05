@@ -20,7 +20,7 @@ interface ObjectDb
    * @param type $Fqcn
    * @param \qck\StructuredData\Interfaces\Expression $Expression
    */
-  function delete( $Fqcn, $Uuid );
+  function deleteOnCommit( $Fqcn, $Uuid );
 
   /**
    * 
@@ -36,7 +36,7 @@ interface ObjectDb
    * @param type $Fqcn
    * @param \qck\StructuredData\Interfaces\Expression $Expression
    */
-  function deleteWhere( $Fqcn, Expression $Expression );
+  function deleteOnCommitWhere( $Fqcn, Expression $Expression );
 
   /**
    * register objects recursively to be inserted or updated next time tto a commit() call

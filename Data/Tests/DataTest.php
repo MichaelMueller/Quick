@@ -28,7 +28,7 @@ class DataTest extends \qck\core\abstracts\Test
     $ObjectDbSchema->add( $UserSchema );
     //$ObjectDbSchema->applyTo( $SqliteDb );
     // objectDb factory
-    $ObjectDbFactory = new \qck\Data\ObjectDbFactory( $SchemaFile, $ObjectDbSchema, new \qck\Sql\SqliteDbms(), $SqliteFile );
+    $ObjectDbFactory = new \qck\Data\SqlObjectDbFactory( $SchemaFile, $ObjectDbSchema, new \qck\Sql\SqliteDbms(), $SqliteFile );
 
     // create ObjectDb
     $ObjectDb = $ObjectDbFactory->create();
@@ -57,26 +57,23 @@ class DataTest extends \qck\core\abstracts\Test
     $ObjectDb2 = $ObjectDbFactory->create();
     $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
 
-    $this->assert( $Orgs->equals( $UserLoaded->Organisations ), "Objects differ: " . print_r( $Orgs, true ) . " vs " . print_r( $UserLoaded->Organisations, true ) );
-    $this->assert( $User->equals( $UserLoaded ), "Objects differ: " . print_r( $User, true ) . " vs " . print_r( $UserLoaded, true ) );
+    $this->assertCompareObjects( $Orgs, $UserLoaded->Organisations );
+    $this->assertCompareObjects( $User, $UserLoaded );
 
     $LoadedVector = $ObjectDb2->load( \qck\Data\Vector::class, $TestVector->getUuid() );
-    $this->assert( $TestVector->equals( $LoadedVector ) );
+    $this->assertCompareObjects( $TestVector, $LoadedVector );
 
     $User->setName( "Michael Air2" );
     $ObjectDb->commit();
 
     $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
-    $this->assert( $Orgs->equals( $UserLoaded->Organisations ), "Objects differ: " . print_r( $Orgs, true ) . " vs " . print_r( $UserLoaded->Organisations, true ) );
-    $this->assert( $User->equals( $UserLoaded ), "Created and Loaded User are different: " . print_r( $User, true ) . " vs " . print_r( $UserLoaded, true ) );
-    $ObjectDb2->getSqlDb()->closeConnection();
+    $this->assertCompareObjects( $Orgs, $UserLoaded->Organisations );
+    $this->assertCompareObjects( $User, $UserLoaded );
 
-    $ObjectDb->delete( User::class, $User->getUuid() );
-    $UserLoaded = $ObjectDb->load( User::class, $User->getUuid() );
-    $this->assert( $UserLoaded == null );
+    $ObjectDb->deleteOnCommit( User::class, $User->getUuid() );
     $ObjectDb->commit();
     $UserLoaded = $ObjectDb2->load( User::class, $User->getUuid() );
-    $this->assert( $UserLoaded == null );
+    $this->assert( $UserLoaded == null, "User should was not deleted during test" );
   }
 
   public function getRequiredTests()

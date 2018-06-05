@@ -8,10 +8,10 @@ namespace qck\Data;
  */
 class UuidProperty extends StringProperty
 {
-
+  const NAME = "Uuid";
   public function __construct()
   {
-    parent::__construct( "Uuid", "7e08b1ca-1fe6-4519-ad39-0501d6d267db", 36, 36 );
+    parent::__construct( self::NAME, "7e08b1ca-1fe6-4519-ad39-0501d6d267db", 36, 36 );
     $this->setUnique();
   }
 

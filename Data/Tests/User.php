@@ -6,13 +6,11 @@ namespace qck\Data\Tests;
  *
  * @author muellerm
  */
-class User extends \qck\Data\Abstracts\Object
+class User extends \qck\Data\Object
 {
 
-  public function __construct( $Uuid = null )
+  public function __construct()
   {
-    parent::__construct( $Uuid );
-
     $this->Data[ "Organisations" ] = new \qck\Data\Vector();
   }
 

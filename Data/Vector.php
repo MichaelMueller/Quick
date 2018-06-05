@@ -6,14 +6,13 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class Vector extends Abstracts\Object
+class Vector extends Object
 {
 
   const ELEMENTS_NAME = "Elements";
 
-  function __construct( $Uuid = null )
+  function __construct( )
   {
-    parent::__construct( $Uuid );
     $this->Data[ self::ELEMENTS_NAME ] = [];
   }
 

@@ -53,43 +53,27 @@ class ObjectSchema implements interfaces\ObjectSchema
     return str_replace( "\\", "_", $this->Fqcn );
   }
 
-  public function prepare( array $Data, $ModifiedTime = null, $Uuid = null )
+  public function prepare( array $Data, $WithModifiedTime = null, $WithUuid = null )
   {
     $PreparedData = [];
     foreach ( $this->Properties as $Name => $Property )
     {
-      if ( $Name == $this->getModifiedTimePropertyName() )
-      {
-        if ( $ModifiedTime === null )
-          continue;
-        $PreparedData[] = $Property->prepare( $ModifiedTime );
-      }
-      else if ( $Name == $this->getUuidPropertyName() )
-      {
-        if ( $Uuid === null )
-          continue;
-        $PreparedData[] = $Property->prepare( $Uuid );
-      }
-      else
-        $PreparedData[] = isset( $Data[ $Name ] ) ? $Property->prepare( $Data[ $Name ] ) : null;
+      if ( $Name == $this->getModifiedTimePropertyName() && !$WithModifiedTime )
+        continue;
+      else if ( $Name == $this->getUuidPropertyName() && !$WithUuid )
+        continue;
+
+      $PreparedData[] = isset( $Data[ $Name ] ) ? $Property->prepare( $Data[ $Name ] ) : null;
     }
     return $PreparedData;
   }
 
-  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb,
-                           &$ModifiedTime = null, &$Uuid = null )
+  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb )
   {
     $RecoveredData = [];
     foreach ( $this->Properties as $Name => $Property )
-    {
-      $Value = isset( $Data[ $Name ] ) ? $Property->recover( $Data[ $Name ], $ObjectDb ) : null;
-      if ( $Name == $this->getUuidPropertyName() )
-        $Uuid = $Value;
-      else if ( $Name == $this->getModifiedTimePropertyName() )
-        $ModifiedTime = $Value;
-      else
-        $RecoveredData[ $Name ] = $Value;
-    }
+      $RecoveredData[ $Name ] = isset( $Data[ $Name ] ) ? $Property->recover( $Data[ $Name ], $ObjectDb ) : null;
+
     return $RecoveredData;
   }
 
