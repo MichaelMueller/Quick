@@ -24,7 +24,8 @@ class Object implements \qck\Data\Interfaces\Object
   function set( $Key, $Value )
   {
     $this->Data[ $Key ] = $Value;
-    $this->setModified();
+    if ( $Key != ModifiedTimeProperty::NAME )
+      $this->setModified();
   }
 
   protected function setModified()

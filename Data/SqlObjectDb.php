@@ -28,6 +28,9 @@ class SqlObjectDb implements Interfaces\ObjectDb
       $UuidPropName = $Schema->getUuidPropertyName();
       $Exp = new \qck\Expressions\UuidEquals( $Uuid, $UuidPropName );
       $TableName = $Schema->getSqlTableName();
+      $ItemsTableName = $Schema instanceof Interfaces\ObjectSetSchema ? $Schema->getItemsSqlTableName() : null;
+      if ( $ItemsTableName )
+        $this->SqlDb->delete( $ItemsTableName, $Exp );
       if ( $ObjectInfo->shouldBeDeletedOnCommit() )
       {
         $this->SqlDb->delete( $TableName, $Exp );
@@ -45,6 +48,13 @@ class SqlObjectDb implements Interfaces\ObjectDb
         else if ( $Object->getModifiedTime() != $ObjectInfo->getLastKnownModifiedTime() )
         {
           $this->SqlDb->update( $TableName, $Schema->getPropertyNames( false ), $Schema->prepare( $Data, true, false ), $Exp );
+        }
+        if ( $ItemsTableName )
+        {
+          /* @var $Object ObjectSet */
+          $ObjectUuidPropName = $Schema->getObjectUuidPropertyName();
+          for ( $i = 0; $i < $Object->size(); $i++ )
+            $this->SqlDb->insert( $ItemsTableName, [ $UuidPropName, $ObjectUuidPropName ], [ $Object->getUuid(), $Object->at( $i )->getUuid() ] );
         }
         $ObjectInfo->updateObjectData();
       }
@@ -85,6 +95,17 @@ class SqlObjectDb implements Interfaces\ObjectDb
         $ObjectInfo->updateObjectData();
       else
         $this->ObjectInfos[ $Uuid ] = new ObjectInfo( $Object );
+      $ItemsTableName = $Schema instanceof Interfaces\ObjectSetSchema ? $Schema->getItemsSqlTableName() : null;
+      if ( $ItemsTableName )
+      {
+        $Select = new \qck\Sql\Select( $ItemsTableName, $Exp );
+        $ObjUuidPropName = $Schema->getObjectUuidPropertyName();
+        $Select->setColumns( [ $ObjUuidPropName ] );
+        $Results = $this->SqlDb->select( $Select )->fetchAll( \PDO::FETCH_ASSOC );
+        foreach ( $Results as $Result )
+          $Object->add( new LazyLoader( $Object->getObjectFqcn(), $Result[ $ObjUuidPropName ], $this ) );
+      }
+
       return $Object;
     }
 
