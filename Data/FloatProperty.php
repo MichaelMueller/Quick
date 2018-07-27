@@ -18,7 +18,7 @@ class FloatProperty extends Abstracts\Property
     return floatval( $Value );
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     return floatval( $Value );
   }

@@ -57,7 +57,7 @@ interface ObjectSchema
    * @param array $Data the orignal Data obtained from an object using getData()
    * @return array
    */
-  function recover( array $Data, ObjectDb $ObjectDb );
+  function recover( array $Data, Db $ObjectDb );
 
   /**
    * @return string

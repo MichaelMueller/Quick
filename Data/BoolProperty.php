@@ -18,7 +18,7 @@ class BoolProperty extends Abstracts\Property
     return boolval( $Value );
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     return boolval( $Value );
   }

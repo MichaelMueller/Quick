@@ -6,7 +6,7 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface ObjectDb
+interface Db
 {
   /**
    * 

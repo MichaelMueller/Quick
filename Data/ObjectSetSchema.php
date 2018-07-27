@@ -6,12 +6,12 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class ObjectSetSchema extends ObjectSchema implements Interfaces\ObjectSetSchema
+class ObjectSetSchema extends ObjectSchema implements Interfaces\SetSchema
 {
 
   public function __construct()
   {
-    parent::__construct( ObjectSet::class, "a5c90b18-5bf5-4281-a7c4-1fe253a53c80", [ new StringProperty( ObjectSet::OBJECTS_FQCN_KEY, "cc6fce3a-96e8-4751-ab45-c514d43a283f", 0, 1024 ) ] );
+    parent::__construct( Set::class, "a5c90b18-5bf5-4281-a7c4-1fe253a53c80", [ new StringProperty( Set::OBJECTS_FQCN_KEY, "cc6fce3a-96e8-4751-ab45-c514d43a283f", 0, 1024 ) ] );
   }
 
   public function getItemsSqlTableName()

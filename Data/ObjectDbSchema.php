@@ -6,7 +6,7 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class ObjectDbSchema implements Interfaces\ObjectDbSchema
+class ObjectDbSchema implements Interfaces\DbSchema
 {
 
   function __construct( array $Schemas = [] )

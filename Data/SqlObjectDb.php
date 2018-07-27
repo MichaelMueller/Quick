@@ -6,11 +6,11 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class SqlObjectDb implements Interfaces\ObjectDb
+class SqlObjectDb implements Interfaces\Db
 {
 
   function __construct( \qck\Sql\Interfaces\Db $SqlDb,
-                        Interfaces\ObjectDbSchema $ObjectDbSchema )
+                        Interfaces\DbSchema $ObjectDbSchema )
   {
     $this->SqlDb = $SqlDb;
     $this->ObjectDbSchema = $ObjectDbSchema;
@@ -51,7 +51,7 @@ class SqlObjectDb implements Interfaces\ObjectDb
         }
         if ( $ItemsTableName )
         {
-          /* @var $Object ObjectSet */
+          /* @var $Object Set */
           $ObjectUuidPropName = $Schema->getObjectUuidPropertyName();
           for ( $i = 0; $i < $Object->size(); $i++ )
             $this->SqlDb->insert( $ItemsTableName, [ $UuidPropName, $ObjectUuidPropName ], [ $Object->getUuid(), $Object->at( $i )->getUuid() ] );

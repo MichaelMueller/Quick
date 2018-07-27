@@ -6,7 +6,7 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface ObjectSetSchema extends ObjectSchema
+interface SetSchema extends ObjectSchema
 {
 
   /**

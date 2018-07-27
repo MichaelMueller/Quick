@@ -6,7 +6,7 @@ namespace qck\Data\Interfaces;
  *
  * @author muellerm
  */
-interface ObjectDbSchema
+interface DbSchema
 {
 
   /**

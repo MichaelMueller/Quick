@@ -21,7 +21,7 @@ class ObjectProperty extends StringProperty
     return $Uuid;
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     if ( $Value !== null )
       return new LazyLoader( $this->Fqcn, $Value, $ObjectDb );

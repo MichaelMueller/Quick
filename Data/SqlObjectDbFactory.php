@@ -9,7 +9,7 @@ namespace qck\Data;
 class SqlObjectDbFactory
 {
 
-  function __construct( $SchemaFile, Interfaces\ObjectDbSchema $ObjectDbSchema,
+  function __construct( $SchemaFile, Interfaces\DbSchema $ObjectDbSchema,
                         \qck\Sql\Interfaces\Dbms $Dbms, $DbName, $TempDbName = null,
                         $DumpFile = null )
   {

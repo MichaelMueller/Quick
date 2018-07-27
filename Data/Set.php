@@ -6,7 +6,7 @@ namespace qck\Data;
  *
  * @author muellerm
  */
-class ObjectSet extends Object
+class Set extends Object
 {
 
   const OBJECTS_FQCN_KEY = "ObjectsFqcn";

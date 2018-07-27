@@ -21,7 +21,7 @@ class StringProperty extends Abstracts\Property
     return strval( $Value );
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     return strval( $Value );
   }

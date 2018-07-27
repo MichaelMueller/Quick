@@ -18,7 +18,7 @@ class AnyProperty extends Abstracts\Property
     return serialize( $Value );
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     return unserialize( $Value );
   }

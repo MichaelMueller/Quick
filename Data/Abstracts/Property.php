@@ -17,7 +17,7 @@ abstract class Property
   /**
    * @return mixed
    */
-  abstract function recover( $Value, \qck\Data\Interfaces\ObjectDb $ObjectDb );
+  abstract function recover( $Value, \qck\Data\Interfaces\Db $ObjectDb );
 
   /**
    * @return \qck\Sql\Interfaces\Column

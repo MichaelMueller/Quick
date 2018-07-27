@@ -9,13 +9,13 @@ namespace qck\Data;
 class LazyLoader extends UuidProvider implements Interfaces\UnloadedObject
 {
 
-  function __construct( $Fqcn, $Uuid, Interfaces\ObjectDb $ObjectDb = null )
+  function __construct( $Fqcn, $Uuid, Interfaces\Db $ObjectDb = null )
   {
     parent::__construct( $Fqcn, $Uuid );
     $this->ObjectDb = $ObjectDb;
   }
 
-  function setDb( Interfaces\ObjectDb $ObjectDb )
+  function setDb( Interfaces\Db $ObjectDb )
   {
     $this->ObjectDb = $ObjectDb;
   }

@@ -18,7 +18,7 @@ class IntProperty extends Abstracts\Property
     return intval( $Value );
   }
 
-  public function recover( $Value, Interfaces\ObjectDb $ObjectDb )
+  public function recover( $Value, Interfaces\Db $ObjectDb )
   {
     return intval( $Value );
   }

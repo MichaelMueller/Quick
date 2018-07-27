@@ -68,7 +68,7 @@ class ObjectSchema implements interfaces\ObjectSchema
     return $PreparedData;
   }
 
-  public function recover( array $Data, Interfaces\ObjectDb $ObjectDb )
+  public function recover( array $Data, Interfaces\Db $ObjectDb )
   {
     $RecoveredData = [];
     foreach ( $this->Properties as $Name => $Property )
