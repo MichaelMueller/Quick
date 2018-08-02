@@ -10,11 +10,6 @@ namespace Qck\Core;
 abstract class AppConfig implements \Qck\Interfaces\AppConfig
 {
 
-  function __construct( $Argv )
-  {
-    $this->Argv = $Argv;
-  }
-
   function isCli()
   {
     return isset( $_SERVER[ 'argc' ] );
@@ -28,6 +23,14 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
         } );
   }
 
+  public function getInputs()
+  {
+    return $this->getSingleton( "Inputs", function()
+        {
+          return new Inputs();
+        } );
+  }
+
   function getWorkingDir()
   {
     return null;
@@ -35,7 +38,7 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
 
   function getArgv()
   {
-    return $this->Argv;
+    return isset( $_SERVER[ 'argv' ] ) ? $_SERVER[ 'argv' ] : null;
   }
 
   function getErrorController()
@@ -61,7 +64,6 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
     return $this->Singletons[ $key ];
   }
 
-  protected $Argv;
   private $Singletons = array ();
 
 }

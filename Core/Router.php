@@ -10,11 +10,11 @@ namespace Qck\Core;
 class Router implements \Qck\Interfaces\Router
 {
 
-  function __construct( $ControllerNamespace, $Argv = null, $QueryKey = "q",
-                        $StartControllerClassName = "Start" )
+  function __construct( $ControllerNamespace, \Qck\Interfaces\Inputs $Inputs,
+                        $QueryKey = "q", $StartControllerClassName = "Start" )
   {
     $this->ControllerNamespace = $ControllerNamespace;
-    $this->Argv = $Argv;
+    $this->Inputs = $Inputs;
     $this->QueryKey = $QueryKey;
     $this->StartControllerClassName = $StartControllerClassName;
   }
@@ -54,24 +54,7 @@ class Router implements \Qck\Interfaces\Router
       return $this->CurrentControllerClassName;
 
     // find requested query ( = the controller class to be instatiated and called )
-    $QueryKey = $this->QueryKey;
-    $Query = $this->StartControllerClassName;
-    if ( isset( $_GET[ $QueryKey ] ) )
-      $Query = $_GET[ $QueryKey ];
-    else if ( !isset( $_GET ) && $this->Argv )
-    {
-      // get first positional argument
-      for ( $i = 1; $i < count( $this->Argv ); $i++ )
-      {
-        if ( isset( $this->Argv[ $i ][ 0 ] ) && $this->Argv[ $i ][ 0 ] == "-" )
-          $i = $i + 1;
-        else
-        {
-          $Query = $this->Argv[ $i ];
-          break;
-        }
-      }
-    }
+    $Query = $this->Inputs->get( $this->QueryKey, $this->StartControllerClassName );
 
     // validate class name
     if ( preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $Query ) )
@@ -92,11 +75,40 @@ class Router implements \Qck\Interfaces\Router
     return $Link;
   }
 
+  /**
+   *
+   * @var string
+   */
   protected $ControllerNamespace;
-  protected $Argv;
+
+  /**
+   *
+   * @var \Qck\Interfaces\Inputs
+   */
+  protected $Inputs;
+
+  /**
+   *
+   * @var string
+   */
   protected $QueryKey = "q";
+
+  /**
+   *
+   * @var string
+   */
   protected $StartControllerClassName = "Start";
+
+  /**
+   * state var
+   * @var \Qck\Interfaces\Controller
+   */
   protected $Controller;
+
+  /**
+   * state var
+   * @var string
+   */
   protected $CurrentControllerClassName;
 
 }

@@ -12,15 +12,17 @@ class App
 
   const FATAL_MSG = "An application error occured. Please come back later. If the problem persists, please contact the Administrator. Thank you for your patience.";
 
-  function __construct( \Qck\Interfaces\AppConfigFactory $ConfigFactory )
+  function __construct( \Qck\Interfaces\AppConfig $Config )
   {
-    $this->ConfigFactory = $ConfigFactory;
+    $this->Config = $Config;
   }
 
   function run()
   {
     set_error_handler( array ( $this, "dispatchErrorAsException" ) );
     set_exception_handler( array ( $this, "handle" ) );
+    ini_set( "display_errors", 1 );
+    ini_set( "log_errors", 0 );
 
     // now load appConfigig local values
     $Config = $this->getAppConfig();
@@ -109,18 +111,13 @@ class App
    */
   public function getAppConfig()
   {
-    if ( is_null( $this->Config ) )
-    {
-      $this->Config = $this->ConfigFactory->create();
-    }
     return $this->Config;
   }
 
   /**
    *
-   * @var Qck\Interfaces\AppConfigFactory
+   * @var Qck\Interfaces\AppConfig
    */
-  protected $ConfigFactory;
   protected $Config;
 
 }
