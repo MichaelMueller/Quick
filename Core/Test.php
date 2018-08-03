@@ -27,19 +27,19 @@ abstract class Test implements \Qck\Interfaces\Test
       print ("Warning: " . $messageIfTrue . PHP_EOL );
   }
 
-  protected function getTempFile( $FileOrFolder = false )
+  protected function getTempFile( $Folder = false )
   {
     do
     {
       $File = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid();
     }
     while ( file_exists( $File ) );
-    $FileOrFolder ? mkdir( $File, 0777, true ) : touch( $File );
+    $Folder ? mkdir( $File, 0777, true ) : touch( $File );
 
     return $File;
   }
 
-  protected function delete( $FileOrFolder )
+  static function delete( $FileOrFolder )
   {
     if ( is_dir( $FileOrFolder ) )
     {

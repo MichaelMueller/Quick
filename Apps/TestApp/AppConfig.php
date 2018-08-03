@@ -14,7 +14,7 @@ class AppConfig extends \Qck\Ext\AppConfig
   {
     static $var = null;
     if ( !$var )
-      $var = new \Qck\Core\Router( "\\Qck\\Apps\\TestApp\\Controller", $this->getInputs(), "q", "RunTests" );
+      $var = new \Qck\Core\Router( "\\Qck\\Apps\\TestApp\\Controller", $this->getInputs(), "q", "Run" );
     return $var;
   }
 
