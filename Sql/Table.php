@@ -1,24 +1,21 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class Table implements Interfaces\Table
+class Table implements \Qck\Interfaces\Sql\Table
 {
 
-  function __construct( $Name, array $Columns = [], array $UniqueIndexes = [],
-                        array $Indexes = [] )
+  function __construct( $Name, PrimaryKeyCol $PrimaryKeyColumn )
   {
     $this->Name = $Name;
-    $this->Columns = $Columns;
-    $this->UniqueIndexes = $UniqueIndexes;
-    $this->Indexes = $Indexes;
+    $this->addColumn( $PrimaryKeyColumn );
   }
 
-  function addColumn( Interfaces\Column $Column )
+  function addColumn( \Qck\Interfaces\Sql\Column $Column )
   {
     $this->Columns[] = $Column;
   }
@@ -36,9 +33,8 @@ class Table implements Interfaces\Table
   public function getColumnNames( $SkipPrimaryKeyCol = true )
   {
     $ColNames = [];
-    foreach ( $this->Columns as $Column )
-      if ( !$Column instanceof PrimaryKeyCol || $SkipPrimaryKeyCol == false )
-        $ColNames[] = $Column->getName();
+    for ( $i = $SkipPrimaryKeyCol ? 1 : 0; $i < count( $this->Columns ); $i++ )
+      $ColNames[] = $this->Columns[ $i ]->getName();
     return $ColNames;
   }
 
@@ -47,12 +43,12 @@ class Table implements Interfaces\Table
     return implode( ", ", $this->getColumnNames( $SkipPrimaryKeyCol ) );
   }
 
-  public function getColumnSql( Interfaces\DbDictionary $DbDictionary )
+  public function getColumnSql( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
     $ColumnSqlParts = [];
     /* @var $Column Interfaces\Column */
     foreach ( $this->Columns as $Column )
-      $ColumnSqlParts[] = $Column->toSql( $DbDictionary );
+      $ColumnSqlParts[] = $Column->toSql( $SqlDbDialect );
     return implode( ", ", $ColumnSqlParts );
   }
 
@@ -71,6 +67,11 @@ class Table implements Interfaces\Table
     return $this->Indexes;
   }
 
+  public function getPrimaryKeyColumn()
+  {
+    return $this->Columns[ 0 ];
+  }
+
   /**
    *
    * @var string 
@@ -81,18 +82,18 @@ class Table implements Interfaces\Table
    *
    * @var array 
    */
-  protected $Columns;
+  protected $Columns = [];
 
   /**
    *
    * @var array 
    */
-  protected $UniqueIndexes;
+  protected $UniqueIndexes = [];
 
   /**
    *
    * @var array 
    */
-  protected $Indexes;
+  protected $Indexes = [];
 
 }

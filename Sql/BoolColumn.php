@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class BoolColumn extends Abstracts\Column
+class BoolColumn extends Column
 {
 
   public function __construct( $Name )
@@ -14,8 +14,8 @@ class BoolColumn extends Abstracts\Column
     parent::__construct( $Name );
   }
 
-  public function getDatatype( Interfaces\DbDictionary $DbDictionary )
+  public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
-    return $DbDictionary->getBoolDatatype();
+    return $SqlDbDialect->getBoolDatatype();
   }
 }

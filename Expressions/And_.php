@@ -29,7 +29,7 @@ class And_ extends BooleanChain
     return $eval;
   }
 
-  public function getOperator( \Qck\Interfaces\DbDictionary $Dictionary )
+  public function getOperator( \Qck\Interfaces\Sql\DbDialect $Dictionary )
   {
     return "and";
   }

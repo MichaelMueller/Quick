@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class StringColumn extends Abstracts\Column
+class StringColumn extends Column
 {
 
   const TINYTEXT = 255;
@@ -22,9 +22,9 @@ class StringColumn extends Abstracts\Column
     $this->Blob = $Blob;
   }
 
-  public function getDatatype( Interfaces\DbDictionary $DbDictionary )
+  public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
-    return $DbDictionary->getStringDatatype( $this->MinLength, $this->MaxLength, $this->Blob );
+    return $SqlDbDialect->getStringDatatype( $this->MinLength, $this->MaxLength, $this->Blob );
   }
 
   protected $MinLength;

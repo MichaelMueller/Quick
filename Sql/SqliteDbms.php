@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class SqliteDbms implements Interfaces\Dbms
+class SqliteDbms implements \Qck\Interfaces\Sql\Dbms
 {
 
   public function connectToDatabase( $Name )
@@ -21,29 +21,19 @@ class SqliteDbms implements Interfaces\Dbms
     return new SqliteDb( $Name );
   }
 
-  public function dropDatabase( Interfaces\Db $Db )
+  public function dropDatabase( \Qck\Interfaces\Sql\Db $Db )
   {
     $Db->closeConnection();
     unlink( $Db->getName() );
   }
 
-  public function dumpDatabase( $Name, $File, $Zip = false )
+  public function dumpDatabase( $Name, $File )
   {
     $Cmd = $this->SqliteCmdExe . " " . $Name . " .dump > " . $File;
     system( $Cmd );
-    if ( $Zip )
-    {
-      $zipArchive = new ZipArchive();
-      $filename = $File . ".zip";
-
-      $zipArchive->open( $filename, ZipArchive::CREATE );
-      $zipArchive->addFile( $File, pathinfo( $File, PATHINFO_FILENAME ) );
-      $zipArchive->close();
-      unlink( $File );
-    }
   }
 
-  public function renameDatabase( Interfaces\Db $Db, $NewName )
+  public function renameDatabase( \Qck\Interfaces\Sql\Db $Db, $NewName )
   {
     $Db->closeConnection();
     rename( $Db->getName(), $NewName );

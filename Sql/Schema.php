@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class Schema implements Interfaces\Schema
+class Schema implements \Qck\Interfaces\Sql\Schema
 {
 
   function __construct( array $Tables = [] )
@@ -14,7 +14,7 @@ class Schema implements Interfaces\Schema
     $this->Tables = $Tables;
   }
 
-  function addTable( Interfaces\Table $Table )
+  function addTable( Qck\Interfaces\Sql\Table $Table )
   {
     $this->Tables[] = $Table;
   }

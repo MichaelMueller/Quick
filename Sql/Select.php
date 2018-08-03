@@ -1,15 +1,15 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class Select implements \qck\Sql\Interfaces\Select
+class Select implements \Qck\Interfaces\Sql\Select
 {
 
-  function __construct( $TableName,  \Qck\Interfaces\Expression $Expression )
+  function __construct( $TableName, \Qck\Interfaces\Expression $Expression )
   {
     $this->TableName = $TableName;
     $this->Expression = $Expression;
@@ -36,11 +36,10 @@ class Select implements \qck\Sql\Interfaces\Select
     $this->Limit = $Limit;
   }
 
-  public function toSql( \Qck\Interfaces\DbDictionary $DbDictionary,
-                         &$Params = array () )
+  public function toSql( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect, &$Params = array () )
   {
     $Columns = count( $this->Columns ) == 0 ? "*" : implode( ", ", $this->Columns );
-    $Sql = "SELECT " . $Columns . " FROM " . $this->TableName . " WHERE " . $this->Expression->toSql( $DbDictionary, $Params );
+    $Sql = "SELECT " . $Columns . " FROM " . $this->TableName . " WHERE " . $this->Expression->toSql( $SqlDbDialect, $Params );
     if ( $this->OrderCol )
       $Sql .= " ORDER BY " . $this->OrderCol . ($this->Descending ? " DESC" : " ASC");
     if ( !is_null( $this->Limit ) )

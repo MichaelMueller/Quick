@@ -24,7 +24,7 @@ class Value extends ValueExpression
     return $this->Value;
   }
 
-  public function toSql( \Qck\Interfaces\DbDictionary $Dictionary,
+  public function toSql( \Qck\Interfaces\Sql\DbDialect $Dictionary,
                          array &$Params = array () )
   {
     $Params[] = $this->Value;

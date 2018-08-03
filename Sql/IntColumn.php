@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class IntColumn extends Abstracts\Column
+class IntColumn extends Column
 {
 
   public function __construct( $Name )
@@ -14,8 +14,8 @@ class IntColumn extends Abstracts\Column
     parent::__construct( $Name );
   }
 
-  public function getDatatype( Interfaces\DbDictionary $DbDictionary )
+  public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
-    return $DbDictionary->getIntDatatype();
+    return $SqlDbDialect->getIntDatatype();
   }
 }

@@ -1,12 +1,11 @@
 <?php
-
-namespace qck\Sql\Abstracts;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchema, \Qck\Interfaces\DbDictionary
+abstract class Db implements \Qck\Interfaces\Sql\Db, \Qck\Interfaces\Sql\DbDialect
 {
 
   /**
@@ -29,18 +28,18 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $this->getPdo()->commit();
   }
 
-  function install( \qck\Sql\Interfaces\Schema $Schema, $DropTables = false )
+  function install( \Qck\Interfaces\Sql\Schema $Schema, $DropTables = false )
   {
     foreach ( $Schema->getTables() as $Table )
       $this->createTable( $Table, true, $DropTables );
   }
 
-  public function createTable( \qck\Sql\Interfaces\Table $Table, $IfNotExists = true,
+  public function createTable( \Qck\Interfaces\Sql\Table $Table, $IfNotExists = true,
                                $DropIfExists = false )
   {
     $Sql = $DropIfExists ? "DROP TABLE IF EXISTS " . $Table->getName() . ";" : "";
     $Sql .= "CREATE TABLE" . ($IfNotExists ? " IF NOT EXISTS" : "") . " " . $Table->getName() . " ( ";
-    $Sql .= $Table->getColumnSql( $this->getDbDictionary() ) . ");";
+    $Sql .= $Table->getColumnSql( $this->getSqlDbDialect() ) . ");";
     foreach ( $Table->getUniqueIndexes() as $ColName )
       $Sql .= "CREATE UNIQUE INDEX " . $Table->getName() . "_" . $ColName . "_UniqueIndex  ON " . $Table->getName() . " (" . $ColName . ");";
     foreach ( $Table->getIndexes() as $ColName )
@@ -70,7 +69,7 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     $ColAndPlaceHolder = [];
     foreach ( $ColumnNames as $ColName )
       $ColAndPlaceHolder[] = $ColName . " = ?";
-    $Sql = "UPDATE " . $TableName . " SET " . implode( ", ", $ColAndPlaceHolder ) . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Values );
+    $Sql = "UPDATE " . $TableName . " SET " . implode( ", ", $ColAndPlaceHolder ) . " WHERE " . $Expression->toSql( $this->getSqlDbDialect(), $Values );
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Values );
     return $Statement->rowCount();
@@ -79,7 +78,7 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
   public function delete( $TableName,  \Qck\Interfaces\Expression $Expression )
   {
     $Params = [];
-    $Sql = "DELETE FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Params );
+    $Sql = "DELETE FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getSqlDbDialect(), $Params );
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Params );
     return $Statement->rowCount();
@@ -87,19 +86,19 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
 
   /**
    * 
-   * @param \qck\Sql\Interfaces\Select $Select
+   * @param \Qck\Interfaces\Sql\Select $Select
    * @return \PDOStatement
    */
-  function select( \qck\Sql\Interfaces\Select $Select )
+  function select( \Qck\Interfaces\Sql\Select $Select )
   {
     $Params = [];
-    $Sql = $Select->toSql( $this->getDbDictionary(), $Params );
+    $Sql = $Select->toSql( $this->getSqlDbDialect(), $Params );
     $Statement = $this->getPdo()->prepare( $Sql );
     $Statement->execute( $Params );
     return $Statement;
   }
 
-  public function getDbDictionary()
+  public function getSqlDbDialect()
   {
     return $this;
   }

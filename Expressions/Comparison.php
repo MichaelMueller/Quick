@@ -9,7 +9,7 @@ namespace Qck\Expressions;
 abstract class Comparison extends BooleanExpression
 {
 
-  abstract function getOperator( \Qck\Interfaces\DbDictionary $Dictionary );
+  abstract function getOperator( \Qck\Interfaces\Sql\DbDialect $Dictionary );
 
   function __construct( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
@@ -27,10 +27,10 @@ abstract class Comparison extends BooleanExpression
     return $this->RightOperand;
   }
 
-  public function toSql( \Qck\Interfaces\DbDictionary $DbDictionary,
+  public function toSql( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect,
                          array &$Params = array () )
   {
-    return $this->LeftOperand->toSql( $DbDictionary, $Params ) . " " . $this->getOperator( $DbDictionary ) . " " . $this->RightOperand->toSql( $DbDictionary, $Params );
+    return $this->LeftOperand->toSql( $SqlDbDialect, $Params ) . " " . $this->getOperator( $SqlDbDialect ) . " " . $this->RightOperand->toSql( $SqlDbDialect, $Params );
   }
 
   /**

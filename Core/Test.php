@@ -27,7 +27,7 @@ abstract class Test implements \Qck\Interfaces\Test
       print ("Warning: " . $messageIfTrue . PHP_EOL );
   }
 
-  protected function getTempFile( $Folder = false )
+  protected function getTempFile( $Folder = false, &$FilesToDelete = [] )
   {
     do
     {
@@ -35,7 +35,7 @@ abstract class Test implements \Qck\Interfaces\Test
     }
     while ( file_exists( $File ) );
     $Folder ? mkdir( $File, 0777, true ) : touch( $File );
-
+    $FilesToDelete[] = $File;
     return $File;
   }
 

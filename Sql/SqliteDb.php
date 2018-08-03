@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class SqliteDb extends Abstracts\Db
+class SqliteDb extends Db
 {
 
   function __construct( $SqliteFile = ":memory:" )

@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
  * @author muellerm
  */
-class FloatColumn extends Abstracts\Column
+class FloatColumn extends Column
 {
 
   function __construct( $Name )
@@ -14,9 +14,9 @@ class FloatColumn extends Abstracts\Column
     parent::__construct( $Name );
   }
 
-  public function getDatatype( Interfaces\DbDictionary $DbDictionary )
+  public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
-    return $DbDictionary->getFloatDatatype();
+    return $SqlDbDialect->getFloatDatatype();
   }
 
   protected $MinLength;

@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Sql;
+namespace Qck\Sql;
 
 /**
  *
@@ -15,9 +15,9 @@ class PrimaryKeyCol extends IntColumn
     $this->AutoIncrement = $AutoIncrement;
   }
 
-  function toSql( Interfaces\DbDictionary $DbDictionary )
+  function toSql( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
-    return parent::toSql( $DbDictionary ) . " " . $DbDictionary->getPrimaryKeyAttribute() . ($this->AutoIncrement ? " " . $DbDictionary->getAutoincrementAttribute() : "");
+    return parent::toSql( $SqlDbDialect ) . " " . $SqlDbDialect->getPrimaryKeyAttribute() . ($this->AutoIncrement ? " " . $SqlDbDialect->getAutoincrementAttribute() : "");
   }
 
   protected $AutoIncrement;

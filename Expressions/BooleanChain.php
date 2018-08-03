@@ -9,7 +9,7 @@ namespace Qck\Expressions;
 abstract class BooleanChain extends BooleanExpression
 {
 
-  abstract function getOperator( \Qck\Interfaces\DbDictionary $Dictionary );
+  abstract function getOperator( \Qck\Interfaces\Sql\DbDialect $Dictionary );
 
   function __construct( array $Expressions = [] )
   {
@@ -22,7 +22,7 @@ abstract class BooleanChain extends BooleanExpression
     $this->Expressions[] = $Expression;
   }
 
-  public function toSql( \Qck\Interfaces\DbDictionary $Dictionary,
+  public function toSql( \Qck\Interfaces\Sql\DbDialect $Dictionary,
                          array &$Params = array () )
   {
     $Sql = "(";

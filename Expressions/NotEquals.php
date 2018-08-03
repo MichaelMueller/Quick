@@ -19,7 +19,7 @@ class NotEquals extends Comparison
     return $this->LeftOperand->evaluate( $Data, $FilteredArray, $FailedExpressions ) != $this->RightOperand->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }
 
-  public function getOperator( \Qck\Interfaces\DbDictionary $Dictionary )
+  public function getOperator( \Qck\Interfaces\Sql\DbDialect $Dictionary )
   {
     return "!=";
   }
