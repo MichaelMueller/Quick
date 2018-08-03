@@ -9,7 +9,7 @@ namespace qck\Sql;
 class Select implements \qck\Sql\Interfaces\Select
 {
 
-  function __construct( $TableName, \qck\Expressions\Interfaces\Expression $Expression )
+  function __construct( $TableName,  \Qck\Interfaces\Expression $Expression )
   {
     $this->TableName = $TableName;
     $this->Expression = $Expression;
@@ -36,7 +36,7 @@ class Select implements \qck\Sql\Interfaces\Select
     $this->Limit = $Limit;
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $DbDictionary,
+  public function toSql( \Qck\Interfaces\DbDictionary $DbDictionary,
                          &$Params = array () )
   {
     $Columns = count( $this->Columns ) == 0 ? "*" : implode( ", ", $this->Columns );
@@ -64,7 +64,7 @@ class Select implements \qck\Sql\Interfaces\Select
 
   /**
    *
-   * @var \qck\Expressions\Interfaces\Expression
+   * @var  \Qck\Interfaces\Expression
    */
   protected $Expression;
 

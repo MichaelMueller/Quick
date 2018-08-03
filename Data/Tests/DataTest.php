@@ -6,10 +6,10 @@ namespace qck\Data\Tests;
  *
  * @author muellerm
  */
-class DataTest extends \qck\core\abstracts\Test
+class DataTest extends Qck\Interfaces\Test
 {
 
-  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
+  public function run(  \Qck\Interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
     // create Sqlite instance
     $SqliteFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_replace( "\\", "_", self::class ) . ".sqlite";

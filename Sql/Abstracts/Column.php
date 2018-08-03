@@ -9,14 +9,14 @@ namespace qck\Sql\Abstracts;
 abstract class Column implements \qck\Sql\Interfaces\Column
 {
 
-  abstract function getDatatype( \qck\Sql\Interfaces\DbDictionary $DbDictionary );
+  abstract function getDatatype( \Qck\Interfaces\DbDictionary $DbDictionary );
 
   function __construct( $Name )
   {
     $this->Name = $Name;
   }
 
-  function toSql( \qck\Sql\Interfaces\DbDictionary $DbDictionary )
+  function toSql( \Qck\Interfaces\DbDictionary $DbDictionary )
   {
     $Elements = [ $this->Name, $this->getDatatype( $DbDictionary ) ];
     return implode( " ", $Elements );

@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
@@ -32,7 +32,7 @@ class Identifier extends ValueExpression
     return $Data[ $this->Name ];
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary,
+  public function toSql( \Qck\Interfaces\DbDictionary $Dictionary,
                          array &$Params = array () )
   {
     return $this->Name;

@@ -1,17 +1,17 @@
 <?php
 
-namespace qck\Expressions\Tests;
+namespace Qck\Expressions\Tests;
 
-use qck\Expressions\Abstracts\Expression as ex;
+use Qck\Expressions\Expression as ex;
 
 /**
  *
  * @author muellerm
  */
-class ExpressionsTest extends \qck\core\abstracts\Test
+class ExpressionsTest extends \Qck\Core\Test
 {
 
-  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
+  public function run(  \Qck\Interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
     $TrueRegistrationData = [];
     $TrueRegistrationData[ "Name" ] = "Michi";

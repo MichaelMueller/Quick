@@ -2,16 +2,16 @@
 
 namespace qck\Sql\Tests;
 
-use qck\Expressions\Abstracts\Expression as x;
+use Qck\Expressions\Expression as x;
 
 /**
  *
  * @author muellerm
  */
-class SqlTest extends \qck\core\abstracts\Test
+class SqlTest extends Qck\Interfaces\Test
 {
 
-  public function run( \qck\core\interfaces\AppConfig $config, array &$FilesToDelete = [] )
+  public function run(  \Qck\Interfaces\AppConfig $config, array &$FilesToDelete = [] )
   {
 
     // create user table
@@ -38,7 +38,7 @@ class SqlTest extends \qck\core\abstracts\Test
 
     // Update
     $NewName = "Michael Jordan";
-    $Sqlite->update( $Table->getName(), [ "Name" ], [ $NewName ], new \qck\Expressions\IdEquals( $Id, "Id" ) );
+    $Sqlite->update( $Table->getName(), [ "Name" ], [ $NewName ], new \Qck\Expressions\IdEquals( $Id, "Id" ) );
 
     // Read again
     $ReadById = x::eq( x::id( "Id" ), x::val( $Id ) );
@@ -48,7 +48,7 @@ class SqlTest extends \qck\core\abstracts\Test
     $this->assert( $Results[ 0 ][ 0 ] == $NewName );
 
     // Delete
-    $this->assert( $Sqlite->delete( $Table->getName(), new \qck\Expressions\IdEquals( $Id ) ) == 1 );
+    $this->assert( $Sqlite->delete( $Table->getName(), new \Qck\Expressions\IdEquals( $Id ) ) == 1 );
 
     // Read again
     $Results = $Sqlite->select( $Select )->fetchAll();

@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
@@ -22,7 +22,7 @@ class Equals extends Comparison
     return $eval;
   }
 
-  public function getOperator( \qck\Sql\Interfaces\DbDictionary $Dictionary )
+  public function getOperator( \Qck\Interfaces\DbDictionary $Dictionary )
   {
     return "=";
   }

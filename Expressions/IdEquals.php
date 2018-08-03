@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *

@@ -27,7 +27,7 @@ interface Db
    * @param \qck\StructuredData\Interfaces\Select $ObjectSelect
    * @return \qck\Data\Object array containing Objects
    */
-  function select( $Fqcn, \qck\Expressions\Interfaces\Expression $Expression,
+  function select( $Fqcn,  \Qck\Interfaces\Expression $Expression,
                    $Limit = null, $Offset = null, $OrderPropName = null,
                    $Descending = true );
 

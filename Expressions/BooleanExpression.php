@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
  * @author muellerm
  */
-abstract class BooleanExpression extends Abstracts\Expression
+abstract class BooleanExpression extends Expression
 {
   
 }

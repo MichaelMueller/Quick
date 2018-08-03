@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
@@ -19,7 +19,7 @@ class Regexp extends Comparison
     return preg_match( $this->LeftOperand->evaluate( $Data, $FilteredArray, $FailedExpressions ), $this->RightOperand->evaluate( $Data, $FilteredArray, $FailedExpressions ) ) == true;
   }
 
-  public function getOperator( \qck\Sql\Interfaces\DbDictionary $Dictionary )
+  public function getOperator( \Qck\Interfaces\DbDictionary $Dictionary )
   {
     return $Dictionary->getRegExpOperator();
   }

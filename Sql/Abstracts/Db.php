@@ -6,7 +6,7 @@ namespace qck\Sql\Abstracts;
  *
  * @author muellerm
  */
-abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchema, \qck\Sql\Interfaces\DbDictionary
+abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchema, \Qck\Interfaces\DbDictionary
 {
 
   /**
@@ -65,7 +65,7 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
   }
 
   public function update( $TableName, array $ColumnNames, array $Values,
-                          \qck\Expressions\Interfaces\Expression $Expression )
+                           \Qck\Interfaces\Expression $Expression )
   {
     $ColAndPlaceHolder = [];
     foreach ( $ColumnNames as $ColName )
@@ -76,7 +76,7 @@ abstract class Db implements \qck\Sql\Interfaces\Db, \qck\Sql\Interfaces\DbSchem
     return $Statement->rowCount();
   }
 
-  public function delete( $TableName, \qck\Expressions\Interfaces\Expression $Expression )
+  public function delete( $TableName,  \Qck\Interfaces\Expression $Expression )
   {
     $Params = [];
     $Sql = "DELETE FROM " . $TableName . " WHERE " . $Expression->toSql( $this->getDbDictionary(), $Params );

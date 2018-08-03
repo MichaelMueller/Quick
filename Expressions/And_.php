@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
@@ -29,7 +29,7 @@ class And_ extends BooleanChain
     return $eval;
   }
 
-  public function getOperator( \qck\Sql\Interfaces\DbDictionary $Dictionary )
+  public function getOperator( \Qck\Interfaces\DbDictionary $Dictionary )
   {
     return "and";
   }

@@ -16,7 +16,7 @@ class FileInfoServiceTest extends \Qck\Core\Test
   }
 
   public function run( \Qck\Interfaces\AppConfig $Config,
-                       &$FilesToBeDeleted = array () )
+                       array &$FilesToBeDeleted = array () )
   {
     $TempDir = $this->getTempFile( true );
     $FilesToBeDeleted[] = $TempDir;

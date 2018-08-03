@@ -1,12 +1,12 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
  * @author muellerm
  */
-abstract class ValueExpression extends Abstracts\Expression
+abstract class ValueExpression extends Expression
 {
   
 }

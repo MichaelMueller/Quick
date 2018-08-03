@@ -26,7 +26,7 @@ class SqlObjectDb implements Interfaces\Db
     {
       $Schema = $this->ObjectDbSchema->getObjectSchema( $ObjectInfo->getUuidProvider()->getFqcn() );
       $UuidPropName = $Schema->getUuidPropertyName();
-      $Exp = new \qck\Expressions\UuidEquals( $Uuid, $UuidPropName );
+      $Exp = new \Qck\Expressions\UuidEquals( $Uuid, $UuidPropName );
       $TableName = $Schema->getSqlTableName();
       $ItemsTableName = $Schema instanceof Interfaces\ObjectSetSchema ? $Schema->getItemsSqlTableName() : null;
       if ( $ItemsTableName )
@@ -81,7 +81,7 @@ class SqlObjectDb implements Interfaces\Db
   public function load( $Fqcn, $Uuid )
   {
     $Schema = $this->ObjectDbSchema->getObjectSchema( $Fqcn );
-    $Exp = new \qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
+    $Exp = new \Qck\Expressions\UuidEquals( $Uuid, $Schema->getUuidPropertyName() );
     $Select = new \qck\Sql\Select( $Schema->getSqlTableName(), $Exp );
     $Select->setColumns( $Schema->getPropertyNames( true ) );
     $Data = $this->SqlDb->select( $Select )->fetch( \PDO::FETCH_ASSOC );
@@ -112,7 +112,7 @@ class SqlObjectDb implements Interfaces\Db
     return null;
   }
 
-  public function select( $Fqcn, \qck\Expressions\Interfaces\Expression $Expression,
+  public function select( $Fqcn,  \Qck\Interfaces\Expression $Expression,
                           $Limit = null, $Offset = null, $OrderPropName = null,
                           $Descending = true )
   {

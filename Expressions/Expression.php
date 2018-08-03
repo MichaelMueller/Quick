@@ -1,14 +1,14 @@
 <?php
 
-namespace qck\Expressions\Abstracts;
+namespace Qck\Expressions;
 
-use qck\Expressions\ValueExpression;
+use Qck\Expressions\ValueExpression;
 
 /**
  *
  * @author muellerm
  */
-abstract class Expression implements \qck\Expressions\Interfaces\Expression
+abstract class Expression implements  \Qck\Interfaces\Expression
 {
 
   function filterVar( array $Data, &$FailedExpressions = [] )
@@ -20,51 +20,51 @@ abstract class Expression implements \qck\Expressions\Interfaces\Expression
 
   static function and_( array $Expressions = [], $EvaluateAll = false )
   {
-    return new \qck\Expressions\And_( $Expressions, $EvaluateAll );
+    return new \Qck\Expressions\And_( $Expressions, $EvaluateAll );
   }
 
   static function strlen( ValueExpression $Param )
   {
-    return new \qck\Expressions\Strlen( $Param );
+    return new \Qck\Expressions\Strlen( $Param );
   }
 
   static function id( $Name, $UseForFilteredArray = true )
   {
-    return new \qck\Expressions\Identifier( $Name, $UseForFilteredArray );
+    return new \Qck\Expressions\Identifier( $Name, $UseForFilteredArray );
   }
 
   static function val( $Value )
   {
-    return new \qck\Expressions\Value( $Value );
+    return new \Qck\Expressions\Value( $Value );
   }
 
   static function gt( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
-    return new \qck\Expressions\Greater( $LeftOperand, $RightOperand );
+    return new \Qck\Expressions\Greater( $LeftOperand, $RightOperand );
   }
 
   static function ge( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
-    return new \qck\Expressions\GreaterEquals( $LeftOperand, $RightOperand );
+    return new \Qck\Expressions\GreaterEquals( $LeftOperand, $RightOperand );
   }
 
   static function eq( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
-    return new \qck\Expressions\Equals( $LeftOperand, $RightOperand );
+    return new \Qck\Expressions\Equals( $LeftOperand, $RightOperand );
   }
 
   static function ne( BooleanExpression $BooleanExpression )
   {
-    return new \qck\Expressions\Not( $BooleanExpression );
+    return new \Qck\Expressions\Not( $BooleanExpression );
   }
 
   static function lt( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
-    return new \qck\Expressions\Less( $LeftOperand, $RightOperand );
+    return new \Qck\Expressions\Less( $LeftOperand, $RightOperand );
   }
 
   static function le( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
-    return new \qck\Expressions\LessEquals( $LeftOperand, $RightOperand );
+    return new \Qck\Expressions\LessEquals( $LeftOperand, $RightOperand );
   }
 }

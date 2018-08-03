@@ -1,6 +1,6 @@
 <?php
 
-namespace qck\Expressions;
+namespace Qck\Expressions;
 
 /**
  *
@@ -19,7 +19,7 @@ class Not extends BooleanExpression
     return !$this->BooleanExpression->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }
 
-  public function toSql( \qck\Sql\Interfaces\DbDictionary $Dictionary,
+  public function toSql( \Qck\Interfaces\DbDictionary $Dictionary,
                          array &$Params = array () )
   {
     return "not " . $this->BooleanExpression->toSql( $Dictionary, $Params );
