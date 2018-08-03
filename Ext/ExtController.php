@@ -7,8 +7,16 @@ namespace Qck\Ext;
  *
  * @author muellerm
  */
-abstract class ExtController extends \qck\core\abstracts\Controller
+abstract class ExtController extends \Qck\Core\CoreController
 {
+
+  /**
+   * @return AppConfig
+   */
+  function getAppConfig()
+  {
+    return $this->AppConfig;
+  }
 
   protected function assertAuthenticated()
   {

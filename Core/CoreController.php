@@ -12,30 +12,10 @@ abstract class CoreController implements \Qck\Interfaces\Controller
 
   abstract protected function proxyRun();
 
-  function run( Qck\Interfaces\AppConfig $config )
+  function run( \Qck\Interfaces\AppConfig $config )
   {
     $this->AppConfig = $config;
     return $this->proxyRun();
-  }
-
-  function getParam($NameOrIndex, $Default=null)
-  {
-    $Params = [];
-    if($this->getAppConfig()->isCli())
-    {
-      // first arg: name of script, second arg: name of controller
-      for ( $i = 1; $i < count( $this->Argv ); $i++ )
-      {
-        if ( isset( $this->Argv[ $i ][ 0 ] ) && $this->Argv[ $i ][ 0 ] == "-" )
-          $i = $i + 2;
-        else
-        {
-          $Query = $this->Argv[ $i ];
-          break;
-        }
-      }
-      
-    }
   }
   
   function redirect( $ControllerName, $args = array () )
@@ -45,7 +25,7 @@ abstract class CoreController implements \Qck\Interfaces\Controller
   }
 
   /**
-   * @return Qck\Interfaces\AppConfig
+   * @return \Qck\Interfaces\AppConfig
    */
   function getAppConfig()
   {
@@ -53,7 +33,7 @@ abstract class CoreController implements \Qck\Interfaces\Controller
   }
 
   /**
-   * @var Qck\Interfaces\AppConfig
+   * @var \Qck\Interfaces\AppConfig
    */
   protected $AppConfig;
 
