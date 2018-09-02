@@ -13,14 +13,7 @@ class SqliteDbms implements \Qck\Interfaces\Sql\Dbms
   {
     return new SqliteDb( $Name );
   }
-
-  public function createDatabase( $Name )
-  {
-    /* if ( file_exists( $Name ) )
-      unlink( $Name ); */
-    return new SqliteDb( $Name );
-  }
-
+  
   public function dropDatabase( \Qck\Interfaces\Sql\Db $Db )
   {
     $Db->closeConnection();

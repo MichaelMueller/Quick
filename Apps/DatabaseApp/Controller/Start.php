@@ -2,6 +2,9 @@
 
 namespace Qck\Apps\DatabaseApp\Controller;
 
+use \Qck\Apps\DatabaseApp\Templates;
+use \Qck\Core;
+
 /**
  * Description of HelloWorldController
  *
@@ -12,6 +15,7 @@ class Start extends \Qck\Apps\DatabaseApp\DatabaseAppContoller
 
   public function proxyRun()
   {
-    return new \Qck\Core\HtmlResponse( $this->buildTemplate( new \Qck\Apps\DatabaseApp\Templates\LoginForm() ) );
+    $LoginForm = new Templates\LoginForm( $this->getAppConfig()->getAppName(), $this->getAppConfig()->getRouter()->getLink( "Login" ) );
+    return new Core\HtmlResponse( $this->buildTemplate($LoginForm) );
   }
 }

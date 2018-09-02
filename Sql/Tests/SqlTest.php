@@ -32,7 +32,7 @@ class SqlTest extends \Qck\Core\Test
     $SqliteFile = sys_get_temp_dir() . "/" . crc32( SqlTest::class ) . ".sqlite";
     $this->delete( $SqliteFile );
     $SqliteDbms = new \Qck\Sql\SqliteDbms();
-    $Sqlite = $SqliteDbms->createDatabase( $SqliteFile );
+    $Sqlite = $SqliteDbms->connectToDatabase( $SqliteFile );
     $Sqlite->install( $Schema, true );
     $PersonId = $Sqlite->insert( $PersonTable->getName(), $PersonTable->getColumnNames( true ), [ "Michael Müller", "NoWhere Street 5, 67089 Heidelberg" ] );
     $Id = $Sqlite->insert( $UsersTable->getName(), $UsersTable->getColumnNames( true ), [ "Michael", true, 0.2312, null, $PersonId ] );
