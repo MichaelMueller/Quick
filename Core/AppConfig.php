@@ -10,6 +10,8 @@ namespace Qck\Core;
 abstract class AppConfig implements \Qck\Interfaces\AppConfig
 {
 
+  const DEFAULT_WORKING_DIR = "var";
+
   function isCli()
   {
     return isset( $_SERVER[ 'argc' ] );
@@ -31,15 +33,23 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
         } );
   }
 
-  function getWorkingDir( $createIfExists = true )
+  function getWorkingDir( $createIfNotExists = true )
   {
-    return $this->getSingleton( "Inputs", function() use($createIfExists)
+    return $this->getSingleton( "Inputs", function() use($createIfNotExists)
         {
-          $Dir = "var";
-          if ( $createIfExists && !is_dir( $Dir ) )
+          $Dir = self::DEFAULT_WORKING_DIR;
+          if ( $createIfNotExists && !is_dir( $Dir ) )
             mkdir( $Dir );
           return $Dir;
         } );
+  }
+
+  function getWorkingSubDir( $subDir, $createIfNotExists = true )
+  {
+    $FullSubDir = $this->getWorkingDir( $createIfNotExists ) . DIRECTORY_SEPARATOR . $subDir;
+    if ( $createIfNotExists && !is_dir( $FullSubDir ) )
+      mkdir( $FullSubDir );
+    return $FullSubDir;
   }
 
   function getArgv()
