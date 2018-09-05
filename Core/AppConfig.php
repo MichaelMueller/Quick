@@ -31,9 +31,15 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
         } );
   }
 
-  function getWorkingDir()
+  function getWorkingDir( $createIfExists = true )
   {
-    return null;
+    return $this->getSingleton( "Inputs", function() use($createIfExists)
+        {
+          $Dir = "var";
+          if ( $createIfExists && !is_dir( $Dir ) )
+            mkdir( $Dir );
+          return $Dir;
+        } );
   }
 
   function getArgv()

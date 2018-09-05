@@ -18,9 +18,9 @@ abstract class CoreController implements \Qck\Interfaces\Controller
     return $this->proxyRun();
   }
   
-  function redirect( $ControllerName, $args = array () )
+  function redirect( $ControllerFqcn, $args = array () )
   {
-    header( "Location: " . $this->getAppConfig()->getRouter()->getLink( $ControllerName, $args ) );
+    header( "Location: " . $this->getAppConfig()->getRouter()->getLink( $ControllerFqcn, $args ) );
     return null;
   }
 

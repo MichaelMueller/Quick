@@ -63,9 +63,9 @@ class Router implements \Qck\Interfaces\Router
     return $this->CurrentControllerClassName;
   }
 
-  public function getLink( $ControllerClassName, $args = array () )
+  public function getLink( $ControllerFqcn, $args = array () )
   {
-    $Link = "?" . $this->QueryKey . "=" . $ControllerClassName;
+    $Link = "?" . $this->QueryKey . "=" . str_replace( $this->ControllerNamespace . "\\\\", "", $ControllerFqcn );
 
     if ( is_array( $args ) )
     {
