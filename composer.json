@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": ">=5.5",
-    "michaelmueller/quickinterfaces": "1.0",
+    "michaelmueller/quickinterfaces": "dev-master",
     "phpmailer/phpmailer": "~5.2",
     "ramsey/uuid": "3.7.3",
     "sinergi/browser-detector": "6.1.2"
