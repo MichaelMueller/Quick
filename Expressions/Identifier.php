@@ -27,7 +27,7 @@ class Identifier extends ValueExpression
       $FailedExpressions[] = $this;
       return null;
     }
-    if ( $this->UseForFilteredArray )
+    else if ( $this->UseForFilteredArray )
       $FilteredArray[ $this->Name ] = $Data[ $this->Name ];
     return $Data[ $this->Name ];
   }

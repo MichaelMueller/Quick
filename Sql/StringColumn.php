@@ -14,7 +14,7 @@ class StringColumn extends Column
   const MEDIUMTEXT = 16777215;
   const LONGTEXT = 4294967295;
 
-  function __construct( $Name, $MinLength = 0, $MaxLength = self::TINYTEXT, $Blob = false )
+  function __construct( $Name, $MinLength = 0, $MaxLength = self::TINYTEXT, $Blob = false, $Regex = null )
   {
     parent::__construct( $Name );
     $this->MinLength = $MinLength;

@@ -9,13 +9,18 @@ namespace Qck\Sql;
 class BoolColumn extends Column
 {
 
-  public function __construct( $Name )
+  function __construct( $name )
   {
-    parent::__construct( $Name );
+    parent::__construct($name);
   }
 
   public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
   {
     return $SqlDbDialect->getBoolDatatype();
+  }
+
+  public function createExpression()
+  {
+    return new \Qck\Expressions\True_();
   }
 }

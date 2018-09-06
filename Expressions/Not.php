@@ -14,7 +14,7 @@ class Not extends BooleanExpression
     $this->BooleanExpression = $BooleanExpression;
   }
 
-  public function evaluate( array $Data, &$FilteredArray = [], &$FailedExpressions = [] )
+  public function evaluateProxy( array $Data, &$FilteredArray = [], &$FailedExpressions = [] )
   {
     return !$this->BooleanExpression->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }

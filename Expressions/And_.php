@@ -24,8 +24,6 @@ class And_ extends BooleanChain
       if ( !$eval && $this->EvaluateAll == false )
         break;
     }
-    if ( !$eval )
-      $FailedExpressions[] = $this;
     return $eval;
   }
 

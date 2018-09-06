@@ -14,7 +14,7 @@ class LessEquals extends Comparison
     parent::__construct( $LeftOperand, $RightOperand );
   }
 
-  public function evaluate( array $Data, &$FilteredArray = [], &$FailedExpressions = [] )
+  public function evaluateProxy( array $Data, &$FilteredArray = [], &$FailedExpressions = [] )
   {
     return $this->LeftOperand->evaluate( $Data, $FilteredArray, $FailedExpressions ) <= $this->RightOperand->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }

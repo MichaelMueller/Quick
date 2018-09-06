@@ -8,7 +8,7 @@ use Qck\Expressions\ValueExpression;
  *
  * @author muellerm
  */
-abstract class Expression implements  \Qck\Interfaces\Expression
+abstract class Expression implements \Qck\Interfaces\Expression
 {
 
   function filterVar( array $Data, &$FailedExpressions = [] )
