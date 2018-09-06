@@ -7,13 +7,18 @@ namespace Qck\Html;
  *
  * @author muellerm
  */
-class Page implements \Qck\Interfaces\Template
+class Page implements \Qck\Interfaces\Output, \Qck\Interfaces\Html\Page
 {
 
-  function __construct( $Title, \Qck\Interfaces\Template $ContentTemplate )
+  function __construct( $title, \Qck\Interfaces\Template $contentTemplate = null )
   {
-    $this->Title = $Title;
-    $this->ContentTemplate = $ContentTemplate;
+    $this->title = $title;
+    $this->contentTemplate = $contentTemplate;
+  }
+
+  function setContentTemplate( \Qck\Interfaces\Template $contentTemplate )
+  {
+    $this->contentTemplate = $contentTemplate;
   }
 
   //put your code here
@@ -24,35 +29,100 @@ class Page implements \Qck\Interfaces\Template
     <!doctype html>
     <html lang="en">
 
-      <!-- Required meta tags -->
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <!-- MetaElements -->
+      <meta charset="<?= $this->getCharset() ?>">
+      <?php
+      /* @var $element Element */
+      foreach ( $this->metaElements as $element )
+        echo $element->render() . PHP_EOL;
+      ?>
+      <!-- /MetaElements -->
 
-      <!-- Bootstrap CSS -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <!-- Stylesheets -->
+      <?php
+      /* @var $element Element */
+      foreach ( $this->styleSheets as $element )
+        echo $element->render() . PHP_EOL;
+      ?>
+      <!-- /Stylesheets -->
 
-      <title><?= $this->Title ?></title>
+      <title><?= $this->title ?></title>
 
-      <body>
-        <?= $this->ContentTemplate->render() ?>
+      <body class="<?= implode( " ", $this->bodyCssClasses ) ?>">
+        <?= $this->contentTemplate->render() ?>
 
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-      </body>
+        <!-- Scripts -->
+        <?php
+        /* @var $element Element */
+        foreach ( $this->scripts as $element )
+          echo $element->render() . PHP_EOL;
+        ?>
+        <!-- /Scripts -->
     </html>
     <?php
     return ob_get_clean();
   }
 
-  protected $Title;
+  public function addBodyCssClass( $cssClass )
+  {
+    $this->bodyCssClasses[] = $cssClass;
+  }
+
+  public function addMetaElement( $name, $content )
+  {
+    $this->styleSheets[] = new Element( "meta", [ "name" => $name, "content" => $content ] );
+  }
+
+  public function addStyleSheet( $href, $integrity = null, $crossorigin = null )
+  {
+    $atts = [ "rel" => "stylesheet", "href" => $href ];
+    if ( $integrity )
+      $atts[ "integrity" ] = $integrity;
+    if ( $crossorigin )
+      $atts[ "crossorigin" ] = $crossorigin;
+    $this->styleSheets[] = new Element( "link", $atts );
+  }
+
+  public function addScript( $src, $integrity = null, $crossorigin = null )
+  {
+    $atts = [ "rel" => "stylesheet", "src" => $src ];
+    if ( $integrity )
+      $atts[ "integrity" ] = $integrity;
+    if ( $crossorigin )
+      $atts[ "crossorigin" ] = $crossorigin;
+    $this->scripts[] = new Element( "script", $atts, "" );
+  }
+
+  public function getAdditionalHeaders()
+  {
+    return [];
+  }
+
+  public function getCharset()
+  {
+    return \Qck\Interfaces\Output::CHARSET_UTF_8;
+  }
+
+  public function getContentType()
+  {
+    return \Qck\Interfaces\Output::CONTENT_TYPE_TEXT_HTML;
+  }
+
+  public function createElement( $name, array $attributes = array (), $text = null )
+  {
+    return new Element( $name, $attributes, $text );
+  }
+
+  protected $title;
+  protected $metaElements = [];
+  protected $styleSheets = [];
+  protected $scripts = [];
+  protected $bodyCssClasses = [];
 
   /**
    *
    * @var \Qck\Interfaces\Template
    */
-  protected $ContentTemplate;
+  protected $contentTemplate;
 
 }

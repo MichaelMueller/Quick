@@ -9,32 +9,33 @@ namespace Qck\Core;
 class Response implements \Qck\Interfaces\Response
 {
 
-  function __construct( $Output, $ExitCode )
+  function __construct( $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK,
+                        \Qck\Interfaces\Output $Output = null )
   {
-    $this->Output = $Output;
     $this->ExitCode = $ExitCode;
+    $this->Output = $Output;
   }
 
-  function send()
-  {
-    echo $this->Output instanceof \Qck\Interfaces\Template ? $this->Output->render() : $this->Output;
-  }
-
-  public function getExitCode()
+  function getExitCode()
   {
     return $this->ExitCode;
   }
 
-  /**
-   *
-   * @var mixed string or Template 
-   */
-  protected $Output;
+  function getOutput()
+  {
+    return $this->Output;
+  }
 
   /**
    *
    * @var mixed string or Template 
    */
   protected $ExitCode;
+
+  /**
+   *
+   * @var \Qck\Interfaces\Output
+   */
+  protected $Output;
 
 }

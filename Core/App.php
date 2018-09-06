@@ -10,8 +10,6 @@ namespace Qck\Core;
 class App
 {
 
-  const FATAL_MSG = "An application error occured. Please come back later. If the problem persists, please contact the Administrator. Thank you for your patience.";
-
   function __construct( \Qck\Interfaces\AppConfig $Config )
   {
     $this->Config = $Config;
@@ -21,8 +19,6 @@ class App
   {
     set_error_handler( array ( $this, "dispatchErrorAsException" ) );
     set_exception_handler( array ( $this, "handle" ) );
-    ini_set( "display_errors", 1 );
-    ini_set( "log_errors", 0 );
 
     // now load appConfigig local values
     $Config = $this->getAppConfig();
@@ -34,20 +30,12 @@ class App
 
     // handle error if no controller is found
     if ( is_null( $Controller ) )
-      throw new \InvalidArgumentException( "Controller " . $Router->getControllerNamespace() . "\\" . $Router->getCurrentControllerClassName() . " was not found", \Qck\Interfaces\Response::CODE_NOT_FOUND );
-
-    /* @var $Response Qck\Interfaces\Response */
-    $Response = $Controller->run( $Config );
-
-    // If there is a null Response, the Controller has sent Everything himself
-    $ExitCode = 0;
-    if ( !is_null( $Response ) )
     {
-      $Response->send();
-      $ExitCode = $Response->getExitCode();
+      $err = "Controller " . $Router->getCurrentControllerFqcn() . " was not found";
+      $exitCode = \Qck\Interfaces\Response::EXIT_CODE_NOT_FOUND;
+      throw new \InvalidArgumentException( $err, $exitCode );
     }
-
-    exit( $ExitCode );
+    $this->handleController( $Controller, $Config );
   }
 
   function dispatchErrorAsException( $errno, $errstr, $errfile, $errline )
@@ -55,54 +43,71 @@ class App
     throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
   }
 
+  protected function handleController( \Qck\Interfaces\Controller $Controller,
+                                       \Qck\Interfaces\AppConfig $Config )
+  {
+    /* @var $Response Qck\Interfaces\Response */
+    $Response = $Controller->run( $Config );
+    $Output = $Response->getOutput();
+    if ( $Output !== null )
+    {
+      if ( $Config->isCli() == false )
+      {
+        http_response_code( $Response->getExitCode() );
+        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
+        foreach ( $Output->getAdditionalHeaders() as $header )
+          header( $header );
+      }
+      echo $Output->render();
+    }
+    exit( $Response->getExitCode() );
+  }
+
   function handle( $e )
   {
-    $FatalMsg = self::FATAL_MSG;
     /* @var $e \Exception */
     $ErrText = strval( $e );
     try
     {
-      $AppConfig = $this->getAppConfig();
+      $Config = $this->getAppConfig();
 
       // First step to handle the error: Mail it (if configured)
-      if ( $AppConfig->getAdminMailer() )
-        $AppConfig->getAdminMailer()->sendToAdmin( "Error on " . $AppConfig->getHostInfo(), $ErrText );
+      if ( $Config->getAdminMailer() )
+        $Config->getAdminMailer()->sendToAdmin( "Error on " . $Config->getHostInfo(), $ErrText );
 
       // Next step: Let the programmer take over error Handling if he wants to
       // If there is no custom Error Handler or another exception occurs, we finally get out here immediately
-      $ErrorController = $AppConfig->getErrorController();
+      $ErrorController = $Config->getErrorController();
       if ( $ErrorController )
       {
         $ErrorController->setErrorCode( $e->getCode() );
-        $Response = $ErrorController->run( $AppConfig );
-        if ( $Response )
-          $Response->send();
+        $this->handleController( $ErrorController, $Config );
       }
-
-      if ( !$AppConfig->isCli() )
+      if ( ini_get( "display_errors" ) == 1 )
       {
-        http_response_code( $e->getCode() );
-        print "<pre>";
+        if ( $Config->isCli() )
+          echo $ErrText;
+        else
+          echo "<pre>" . $ErrText . "</pre>";
       }
-
-      if ( $AppConfig->shouldPrintErrors() == false )
-        print $ErrText;
       else
       {
         error_log( $ErrText );
-        print $FatalMsg;
+        die( "An application error occured. Please come back later. If the problem persists, please contact the Administrator. Thank you for your patience." );
       }
-
-      if ( !$AppConfig->isCli() )
-        print "</pre>";
-
-      exit( $e->getCode() );
     }
     catch ( \Exception $ex )
     {
-      error_log( $ErrText );
-      die( $FatalMsg );
+      error_log( strval( $ex ) );
+      die( "An application error occured. Please come back later. If the problem persists, please contact the Administrator. Thank you for your patience." );
     }
+  }
+
+  function fatal( $ex )
+  {
+    // OOPS THIS IS FATAL NOW, EVEN THE ERROR CONTROLLER PRODUCED SOMETHING WRONG
+    // LOG THE ERROR AND DIE, BYE BYE
+    error_log( strval( $ex ) );
   }
 
   /**

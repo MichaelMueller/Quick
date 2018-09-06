@@ -11,7 +11,7 @@ class BoolColumn extends Column
 
   function __construct( $name )
   {
-    parent::__construct($name);
+    parent::__construct( $name );
   }
 
   public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
@@ -22,5 +22,10 @@ class BoolColumn extends Column
   public function createExpression()
   {
     return new \Qck\Expressions\True_();
+  }
+
+  public function createInputElement( \Qck\Interfaces\Html\Page $Page )
+  {
+    return $Page->createElement( "input", [ "name" => $this->getName(), "type" => "checkbox" ] );
   }
 }

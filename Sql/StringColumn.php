@@ -2,6 +2,8 @@
 
 namespace Qck\Sql;
 
+use Qck\Expressions\Expression as x;
+
 /**
  *
  * @author muellerm
@@ -14,12 +16,13 @@ class StringColumn extends Column
   const MEDIUMTEXT = 16777215;
   const LONGTEXT = 4294967295;
 
-  function __construct( $Name, $MinLength = 0, $MaxLength = self::TINYTEXT, $Blob = false, $Regex = null )
+  function __construct( $Name, $MinLength = 0, $MaxLength = self::TINYTEXT, $Blob = false,
+                        $regex = null )
   {
     parent::__construct( $Name );
     $this->MinLength = $MinLength;
     $this->MaxLength = $MaxLength;
-    $this->Blob = $Blob;
+    $this->regex = $regex;
   }
 
   public function getDatatype( \Qck\Interfaces\Sql\DbDialect $SqlDbDialect )
@@ -27,8 +30,28 @@ class StringColumn extends Column
     return $SqlDbDialect->getStringDatatype( $this->MinLength, $this->MaxLength, $this->Blob );
   }
 
+  public function createInputElement( \Qck\Interfaces\Html\Page $Page )
+  {
+    return $Page->createElement( "input", [ "name" => $this->getName(), "type" => "text" ] );
+  }
+
+  public function createExpression()
+  {
+    $leThanMax = x::le( x::strlen( x::id( $this->getName() ) ), x::val( $this->MaxLength ) );
+    $geThanMin = x::ge( x::strlen( x::id( $this->getName() ) ), x::val( $this->MinLength ) );
+    $and = x::and_( $leThanMax, $geThanMin, true );
+    if ( $this->regex )
+    {
+      $regexMatch = x::regexp( x::id( $this->getName() ), x::val( $this->regex ) );
+      $and->add( $regexMatch );
+    }
+
+    return $and;
+  }
+
   protected $MinLength;
   protected $MaxLength;
   protected $Blob;
+  protected $regex;
 
 }

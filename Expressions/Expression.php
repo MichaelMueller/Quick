@@ -38,6 +38,11 @@ abstract class Expression implements \Qck\Interfaces\Expression
     return new \Qck\Expressions\Value( $Value );
   }
 
+  static function regexp( ValueExpression $LeftOperand, ValueExpression $RightOperand )
+  {
+    return new \Qck\Expressions\Regexp($LeftOperand, $RightOperand );
+  }
+  
   static function gt( ValueExpression $LeftOperand, ValueExpression $RightOperand )
   {
     return new \Qck\Expressions\Greater( $LeftOperand, $RightOperand );

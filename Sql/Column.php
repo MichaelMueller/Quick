@@ -6,7 +6,7 @@ namespace Qck\Sql;
  *
  * @author muellerm
  */
-abstract class Column implements \Qck\Interfaces\Sql\Column
+abstract class Column implements \Qck\Interfaces\Sql\Column, \Qck\Interfaces\Html\FormElement
 {
 
   /**
@@ -42,7 +42,26 @@ abstract class Column implements \Qck\Interfaces\Sql\Column
     return $this->expression->evaluate( $Data, $FilteredArray, $FailedExpressions );
   }
 
+  function getId()
+  {
+    return $this->name;
+  }
+
+  /**
+   * @return String
+   */
+  function getLabel()
+  {
+    return $this->label ? $this->label : $this->name;
+  }
+
+  function setLabel( $label )
+  {
+    $this->label = $label;
+  }
+
   protected $name;
+  protected $label;
 
   /**
    *

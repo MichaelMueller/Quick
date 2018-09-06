@@ -48,13 +48,27 @@ class Router implements \Qck\Interfaces\Router
     return $this->Controller;
   }
 
+  public function getCurrentControllerFqcn()
+  {
+    return $this->getControllerNamespace() . "\\" . $this->getCurrentControllerClassName();
+  }
+
+  public function getQuery()
+  {
+    if ( $this->query )
+      return $this->query;
+    $this->query = $this->Inputs->get( $this->QueryKey, $this->StartControllerClassName );
+    return $this->query;
+  }
+
   public function getCurrentControllerClassName()
   {
     if ( $this->CurrentControllerClassName )
       return $this->CurrentControllerClassName;
 
     // find requested query ( = the controller class to be instatiated and called )
-    $Query = $this->Inputs->get( $this->QueryKey, $this->StartControllerClassName );
+    $Query = $this->getQuery();
+    $Query = $this->lcFirst ? ucfirst( $Query ) : $Query;
 
     // validate class name
     if ( preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $Query ) )
@@ -65,7 +79,11 @@ class Router implements \Qck\Interfaces\Router
 
   public function getLink( $ControllerFqcn, $args = array () )
   {
-    $Link = "?" . $this->QueryKey . "=" . str_replace( $this->ControllerNamespace . "\\\\", "", $ControllerFqcn );
+    if ( mb_strlen( $ControllerFqcn ) > 0 && $ControllerFqcn[ 0 ] != "\\" )
+      $ControllerFqcn = "\\" . $ControllerFqcn;
+    $ClassName = str_replace( $this->ControllerNamespace . "\\", "", $ControllerFqcn );
+    $ClassName = $this->lcFirst ? lcfirst( $ClassName ) : $ClassName;
+    $Link = "?" . $this->QueryKey . "=" . $ClassName;
 
     if ( is_array( $args ) )
     {
@@ -73,6 +91,11 @@ class Router implements \Qck\Interfaces\Router
         $Link .= "&" . $key . "=" . (urlencode( $value ));
     }
     return $Link;
+  }
+
+  function setLcFirst( $lcFirst )
+  {
+    $this->lcFirst = $lcFirst;
   }
 
   /**
@@ -110,5 +133,17 @@ class Router implements \Qck\Interfaces\Router
    * @var string
    */
   protected $CurrentControllerClassName;
+
+  /**
+   * state var
+   * @var string
+   */
+  protected $query;
+
+  /**
+   *
+   * @var bool
+   */
+  protected $lcFirst = true;
 
 }

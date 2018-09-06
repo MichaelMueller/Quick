@@ -10,11 +10,11 @@ namespace Qck\Html;
 class FormLayout implements \Qck\Interfaces\Template
 {
 
-  function __construct( \Qck\Interfaces\Router $router, $actionControllerFqcn,
+  function __construct( $actionControllerFqcn, \Qck\Interfaces\Router $router,
                         \Qck\Interfaces\Html\Page $page )
   {
-    $this->router = $router;
     $this->actionControllerFqcn = $actionControllerFqcn;
+    $this->router = $router;
     $this->page = $page;
   }
 
@@ -30,29 +30,29 @@ class FormLayout implements \Qck\Interfaces\Template
 
   function addFormElement( \Qck\Interfaces\Html\FormElement $formElement )
   {
-    $this->formElement[] = $formElement;
+    $this->formElements[] = $formElement;
   }
 
   //put your code here
   public function render()
   {
     ob_start();
-    $id = $this->actionControllerFqcn;
-    $action = $this->router->getLink( $id );
+    $id = $this->router->getQuery();
+    $action = $this->router->getLink( $this->actionControllerFqcn );
     ?>
     <form id="<?= $id ?>" action="<?= $action ?>" method="<?= $this->method ?>" target="<?= $this->target ?>" >
       <?php
       /* @var $formElement \Qck\Interfaces\Html\FormElement */
       foreach ( $this->formElements as $formElement ):
-        $formElement->setPage( $this->page );
         ?>
         <div class="form-group">
-          <label for="<?= $formElement->getId() ?>"><?= $formElement->getLabel() ?></label>
-        <?= $formElement->render() ?>?>
+          <label for="<?= $formElement->getName() ?>"><?= $formElement->getLabel() ?></label>
+          <?= $formElement->createInputElement( $this->page )->render() ?>
         </div>
         <?php
       endforeach;
       ?>
+      <button type="submit" class="btn btn-primary">Submit</button>      
     </form>
     <?php
     return ob_get_clean();

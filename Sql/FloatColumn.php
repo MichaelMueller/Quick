@@ -35,6 +35,11 @@ class FloatColumn extends Column
     return x::and_( $leThanMax, $geThanMin );
   }
 
+  public function render( \Qck\Interfaces\Html\Page $Page )
+  {
+    return $Page->createElement( "input", [ "name" => $this->getName(), "type" => "number" ] );
+  }
+  
   protected $min;
   protected $max;
 
