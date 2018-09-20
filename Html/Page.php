@@ -10,15 +10,25 @@ namespace Qck\Html;
 class Page implements \Qck\Interfaces\Output, \Qck\Interfaces\Html\Page
 {
 
-  function __construct( $title, \Qck\Interfaces\Template $contentTemplate = null )
+  function __construct( $title, \Qck\Interfaces\Template $contentTemplate )
   {
     $this->title = $title;
     $this->contentTemplate = $contentTemplate;
   }
 
-  function setContentTemplate( \Qck\Interfaces\Template $contentTemplate )
+  function setLanguage( $language )
   {
-    $this->contentTemplate = $contentTemplate;
+    $this->language = $language;
+  }
+
+  function setHeaderTemplateCollection( TemplateCollection $headerTemplateCollection )
+  {
+    $this->headerTemplateCollection = $headerTemplateCollection;
+  }
+
+  function setFooterTemplateCollection( TemplateCollection $footerTemplateCollection )
+  {
+    $this->footerTemplateCollection = $footerTemplateCollection;
   }
 
   //put your code here
@@ -27,70 +37,26 @@ class Page implements \Qck\Interfaces\Output, \Qck\Interfaces\Html\Page
     ob_start();
     ?>
     <!doctype html>
-    <html lang="en">
-
-      <!-- MetaElements -->
-      <meta charset="<?= $this->getCharset() ?>">
-      <?php
-      /* @var $element Element */
-      foreach ( $this->metaElements as $element )
-        echo $element->render() . PHP_EOL;
-      ?>
-      <!-- /MetaElements -->
-
-      <!-- Stylesheets -->
-      <?php
-      /* @var $element Element */
-      foreach ( $this->styleSheets as $element )
-        echo $element->render() . PHP_EOL;
-      ?>
-      <!-- /Stylesheets -->
-
-      <title><?= $this->title ?></title>
-
-      <body class="<?= implode( " ", $this->bodyCssClasses ) ?>">
+    <html lang="<?= $this->language ?>">
+      <head>
+        <meta charset="<?= $this->getCharset() ?>">
+        <title><?= $this->title ?></title>
+        <?php
+        foreach ( $this->headerTemplates as $template )
+          echo $template->render();
+        ?>
+      </head>
+      <body>
         <?= $this->contentTemplate->render() ?>
 
-        <!-- Scripts -->
         <?php
-        /* @var $element Element */
-        foreach ( $this->scripts as $element )
-          echo $element->render() . PHP_EOL;
+        foreach ( $this->footerTemplates as $template )
+          echo $template->render();
         ?>
-        <!-- /Scripts -->
+      </body>
     </html>
     <?php
     return ob_get_clean();
-  }
-
-  public function addBodyCssClass( $cssClass )
-  {
-    $this->bodyCssClasses[] = $cssClass;
-  }
-
-  public function addMetaElement( $name, $content )
-  {
-    $this->styleSheets[] = new Element( "meta", [ "name" => $name, "content" => $content ] );
-  }
-
-  public function addStyleSheet( $href, $integrity = null, $crossorigin = null )
-  {
-    $atts = [ "rel" => "stylesheet", "href" => $href ];
-    if ( $integrity )
-      $atts[ "integrity" ] = $integrity;
-    if ( $crossorigin )
-      $atts[ "crossorigin" ] = $crossorigin;
-    $this->styleSheets[] = new Element( "link", $atts );
-  }
-
-  public function addScript( $src, $integrity = null, $crossorigin = null )
-  {
-    $atts = [ "rel" => "stylesheet", "src" => $src ];
-    if ( $integrity )
-      $atts[ "integrity" ] = $integrity;
-    if ( $crossorigin )
-      $atts[ "crossorigin" ] = $crossorigin;
-    $this->scripts[] = new Element( "script", $atts, "" );
   }
 
   public function getAdditionalHeaders()
@@ -108,21 +74,34 @@ class Page implements \Qck\Interfaces\Output, \Qck\Interfaces\Html\Page
     return \Qck\Interfaces\Output::CONTENT_TYPE_TEXT_HTML;
   }
 
-  public function createElement( $name, array $attributes = array (), $text = null )
-  {
-    return new Element( $name, $attributes, $text );
-  }
-
+  /**
+   *
+   * @var string
+   */
   protected $title;
-  protected $metaElements = [];
-  protected $styleSheets = [];
-  protected $scripts = [];
-  protected $bodyCssClasses = [];
 
   /**
    *
    * @var \Qck\Interfaces\Template
    */
   protected $contentTemplate;
+
+  /**
+   *
+   * @var string
+   */
+  protected $language = "en";
+
+  /**
+   *
+   * @var TemplateCollection
+   */
+  protected $headerTemplateCollection;
+
+  /**
+   *
+   * @var TemplateCollection
+   */
+  protected $footerTemplateCollection;
 
 }

@@ -6,7 +6,7 @@ namespace Qck\Sql;
  *
  * @author muellerm
  */
-abstract class Column implements \Qck\Interfaces\Sql\Column, \Qck\Interfaces\Html\FormElement
+abstract class Column implements \Qck\Interfaces\Sql\Column
 {
 
   /**
