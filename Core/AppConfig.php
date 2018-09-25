@@ -66,12 +66,7 @@ abstract class AppConfig implements \Qck\Interfaces\AppConfig
   {
     return null;
   }
-
-  public function shouldPrintErrors()
-  {
-    return false;
-  }
-
+  
   protected function getSingleton( $key, callable $createFunction )
   {
     if ( !isset( $this->Singletons[ $key ] ) )
