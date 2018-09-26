@@ -6,7 +6,7 @@ namespace Qck\Interfaces\App;
  *
  * @author muellerm
  */
-interface ResponseFactory extends Service
+interface ResponseFactory
 {
 
   /**

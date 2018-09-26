@@ -6,7 +6,7 @@ namespace Qck\Interfaces\App;
  *
  * @author muellerm
  */
-interface Output extends Template
+interface Output extends \Qck\Interfaces\Template
 {
 
   // CONSTANTS

@@ -13,5 +13,5 @@ interface Controller
   /**
    * @return Response
    */
-  public function run( ServiceRepo $ServiceRepo );
+  public function run( \Qck\Interfaces\ServiceRepo $ServiceRepo );
 }

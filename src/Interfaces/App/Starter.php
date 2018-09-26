@@ -7,7 +7,7 @@ namespace Qck\Interfaces\App;
  * 
  * @author muellerm
  */
-interface Starter extends Service
+interface Starter
 {
 
   function run();

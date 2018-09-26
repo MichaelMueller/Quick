@@ -7,7 +7,7 @@ namespace Qck\Interfaces\App;
  * Basic and simple interface for a controller
  * @author muellerm
  */
-interface Router extends Service
+interface Router
 {
 
   /**

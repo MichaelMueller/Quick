@@ -7,7 +7,7 @@ namespace Qck\Interfaces\App;
  * 
  * @author muellerm
  */
-interface Config extends Service
+interface Config
 {
 
   /**
