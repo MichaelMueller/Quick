@@ -1,8 +1,8 @@
 <?php
 
 // BASIC ERROR REPORTING
-ini_set( 'display_errors', 0 );
-ini_set( 'log_errors', 1 );
+ini_set( 'display_errors', 1 );
+ini_set( 'log_errors', 0 );
 error_reporting( E_ALL );
 // this should point to the main PSR-4 Autoloader
 require_once(__DIR__ . '/../../../../vendor/autoload.php');
@@ -15,7 +15,7 @@ function createAppConfig()
 
 function createRouter()
 {
-  $Router = new \Qck\Router( $ServiceRepo );
+  $Router = new \Qck\Router( Qck\ServiceRepo::getInstance() );
   $Router->addController( $Router->getDefaultQuery(), \Qck\Apps\HelloWorld\StartController::class );
   return $Router;
 }
@@ -24,10 +24,10 @@ function createRouter()
 $ServiceRepo = Qck\ServiceRepo::getInstance();
 
 // add \Qck\AppConfig
-$ServiceRepo->addService( \Qck\AppConfig::class, createAppConfig );
+$ServiceRepo->addService( \Qck\AppConfig::class, "createAppConfig" );
 
 // add Router \Qck\Router
-$ServiceRepo->addService( \Qck\Router::class, createRouter );
+$ServiceRepo->addService( \Qck\Router::class, "createRouter" );
 
 /* @var $App Qck\Interfaces\App */
 $App = $ServiceRepo->get( Qck\Interfaces\App::class );

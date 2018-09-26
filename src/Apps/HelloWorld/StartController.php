@@ -1,5 +1,7 @@
 <?php
+
 namespace Qck\Apps\HelloWorld;
+
 /**
  * Description of StartController
  *
@@ -7,12 +9,16 @@ namespace Qck\Apps\HelloWorld;
  */
 class StartController implements \Qck\Interfaces\Controller
 {
+
   //put your code here
   public function run( \Qck\Interfaces\ServiceRepo $ServiceRepo )
-  {    
-    print "Hello World on .";
+  {
     /* @var $ResponseFactory \Qck\Interfaces\ResponseFactory */
-    $ResponseFactory = $ServiceRepo->get(\Qck\ResponseFactory::class);    
+    $ResponseFactory = $ServiceRepo->get( \Qck\Interfaces\ResponseFactory::class );
+    /* @var $AppConfig \Qck\Interfaces\AppConfig */
+    $AppConfig = $ServiceRepo->get( \Qck\Interfaces\AppConfig::class );
+
+    print "Hello World on " . $AppConfig->getHostName();
     return $ResponseFactory->create();
   }
 }

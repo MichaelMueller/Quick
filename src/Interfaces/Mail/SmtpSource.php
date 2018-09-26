@@ -6,12 +6,12 @@ namespace Qck\Interfaces\Mail;
  * Service class for creating Parties
  * @author muellerm
  */
-interface SmtpFactory extends \Qck\Interfaces\Service
+interface SmtpSource extends \Qck\Interfaces\Service
 {
 
   /**
    * 
-   * @return SmtpFactory
+   * @return Smtp
    */
-  function create();
+  function get();
 }

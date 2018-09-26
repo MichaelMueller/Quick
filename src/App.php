@@ -10,7 +10,7 @@ namespace Qck;
 class App implements Interfaces\App
 {
 
-  function __construct( Qck\Interfaces\ServiceRepo $ServiceRepo )
+  function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
   {
     $this->ServiceRepo = $ServiceRepo;
   }
@@ -81,9 +81,9 @@ class App implements Interfaces\App
       /* @var $Request Interfaces\Request */
       $Request = $this->ServiceRepo->get( Interfaces\Request::class );
       if ( $Request->isCli() )
-        echo $ErrText;
+        die( $ErrText );
       else
-        echo "<html><head><title>Errors occured</head><body><pre>" . $ErrText . "</pre></body></html>";
+        die( "<html><head><title>Errors occured</head><body><pre>" . $ErrText . "</pre></body></html>" );
     }
     else
     {
@@ -94,7 +94,7 @@ class App implements Interfaces\App
 
   /**
    *
-   * @var Qck\Interfaces\ServiceRepo
+   * @var \Qck\Interfaces\ServiceRepo
    */
   protected $ServiceRepo;
 

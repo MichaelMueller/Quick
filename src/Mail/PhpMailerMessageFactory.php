@@ -2,8 +2,6 @@
 
 namespace Qck\Mail;
 
-use Qck\Interfaces\Mail\SmtpFactory;
-
 /**
  * Description of PhpMailer
  *
@@ -12,24 +10,21 @@ use Qck\Interfaces\Mail\SmtpFactory;
 class PhpMailerMessageFactory implements \Qck\Interfaces\Mail\MessageFactory
 {
 
-  function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
+  function __construct( \Qck\Interfaces\Mail\SmtpSource $SmtpSource )
   {
-    $this->ServiceRepo = $ServiceRepo;
+    $this->SmtpSource = $SmtpSource;
   }
 
   public function create( array $Recipients, $Text )
   {
-    /* @var $SmtpFactory SmtpFactory */
-    $SmtpFactory = $this->ServiceRepo->get( SmtpFactory::class );
-    $Message = new PhpMailerMessage( $SmtpFactory->create(), $Recipients, $Text );
-
+    $Message = new PhpMailerMessage( $this->SmtpSource->get(), $Recipients, $Text );
     return $Message;
   }
 
   /**
    *
-   * @var \Qck\Interfaces\ServiceRepo
+   * @var \Qck\Interfaces\Mail\SmtpSource
    */
-  protected $ServiceRepo;
+  protected $SmtpSource;
 
 }

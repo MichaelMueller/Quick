@@ -3,7 +3,7 @@
 namespace Qck\Mail;
 
 use Qck\Interfaces\Mail\MessageFactory;
-use Qck\Interfaces\Mail\PartyFactory;
+use Qck\Interfaces\Mail\AdminPartySource;
 
 /**
  * Description of PhpMailer
@@ -13,43 +13,32 @@ use Qck\Interfaces\Mail\PartyFactory;
 class AdminMailer implements \Qck\Interfaces\Mail\AdminMailer
 {
 
-  function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo, $AdminName,
-                        $AdminAddress )
+  function __construct( MessageFactory $MessageFactory, AdminPartySource $AdminPartySource )
   {
-    $this->ServiceRepo = $ServiceRepo;
-    $this->AdminName = $AdminName;
-    $this->AdminAddress = $AdminAddress;
+    $this->MessageFactory = $MessageFactory;
+    $this->AdminPartySource = $AdminPartySource;
   }
 
   public function sendToAdmin( $Subject, $Text )
   {
-    /* @var $MessageFactory MessageFactory */
-    $MessageFactory = $this->ServiceRepo->get( MessageFactory::class );
-    /* @var $PartyFactory PartyFactory */
-    $PartyFactory = $this->ServiceRepo->get( PartyFactory::class );
-    $AdminParty = $PartyFactory->create( $this->AdminName, $this->AdminAddress );
+    $MessageFactory = $this->MessageFactory;
+    $AdminPartySource = $this->AdminPartySource;
     // create the message
-    $Message = $MessageFactory->create( [ $AdminParty ], $Text );
+    $Message = $MessageFactory->create( [ $AdminPartySource->get() ], $Text );
     $Message->setSubject( $Subject );
     $Message->send();
   }
 
   /**
    *
-   * @var \Qck\Interfaces\ServiceRepo
+   * @var MessageFactory
    */
-  protected $ServiceRepo;
+  protected $MessageFactory;
 
   /**
    *
-   * @var string 
+   * @var AdminPartySource
    */
-  protected $AdminName;
-
-  /**
-   *
-   * @var string 
-   */
-  protected $AdminAddress;
+  protected $AdminPartySource;
 
 }

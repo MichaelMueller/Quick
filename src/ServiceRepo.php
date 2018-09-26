@@ -38,7 +38,7 @@ class ServiceRepo implements Interfaces\ServiceRepo
       if ( !isset( $this->Services[ $Fqin ] ) )
       {
         $this->Services[ $Fqin ] = [];
-        $this->FirstFactories[ $Fqin ] = $Fqcn;
+        $this->FirstServices[ $Fqin ] = $Fqcn;
       }
       $this->Services[ $Fqin ][ $Fqcn ] = $Factory;
     }
@@ -46,9 +46,9 @@ class ServiceRepo implements Interfaces\ServiceRepo
 
   public function getOptional( $Fqin, $Fqcn = null )
   {
-    if ( is_null( $Fqcn ) && isset( $this->FirstFactories[ $Fqin ] ) )
+    if ( is_null( $Fqcn ) && isset( $this->FirstServices[ $Fqin ] ) )
     {
-      $Fqcn = $this->FirstFactories[ $Fqin ];
+      $Fqcn = $this->FirstServices[ $Fqin ];
       return $this->getOptional( $Fqin, $Fqcn );
     }
     else if ( isset( $this->Services[ $Fqin ][ $Fqcn ] ) )
@@ -57,7 +57,8 @@ class ServiceRepo implements Interfaces\ServiceRepo
       if ( is_callable( $InstanceOrFactory ) )
       {
         $InstanceOrFactory = call_user_func( $InstanceOrFactory );
-        $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
+        if ( $InstanceOrFactory !== null )
+          $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
       }
       return $InstanceOrFactory;
     }
@@ -88,12 +89,6 @@ class ServiceRepo implements Interfaces\ServiceRepo
    *
    * @var array
    */
-  protected $Factories = [];
-
-  /**
-   *
-   * @var array
-   */
-  protected $FirstFactories = [];
+  protected $FirstServices = [];
 
 }

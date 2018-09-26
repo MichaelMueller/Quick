@@ -25,17 +25,20 @@ $ServiceRepo->addService( Qck\ResponseFactory::class, function()
 // add service
 $ServiceRepo->addService( \Qck\Mail\PhpMailerMessageFactory::class, function() use($ServiceRepo)
 {
-  return new \Qck\Mail\PhpMailerMessageFactory( $ServiceRepo );
+  $SmtpSource = $ServiceRepo->getOptional( Qck\Interfaces\Mail\SmtpSource::class );
+  return $SmtpSource ? new \Qck\Mail\PhpMailerMessageFactory( $SmtpSource ) : null;
 } );
 
 // add service
-$ServiceRepo->addService( \Qck\Mail\PartyFactory::class, function() use($ServiceRepo)
+$ServiceRepo->addService( \Qck\Mail\PartyFactory::class, function()
 {
-  return new \Qck\Mail\PartyFactory( $ServiceRepo );
+  return new \Qck\Mail\PartyFactory();
 } );
 
 // add service
 $ServiceRepo->addService( \Qck\Mail\AdminMailer::class, function() use($ServiceRepo)
 {
-  return new \Qck\Mail\AdminMailer( $ServiceRepo );
+  $MessageFactory = $ServiceRepo->getOptional( Qck\Interfaces\Mail\MessageFactory::class );
+  $AdminPartySource = $ServiceRepo->getOptional( Qck\Interfaces\Mail\AdminPartySource::class );
+  return ($MessageFactory && $AdminPartySource) ? new \Qck\Mail\AdminMailer( $MessageFactory, $AdminPartySource ) : null;
 } );
