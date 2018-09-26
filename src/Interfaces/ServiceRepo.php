@@ -25,4 +25,11 @@ interface ServiceRepo
    * @return mixed a class implementing the requested interface, possibly matching $Fqcn or null
    */
   function get( $Fqin, $Fqcn = null );
+  
+  /**
+   * 
+   * @param string $Fqin
+   * @return array an array of instances
+   */
+  function getAll( $Fqin );
 }

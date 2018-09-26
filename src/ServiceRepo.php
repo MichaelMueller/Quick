@@ -22,14 +22,6 @@ class ServiceRepo implements Interfaces\ServiceRepo
   }
 
   /**
-   * the only singelton in the world
-   */
-  protected function __construct()
-  {
-    // pass
-  }
-
-  /**
    * 
    * @param string $Service the Service Class Instance
    */
@@ -46,21 +38,6 @@ class ServiceRepo implements Interfaces\ServiceRepo
   function addServiceFactory( $Fqcn, callable $Factory )
   {
     $this->addInstanceOrFactory( $Fqcn, $Factory );
-  }
-
-  protected function addInstanceOrFactory( $Fqcn, $InstanceOrFactory )
-  {
-    $Fqins = class_implements( $Fqcn );
-    foreach ( $Fqins as $Fqin )
-    {
-      if ( !isset( $this->Services[ $Fqin ] ) )
-      {
-        $this->Services[ $Fqin ] = [];
-        //$this->FirstServices[ $Fqin ] = $Fqcn;
-      }
-      $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
-      $this->LatestServices[ $Fqin ] = $Fqcn;
-    }
   }
 
   public function getOptional( $Fqin, $Fqcn = null )
@@ -90,6 +67,43 @@ class ServiceRepo implements Interfaces\ServiceRepo
     if ( is_null( $Service ) )
       throw new \InvalidArgumentException( sprintf( "Could not locate a Service Instance for interface %s (requested class: %s)", $Fqin, $Fqcn ? $Fqcn : "unspecified"  ) );
     return $Service;
+  }
+
+  function getAll( $Fqin )
+  {
+    $Services = [];
+    if ( isset( $this->Services[ $Fqin ] ) )
+    {
+      foreach ( array_keys( $this->Services[ $Fqin ] ) as $Fqcn )
+      {
+        $Service = $this->getOptional( $Fqin, $Fqcn );
+        if ( $Service )
+      }
+    }
+    return $Services;
+  }
+
+  protected function addInstanceOrFactory( $Fqcn, $InstanceOrFactory )
+  {
+    $Fqins = class_implements( $Fqcn );
+    foreach ( $Fqins as $Fqin )
+    {
+      if ( !isset( $this->Services[ $Fqin ] ) )
+      {
+        $this->Services[ $Fqin ] = [];
+        //$this->FirstServices[ $Fqin ] = $Fqcn;
+      }
+      $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
+      $this->LatestServices[ $Fqin ] = $Fqcn;
+    }
+  }
+
+  /**
+   * the only singelton in the world
+   */
+  protected function __construct()
+  {
+    // pass
   }
 
   /**
