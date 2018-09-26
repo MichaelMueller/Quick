@@ -10,6 +10,10 @@ namespace Qck;
 class ServiceRepo implements Interfaces\ServiceRepo
 {
 
+  /**
+   * 
+   * @return ServiceRepo
+   */
   static function getInstance()
   {
     if ( is_null( self::$Instance ) )
@@ -27,10 +31,24 @@ class ServiceRepo implements Interfaces\ServiceRepo
 
   /**
    * 
-   * @param string $Fqcn the fqcn of the service
-   * @param string $Factory a functiont that initiates the class
+   * @param string $Service the Service Class Instance
    */
-  function addService( $Fqcn, callable $Factory )
+  function addService( $Service )
+  {
+    $this->addInstanceOrFactory(get_class($Service), $Service);
+  }
+  
+  /**
+   * 
+   * @param string $Fqcn the fqcn of the service
+   * @param string $Factory a functiont that creates the class (or null if not possible) or an instance of that class 
+   */
+  function addServiceFactory( $Fqcn, callable $Factory )
+  {
+    $this->addInstanceOrFactory($Fqcn, $Factory);
+  }
+  
+  protected function addInstanceOrFactory($Fqcn, $InstanceOrFactory)
   {
     $Fqins = class_implements( $Fqcn );
     foreach ( $Fqins as $Fqin )
@@ -40,10 +58,10 @@ class ServiceRepo implements Interfaces\ServiceRepo
         $this->Services[ $Fqin ] = [];
         $this->FirstServices[ $Fqin ] = $Fqcn;
       }
-      $this->Services[ $Fqin ][ $Fqcn ] = $Factory;
-    }
+      $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
+    }    
   }
-
+  
   public function getOptional( $Fqin, $Fqcn = null )
   {
     if ( is_null( $Fqcn ) && isset( $this->FirstServices[ $Fqin ] ) )

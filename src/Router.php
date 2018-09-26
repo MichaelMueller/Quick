@@ -13,9 +13,9 @@ class Router implements \Qck\Interfaces\Router
   const DEFAULT_QUERY = "Start";
   const DEFAULT_QUERY_KEY = "q";
 
-  function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
+  function __construct( \Qck\Interfaces\Request $Request )
   {
-    $this->ServiceRepo = $ServiceRepo;
+    $this->Request = $Request;
     $this->DefaultQuery = self::DEFAULT_QUERY;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
@@ -58,7 +58,7 @@ class Router implements \Qck\Interfaces\Router
     if ( is_null( $controllerFqcn ) )
     {
       /* @var $Request Interfaces\Request */
-      $Request = $this->ServiceRepo->get( Interfaces\Request::class );
+      $Request = $this->Request;
       $className = $Request->get( $this->QueryKey, $this->DefaultQuery );
       $controllerFqcn = isset( $this->ControllerFqcns[ $className ] ) ? $this->ControllerFqcns[ $className ] : null;
     }
@@ -81,9 +81,9 @@ class Router implements \Qck\Interfaces\Router
 
   /**
    *
-   * @var \Qck\Interfaces\ServiceRepo
+   * @var \Qck\Interfaces\Request
    */
-  protected $ServiceRepo;
+  protected $Request;
 
   /**
    *

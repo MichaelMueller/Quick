@@ -5,38 +5,38 @@ $ServiceRepo = Qck\ServiceRepo::getInstance();
 
 // ADD SERVICES
 // add Qck\App
-$ServiceRepo->addService( Qck\App::class, function() use($ServiceRepo)
+$ServiceRepo->addServiceFactory( Qck\App::class, function() use($ServiceRepo)
 {
   return new Qck\App( $ServiceRepo );
 } );
 
 // add Qck\Request
-$ServiceRepo->addService( Qck\Request::class, function()
+$ServiceRepo->addServiceFactory( Qck\Request::class, function()
 {
   return new Qck\Request();
 } );
 
 // add Qck\ResponseFactory
-$ServiceRepo->addService( Qck\ResponseFactory::class, function()
+$ServiceRepo->addServiceFactory( Qck\ResponseFactory::class, function()
 {
   return new Qck\ResponseFactory();
 } );
 
 // add service
-$ServiceRepo->addService( \Qck\Mail\PhpMailerMessageFactory::class, function() use($ServiceRepo)
+$ServiceRepo->addServiceFactory( \Qck\Mail\PhpMailerMessageFactory::class, function() use($ServiceRepo)
 {
   $SmtpSource = $ServiceRepo->getOptional( Qck\Interfaces\Mail\SmtpSource::class );
   return $SmtpSource ? new \Qck\Mail\PhpMailerMessageFactory( $SmtpSource ) : null;
 } );
 
 // add service
-$ServiceRepo->addService( \Qck\Mail\PartyFactory::class, function()
+$ServiceRepo->addServiceFactory( \Qck\Mail\PartyFactory::class, function()
 {
   return new \Qck\Mail\PartyFactory();
 } );
 
 // add service
-$ServiceRepo->addService( \Qck\Mail\AdminMailer::class, function() use($ServiceRepo)
+$ServiceRepo->addServiceFactory( \Qck\Mail\AdminMailer::class, function() use($ServiceRepo)
 {
   $MessageFactory = $ServiceRepo->getOptional( Qck\Interfaces\Mail\MessageFactory::class );
   $AdminPartySource = $ServiceRepo->getOptional( Qck\Interfaces\Mail\AdminPartySource::class );
