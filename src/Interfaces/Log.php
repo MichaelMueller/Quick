@@ -7,11 +7,6 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface Log
+interface Log extends \Psr\Log\LoggerInterface
 {
-
-  /**
-   * send a msg to the log. this should be plain message. time or anything will be added by the log
-   */
-  public function msg( $msg );
 }

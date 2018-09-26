@@ -35,9 +35,9 @@ class ServiceRepo implements Interfaces\ServiceRepo
    */
   function addService( $Service )
   {
-    $this->addInstanceOrFactory(get_class($Service), $Service);
+    $this->addInstanceOrFactory( get_class( $Service ), $Service );
   }
-  
+
   /**
    * 
    * @param string $Fqcn the fqcn of the service
@@ -45,10 +45,10 @@ class ServiceRepo implements Interfaces\ServiceRepo
    */
   function addServiceFactory( $Fqcn, callable $Factory )
   {
-    $this->addInstanceOrFactory($Fqcn, $Factory);
+    $this->addInstanceOrFactory( $Fqcn, $Factory );
   }
-  
-  protected function addInstanceOrFactory($Fqcn, $InstanceOrFactory)
+
+  protected function addInstanceOrFactory( $Fqcn, $InstanceOrFactory )
   {
     $Fqins = class_implements( $Fqcn );
     foreach ( $Fqins as $Fqin )
@@ -56,17 +56,18 @@ class ServiceRepo implements Interfaces\ServiceRepo
       if ( !isset( $this->Services[ $Fqin ] ) )
       {
         $this->Services[ $Fqin ] = [];
-        $this->FirstServices[ $Fqin ] = $Fqcn;
+        //$this->FirstServices[ $Fqin ] = $Fqcn;
       }
       $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
-    }    
+      $this->LatestServices[ $Fqin ] = $Fqcn;
+    }
   }
-  
+
   public function getOptional( $Fqin, $Fqcn = null )
   {
-    if ( is_null( $Fqcn ) && isset( $this->FirstServices[ $Fqin ] ) )
+    if ( is_null( $Fqcn ) && isset( $this->LatestServices[ $Fqin ] ) )
     {
-      $Fqcn = $this->FirstServices[ $Fqin ];
+      $Fqcn = $this->LatestServices[ $Fqin ];
       return $this->getOptional( $Fqin, $Fqcn );
     }
     else if ( isset( $this->Services[ $Fqin ][ $Fqcn ] ) )
@@ -107,6 +108,6 @@ class ServiceRepo implements Interfaces\ServiceRepo
    *
    * @var array
    */
-  protected $FirstServices = [];
+  protected $LatestServices = [];
 
 }
