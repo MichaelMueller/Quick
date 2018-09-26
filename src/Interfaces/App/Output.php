@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces;
+namespace Qck\Interfaces\App;
 
 /**
  *
@@ -8,6 +8,7 @@ namespace Qck\Interfaces;
  */
 interface Output extends Template
 {
+
   // CONSTANTS
   const CONTENT_TYPE_TEXT_PLAIN = "text/plain";
   const CONTENT_TYPE_TEXT_HTML = "text/html";
@@ -28,7 +29,7 @@ interface Output extends Template
    * @return string
    */
   public function getCharset();
-  
+
   /**
    * @return array of strings
    */

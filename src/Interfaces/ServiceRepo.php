@@ -16,7 +16,7 @@ interface ServiceRepo
    * @return mixed a class implementing the requested interface, possibly matching $Fqcn or null
    */
   function getOptional( $Fqin, $Fqcn = null );
-  
+
   /**
    * get a service
    * @param string $Fqin the fully qualified interface name
@@ -25,7 +25,7 @@ interface ServiceRepo
    * @return mixed a class implementing the requested interface, possibly matching $Fqcn or null
    */
   function get( $Fqin, $Fqcn = null );
-  
+
   /**
    * 
    * @param string $Fqin

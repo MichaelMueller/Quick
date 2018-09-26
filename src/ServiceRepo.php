@@ -78,6 +78,7 @@ class ServiceRepo implements Interfaces\ServiceRepo
       {
         $Service = $this->getOptional( $Fqin, $Fqcn );
         if ( $Service )
+          $Services[] = $Service;
       }
     }
     return $Services;

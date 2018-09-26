@@ -9,4 +9,5 @@ namespace Qck\Interfaces;
  */
 interface Log extends \Psr\Log\LoggerInterface
 {
+  
 }

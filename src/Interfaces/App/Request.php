@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces;
+namespace Qck\Interfaces\App;
 
 /**
  * Service Class for the current Request
@@ -21,12 +21,12 @@ interface Request
    * @return bool
    */
   function isCli();
-  
+
   /**
    * @return string the user agent
    */
   function getUserAgent();
-  
+
   /**
    * @return bool whether the browser signature is known or not
    */

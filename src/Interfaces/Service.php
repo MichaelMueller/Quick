@@ -8,4 +8,5 @@ namespace Qck\Interfaces;
  */
 interface Service
 {
+  
 }

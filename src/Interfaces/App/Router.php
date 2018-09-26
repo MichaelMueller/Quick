@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces;
+namespace Qck\Interfaces\App;
 
 /**
  *
@@ -15,7 +15,7 @@ interface Router extends Service
    * @throws \InvalidArgumentException if Controller could not be determined
    */
   public function getController();
-  
+
   /**
    * @return string the controller namespace
    */

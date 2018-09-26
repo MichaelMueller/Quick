@@ -1,14 +1,15 @@
 <?php
 
-namespace Qck\Interfaces;
+namespace Qck\Interfaces\App;
 
 /**
- * An AppConfig Service Class
+ * An Config Service Class
  * 
  * @author muellerm
  */
-interface AppConfig extends Service
+interface Config extends Service
 {
+
   /**
    * @return string the name identifying this web app
    */
@@ -18,7 +19,7 @@ interface AppConfig extends Service
    * @return string
    */
   function getWorkingDir( $createIfNotExists = true );
-  
+
   /**
    * @return string
    */

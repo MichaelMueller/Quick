@@ -8,6 +8,7 @@ namespace Qck\Interfaces;
  */
 interface Template
 {
+
   /**
    * @return string
    */
