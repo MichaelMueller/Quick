@@ -6,6 +6,14 @@ namespace Qck\Sql\Interfaces;
  *
  * @author muellerm
  */
-interface Select extends \Qck\Sql\Convertable
+interface Select extends Query
 {
+
+  function setOrderParams( $OrderCol, $Descending = true );
+
+  function setColumns( $Columns );
+
+  function setOffset( $Offset );
+
+  function setLimit( $Limit );
 }

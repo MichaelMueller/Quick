@@ -6,14 +6,16 @@ namespace Qck\Sql\Interfaces;
  *
  * @author muellerm
  */
-interface StandardTable extends Table
+interface RelationTable extends Table
 {
+
   /**
-   * @return Column
+   * @return ForeignKeyColumn
    */
-  function getLeftForeignKeyColumn();
+  function getLeft();
+
   /**
-   * @return Column
+   * @return ForeignKeyColumn
    */
-  function getRightForeignKeyColumn();
+  function getRight();
 }

@@ -10,35 +10,35 @@ interface Dbms
 {
 
   /**
-   * @param string $Name
-   */
-  function createDatabase( $Name );
-
-  /**
-   * @param string $Name
-   * @return bool
-   */
-  function databaseExists( $Name );
-
-  /**
+   * Connect to a Database. If the Database does not exist, a new one will be created
+   * using the DbSchema provided.
    * 
-   * @param string $Name
+   * @param string $DbName
+   * @param Schema $DbSchema
+   * @param bool $CheckSchema If true the DBMS will try to check the schema by any means before any operation happens.
+   * @throws \InvalidArgumentException if the Schema Check fails
    * @return Db
    */
-  function connectToDatabase( $Name );
+  function connect( $DbName, Schema $DbSchema, $CheckSchema = true );
 
   /**
-   * 
+   * @param string $DbName
+   * @return bool
+   */
+  function exists( $DbName );
+
+  /**
+   * Will rename the Database. If a Connection is open to the Db it will be closed before.
    * @param Db $Db
    * @param string $NewName
    */
-  function renameDatabase( Db $Db, $NewName );
+  function rename( Db $Db, $NewName );
 
   /**
-   * 
+   * Will drop the Database. If a Connection is open to the Db it will be closed before.
    * @param Db $Db
    */
-  function dropDatabase( Db $Db );
+  function drop( Db $Db );
 
   /**
    * will dump a sql file to the disk. The file will be zipped if $Zip is activated
@@ -46,5 +46,5 @@ interface Dbms
    * @param string $File
    * @param bool $Zip
    */
-  function dumpDatabase( $Name, $File, $Zip = false );
+  function dump( $Name, $File );
 }

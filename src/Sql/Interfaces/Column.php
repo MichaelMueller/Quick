@@ -7,8 +7,11 @@ namespace Qck\Sql\Interfaces;
  * 
  * @author muellerm
  */
-interface Column extends \Qck\Sql\Convertable
+interface Column extends Convertable
 {
 
+  /**
+   * @return string
+   */
   function getName();
 }

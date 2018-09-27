@@ -10,6 +10,11 @@ interface DbDialect
 {
 
   /**
+   * @return \PDO
+   */
+  function createPdo( $DbName );
+
+  /**
    * @return string
    */
   function getBoolDatatype();
@@ -38,12 +43,12 @@ interface DbDialect
    * @return string
    */
   function getFloatDatatype();
-  
+
   /**
    * @return string
    */
   function getTrueLiteral();
-  
+
   /**
    * @return string
    */
@@ -53,12 +58,12 @@ interface DbDialect
    * @return string
    */
   function getRegExpOperator();
-  
+
   /**
    * @return string
    */
   function getAndOperator();
-  
+
   /**
    * @return string
    */
