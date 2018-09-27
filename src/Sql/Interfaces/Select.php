@@ -9,6 +9,8 @@ namespace Qck\Sql\Interfaces;
 interface Select extends Query
 {
 
+  function setExpression( \Qck\Expression\Interfaces\BooleanExpression $Expression );
+
   function setOrderParams( $OrderCol, $Descending = true );
 
   function setColumns( $Columns );

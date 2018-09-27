@@ -40,5 +40,5 @@ interface QueryFactory
    * @param string $Name
    * @return Select
    */
-  function createSelect( $TableName, BooleanExpression $BooleanExpression );
+  function createSelect( $TableName, BooleanExpression $BooleanExpression = null );
 }
