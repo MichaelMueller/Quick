@@ -8,8 +8,12 @@ namespace Qck\Expression\Interfaces;
  */
 interface ValueExpression extends Expression
 {
+
   /**
+   * Gets a value from this ValueExpression
+   * @param array $Data needed by \Qck\Expression\Interfaces\Var_
+   * @param array $FilteredData needed by \Qck\Expression\Interfaces\Var_
    * @return mixed
    */
-  function getValue();
+  function getValue( array $Data = [], array &$FilteredData = [] );
 }

@@ -8,14 +8,9 @@ namespace Qck\Expression\Interfaces;
  */
 interface Var_ extends ValueExpression
 {
+
   /**
-   * @return string The Name of the Var
+   * @return string
    */
   function getName();
-  
-  /**
-   * @see BooleanExpression::filterVar($Data)
-   * @return bool Whether to use this Var in a filtered Array   * 
-   */
-  function filterOut();
 }

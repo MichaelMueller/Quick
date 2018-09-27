@@ -28,13 +28,7 @@ interface ExpressionFactory
   /**
    * @return Var_
    */
-  function var_( $Name, array $Data, $FilterOut = false );
-  
-  /**
-   * Takes a variable from a Request service
-   * @return Var_
-   */
-  function requestVar_( $Name, $FilterOut = false );
+  function var_( $Name, $FilterOut = false );
 
   /**
    * @return ValueExpression
