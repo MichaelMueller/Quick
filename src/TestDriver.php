@@ -2,12 +2,14 @@
 
 namespace Qck\TestApp\Controller;
 
+use Qck\App\Interfaces\Response;
+
 /**
  * Description of HelloWorldController
  *
  * @author muellerm
  */
-class TestDriver implements \Qck\Interfaces\TestDriver
+class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Controller
 {
 
   function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
@@ -15,32 +17,52 @@ class TestDriver implements \Qck\Interfaces\TestDriver
     $this->ServiceRepo = $ServiceRepo;
   }
 
-  public function run()
+  public function run( \Qck\Interfaces\ServiceRepo $ServiceRepo )
   {
+    $ExitCode = $this->runInternal( $ServiceRepo );
+    /* @var $ResponseFactory Qck\App\Interfaces\ResponseFactory */
+    $ResponseFactory = $ServiceRepo->get( \Qck\App\Interfaces\ResponseFactory::class );
+    return $ResponseFactory->create( null, $ExitCode );
+  }
+
+  public function exec()
+  {
+    $this->runInternal( $this->ServiceRepo );
+  }
+
+  protected function runInternal( \Qck\Interfaces\ServiceRepo $ServiceRepo )
+  {
+    $ExitCode = Response::EXIT_CODE_OK;
     // Check if we have a specific testsuite
-    /* @var $Request \Qck\Apps\TestApp\TestSuite[] */
-    $Request = $this->ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
+    /* @var $Request \Qck\App\Interfaces\Request */
+    $Request = $ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
     if ( $Request )
     {
       $TestSuiteFqcn = $Request->get( "suite" );
       if ( !class_exists( $TestSuiteFqcn ) )
         throw new \InvalidArgumentException( "TestSuite class '" . $TestSuiteFqcn . "' not found. Did you set the --suite parameter correctly?" );
       $TestSuite = new $TestSuiteFqcn;
-      $this->runSuite( $TestSuite, $Request );
+      $ExitCode = $this->runSuite( $TestSuite, $ServiceRepo, $Request );
     }
     else
     {
-
-      $TestSuites = $this->ServiceRepo->getAll( \Qck\Interfaces\TestSuite::class );
+      $TestSuites = $ServiceRepo->getAll( \Qck\Interfaces\TestSuite::class );
       foreach ( $TestSuites as $TestSuite )
-        $this->runSuite( $TestSuite );
+        if ( $this->runSuite( $TestSuite, $ServiceRepo, null ) != Response::EXIT_CODE_OK )
+          $ExitCode = Response::EXIT_CODE_INTERNAL_ERROR;
     }
+
+    /* @var $Cleaner \Qck\Interfaces\Cleaner */
+    $Cleaner = $ServiceRepo->getOptional( \Qck\Interfaces\Cleaner::class );
+    if ( $Cleaner )
+      $Cleaner->tidyUp();
+    return $ExitCode;
   }
 
   protected function runSuite( \Qck\Interfaces\TestSuite $TestSuite,
+                               \Qck\Interfaces\ServiceRepo $ServiceRepo,
                                \Qck\Interfaces\App\Request $Request = null )
   {
-    /* @var $config \Qck\Apps\TestApp\AppConfig */
     if ( $Request && !$Request->isCli() )
       print "<html><head><title>" . self::class . "</title></head><body><pre>";
     print PHP_EOL . "********** START of Test Suite " . get_class( $TestSuite ) . PHP_EOL;
@@ -54,7 +76,7 @@ class TestDriver implements \Qck\Interfaces\TestDriver
     {
       try
       {
-        $this->runTest( $TestClass, $TestClass, $TestsRun, $TestsFailed );
+        $this->runTest( $ServiceRepo, $TestClass, $TestClass, $TestsRun, $TestsFailed );
       }
       catch ( \Exception $ex )
       {
@@ -70,16 +92,13 @@ class TestDriver implements \Qck\Interfaces\TestDriver
     if ( $Request && !$Request->isCli() )
       print "</pre></body></html>";
 
-    $ExitCode = count( $TestsFailed ) > 0 ? \Qck\Interfaces\Response::EXIT_CODE_INTERNAL_ERROR : \Qck\Interfaces\Response::EXIT_CODE_OK;
-
-    // Check if we have a specific testsuite
-    /* @var $ResponseFactory \Qck\Interfaces\App\ResponseFactory */
-    $ResponseFactory = $this->ServiceRepo->getOptional( \Qck\Interfaces\App\ResponseFactory::class );
-    return $ResponseFactory ? $ResponseFactory->create( null, $ExitCode ) : $ExitCode;
+    $ExitCode = count( $TestsFailed ) > 0 ? Response::EXIT_CODE_INTERNAL_ERROR : Response::EXIT_CODE_OK;
+    return $ExitCode;
   }
 
-  protected function runTest( $TestClass, $RootTestClass, array &$TestsRun,
-                              array &$TestsFailed )
+  protected function runTest(
+  \Qck\Interfaces\ServiceRepo $ServiceRepo, $TestClass, $RootTestClass, array &$TestsRun,
+  array &$TestsFailed )
   {
     if ( in_array( $TestClass, $TestsRun ) )
       return;
@@ -95,12 +114,12 @@ class TestDriver implements \Qck\Interfaces\TestDriver
         if ( in_array( $RootTestClass, $RequiredTests ) )
           throw new \LogicException( "Cyclic Test Dependency for test Class: " . $RootTestClass );
 
-        $this->runTest( $RequiredTest, $RootTestClass, $TestsRun, $TestsFailed );
+        $this->runTest( $ServiceRepo, $RequiredTest, $RootTestClass, $TestsRun, $TestsFailed );
       }
     }
 
     print PHP_EOL . "********** Running test class " . $TestClass . PHP_EOL;
-    $TestObj->run();
+    $TestObj->exec( $ServiceRepo );
     print "********** PASSED: " . $TestClass . PHP_EOL;
     $TestsRun[] = $TestClass;
   }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Qck\Interfaces\Mail;
+namespace Qck\Mail\Interfaces;
 
 /**
  * Service class for creating Parties
  * @author muellerm
  */
-interface SmtpSource extends \Qck\Interfaces\Service
+interface SmtpSource
 {
 
   /**

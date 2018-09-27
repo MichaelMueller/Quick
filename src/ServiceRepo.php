@@ -11,7 +11,7 @@ class ServiceRepo implements Interfaces\ServiceRepo
 {
 
   /**
-   * 
+   * Singleton implementation
    * @return ServiceRepo
    */
   static function getInstance()
@@ -22,8 +22,8 @@ class ServiceRepo implements Interfaces\ServiceRepo
   }
 
   /**
-   * 
-   * @param string $Service the Service Class Instance
+   * Add a concrete Instance
+   * @param object $Service the Service Class Instance
    */
   function addService( $Service )
   {
@@ -31,7 +31,7 @@ class ServiceRepo implements Interfaces\ServiceRepo
   }
 
   /**
-   * 
+   * Add a Factory Closure
    * @param string $Fqcn the fqcn of the service
    * @param string $Factory a functiont that creates the class (or null if not possible) or an instance of that class 
    */
@@ -40,6 +40,12 @@ class ServiceRepo implements Interfaces\ServiceRepo
     $this->addInstanceOrFactory( $Fqcn, $Factory );
   }
 
+  /**
+   * @see Interfaces\ServiceRepo::getOptional($Fqin, $Fqcn)
+   * @param string $Fqin
+   * @param string $Fqcn
+   * @return mixed
+   */
   public function getOptional( $Fqin, $Fqcn = null )
   {
     if ( is_null( $Fqcn ) && isset( $this->LatestServices[ $Fqin ] ) )

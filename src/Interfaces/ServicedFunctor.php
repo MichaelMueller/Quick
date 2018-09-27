@@ -6,11 +6,11 @@ namespace Qck\Interfaces;
  * A basic interface for everything that can be echoed
  * @author muellerm
  */
-interface Functor
+interface ServicedFunctor
 {
 
   /**
    * @return void
    */
-  public function exec();
+  public function exec( ServiceRepo $ServiceRepo );
 }

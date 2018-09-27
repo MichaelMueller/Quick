@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces\Mail;
+namespace Qck\Mail\Interfaces;
 
 /**
  * Class representing SMTP Parameters

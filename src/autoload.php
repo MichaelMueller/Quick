@@ -3,9 +3,24 @@
 /* @var $ServiceRepo Qck\ServiceRepo */
 $ServiceRepo = Qck\ServiceRepo::getInstance();
 
-// ADD SERVICES
+// ADD SERVICES *************
 // add Qck\Log
 $ServiceRepo->addServiceFactory( Qck\Log::class, function()
 {
-  return new Qck\Log( Qck\Log::class );
+  $Log = new Qck\Log( Qck\Log::class );
+  $Log->pushHandler( new StreamHandler( 'php://stdout', Logger::WARNING ) ); // <<< uses a stream
+
+  return $Log;
+} );
+
+// add Qck\FileSystem
+$ServiceRepo->addServiceFactory( Qck\FileSystem::class, function()
+{
+  return new \Qck\FileSystem();
+} );
+
+// add Qck\Cleaner
+$ServiceRepo->addServiceFactory( Qck\Cleaner::class, function() use($ServiceRepo)
+{
+  return new \Qck\Cleaner( $ServiceRepo->get( \Qck\Interfaces\FileSystem::class ) );
 } );

@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces\App;
+namespace Qck\App\Interfaces;
 
 /**
  *
@@ -28,4 +28,11 @@ interface Router
    * @return string A valid Link conformant to this factory
    */
   public function getLink( $ControllerFqcn, $args = array () );
+  
+  /**
+   * Will immediately redirect to another Page
+   * @param string $ControllerFqcn
+   * @param array $args
+   */
+  public function redirect( $ControllerFqcn, $args = array () );
 }

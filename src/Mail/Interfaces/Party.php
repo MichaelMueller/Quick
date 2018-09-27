@@ -1,9 +1,9 @@
 <?php
 
-namespace Qck\Interfaces\Mail;
+namespace Qck\Mail\Interfaces;
 
 /**
- * Class representing an actual mail message
+ * Class representing a "party" in Mail exchange - meaning a person, contact or just the combination of Name and Address
  * @author muellerm
  */
 interface Party
