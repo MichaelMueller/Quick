@@ -23,12 +23,10 @@ class FileSystem implements \Qck\Interfaces\Test
     $Cleaner = $ServiceRepo->get( \Qck\Interfaces\Cleaner::class );
 
     // Write Functions
-    $MyTempDir = sys_get_temp_dir() . "/" . crc32( FileSystemTest::class );
+    $MyTempDir = sys_get_temp_dir() . "/" . crc32( self::class );
     $Cleaner->addFile( $MyTempDir );
     $FileSystem->createDir( $MyTempDir );
     if ( !file_exists( $MyTempDir ) )
       throw new \Exception( sprintf( "Dir %s was not created.", $MyTempDir ) );
-      
-    throw new \Exception( sprintf( "Dir %s was not created.", $MyTempDir ) );
   }
 }
