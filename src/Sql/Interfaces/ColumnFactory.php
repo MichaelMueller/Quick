@@ -53,5 +53,5 @@ interface ColumnFactory
    * @param \Qck\Sql\Interfaces\Interfaces\StandardTable $RefTable
    * @return Column
    */
-  function createForeignKeyColumn( Interfaces\StandardTable $RefTable );
+  function createForeignKeyColumn( StandardTable $RefTable );
 }
