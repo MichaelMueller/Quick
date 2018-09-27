@@ -22,5 +22,6 @@
     "files": [
       "src/autoload.php"
     ]
-  }
+  },
+  "bin": ["src/run_tests.php"]
 }
