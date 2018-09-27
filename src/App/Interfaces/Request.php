@@ -23,6 +23,12 @@ interface Request
    * @return bool
    */
   public function has( $Name );
+  
+  /**
+   * 
+   * @return array
+   */
+  public function getParams();
 
   /**
    * @return bool
