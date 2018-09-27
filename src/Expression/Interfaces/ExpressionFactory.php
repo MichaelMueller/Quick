@@ -21,6 +21,14 @@ interface ExpressionFactory
   function or_();
 
   /**
+   * 
+   * @param \Qck\Expression\Interfaces\ValueExpression $Value
+   * @param array $Choices
+   * @return BooleanExpression
+   */
+  function choice( ValueExpression $Value, array $Choices );
+
+  /**
    * @return SingleParamFunction
    */
   function strlen( ValueExpression $Param );
@@ -34,6 +42,11 @@ interface ExpressionFactory
    * @return ValueExpression
    */
   function val( $Value );
+
+  /**
+   * @return BooleanExpression
+   */
+  function boolVal( $BoolValue );
 
   /**
    * @return Comparison
