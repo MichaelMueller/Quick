@@ -9,4 +9,5 @@ namespace Qck\App\Interfaces;
  */
 interface Starter extends \Qck\Interfaces\Functor
 {
+  
 }

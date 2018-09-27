@@ -1,6 +1,7 @@
 <?php
 
 namespace Qck;
+
 /**
  * Description of HelloWorldController
  *
@@ -19,7 +20,8 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     if ( file_exists( $FilePath ) && $DeleteIfExists )
       $this->delete( $FilePath );
 
-    mkdir( $FilePath, 0777, true );
+    if ( !file_exists( $FilePath ) )
+      mkdir( $FilePath, 0777, true );
   }
 
   public function createFile( $Name, $Dir = null, $DeleteIfExists = false )

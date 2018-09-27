@@ -30,28 +30,51 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
     $this->runInternal( $this->ServiceRepo );
   }
 
+  protected function msg( $Msg, $Append = false )
+  {
+    $date = \DateTime::createFromFormat( 'U.u', microtime( TRUE ) );
+    $datetime = $date->format( 'Y-m-d H:i:s.u' );
+    if ( $Append )
+      print $Msg;
+    else
+      print PHP_EOL . self::class . ", " . $datetime . ": " . $Msg;
+  }
+
   protected function runInternal( \Qck\Interfaces\ServiceRepo $ServiceRepo )
   {
     $ExitCode = Response::EXIT_CODE_OK;
     // Check if we have a specific testsuite
     /* @var $Request \Qck\App\Interfaces\Request */
     $Request = $ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
+    if ( $Request && !$Request->isCli() )
+      print "<html><head><title>" . self::class . "</title></head><body><pre>";
+
+    $TestsRun = array ();
+    $TestsFailed = array ();
     if ( $Request )
     {
       $TestSuiteFqcn = $Request->get( "suite" );
       if ( !class_exists( $TestSuiteFqcn ) )
         throw new \InvalidArgumentException( "TestSuite class '" . $TestSuiteFqcn . "' not found. Did you set the --suite parameter correctly?" );
       $TestSuite = new $TestSuiteFqcn;
-      $ExitCode = $this->runSuite( $TestSuite, $ServiceRepo, $Request );
+      $this->runSuite( $TestSuite, $ServiceRepo, $TestsRun, $TestsFailed );
     }
     else
     {
       $TestSuites = $ServiceRepo->getAll( \Qck\Interfaces\TestSuite::class );
       foreach ( $TestSuites as $TestSuite )
-        if ( $this->runSuite( $TestSuite, $ServiceRepo, null ) != Response::EXIT_CODE_OK )
-          $ExitCode = Response::EXIT_CODE_INTERNAL_ERROR;
+        $this->runSuite( $TestSuite, $ServiceRepo, $TestsRun, $TestsFailed );
+      if ( count( $TestSuites ) == 0 )
+        $this->msg( ": No TestSuites found!!!" );
     }
 
+    $Text = "All tests ok!";
+    if ( count( $TestsFailed ) > 0 )
+      $Text = count( $TestsFailed ) . " tests failed!";
+    $this->msg( "******** RESULTS: " . count( $TestsRun ) . " tests run. " . $Text . " ********" );
+
+    if ( $Request && !$Request->isCli() )
+      print "</pre></body></html>";
     /* @var $Cleaner \Qck\Interfaces\Cleaner */
     $Cleaner = $ServiceRepo->getOptional( \Qck\Interfaces\Cleaner::class );
     if ( $Cleaner )
@@ -60,18 +83,14 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
   }
 
   protected function runSuite( \Qck\Interfaces\TestSuite $TestSuite,
-                               \Qck\Interfaces\ServiceRepo $ServiceRepo,
-                               \Qck\Interfaces\App\Request $Request = null )
+                               \Qck\Interfaces\ServiceRepo $ServiceRepo, array &$TestsRun,
+                               array &$TestsFailed )
   {
-    if ( $Request && !$Request->isCli() )
-      print "<html><head><title>" . self::class . "</title></head><body><pre>";
-    print PHP_EOL . "********** START of Test Suite " . get_class( $TestSuite ) . PHP_EOL;
+    $this->msg( "Start of Test Suite " . get_class( $TestSuite ) );
 
     // RUN THE TEST TREE
     $TestClasses = $TestSuite->getTests();
 
-    $TestsRun = array ();
-    $TestsFailed = array ();
     foreach ( $TestClasses as $TestClass )
     {
       try
@@ -80,20 +99,12 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
       }
       catch ( \Exception $ex )
       {
-        print "********** FAILED: test case " . $TestClass . " (Reason: " . strval( $ex ) . ")" . PHP_EOL;
+        $this->msg( "FAILED. Reason: " . strval( $ex ) . ")", true );
         $TestsFailed[] = $TestClass;
       }
     }
 
-    $Text = "All tests ok!";
-    if ( count( $TestsFailed ) > 0 )
-      $Text = count( $TestsFailed ) . " tests failed!";
-    print PHP_EOL . PHP_EOL . "********** RESULTS: " . count( $TestClasses ) . " tests run. " . $Text . PHP_EOL;
-    if ( $Request && !$Request->isCli() )
-      print "</pre></body></html>";
-
-    $ExitCode = count( $TestsFailed ) > 0 ? Response::EXIT_CODE_INTERNAL_ERROR : Response::EXIT_CODE_OK;
-    return $ExitCode;
+    $this->msg( "End of Test Suite " . get_class( $TestSuite ) );
   }
 
   protected function runTest(
@@ -118,9 +129,9 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
       }
     }
 
-    print PHP_EOL . "********** Running test class " . $TestClass . PHP_EOL;
+    $this->msg( "Running test class " . $TestClass . ": " );
     $TestObj->exec( $ServiceRepo );
-    print "********** PASSED: " . $TestClass . PHP_EOL;
+    $this->msg( "PASSED", true );
     $TestsRun[] = $TestClass;
   }
 

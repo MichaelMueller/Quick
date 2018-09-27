@@ -29,3 +29,10 @@ $ServiceRepo->addServiceFactory( Qck\TestDriver::class, function() use($ServiceR
 {
   return new \Qck\TestDriver( $ServiceRepo );
 } );
+
+// add Qck\TestSuite
+$ServiceRepo->addServiceFactory( Qck\TestSuite::class, function()
+{
+  return new \Qck\TestSuite();
+} );
+

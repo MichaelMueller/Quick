@@ -27,6 +27,8 @@ class FileSystem implements \Qck\Interfaces\Test
     $Cleaner->addFile( $MyTempDir );
     $FileSystem->createDir( $MyTempDir );
     if ( !file_exists( $MyTempDir ) )
-      throw new Exception( sprintf( "Dir %s was not created.", $MyTempDir ) );
+      throw new \Exception( sprintf( "Dir %s was not created.", $MyTempDir ) );
+      
+    throw new \Exception( sprintf( "Dir %s was not created.", $MyTempDir ) );
   }
 }

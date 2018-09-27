@@ -9,6 +9,7 @@ namespace Qck\App\Interfaces;
  */
 interface Config
 {
+
   /**
    * @return string the name identifying this web app
    */

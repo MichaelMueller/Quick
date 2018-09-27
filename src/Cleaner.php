@@ -53,6 +53,6 @@ class Cleaner implements \Qck\Interfaces\Cleaner
    *
    * @var array
    */
-  protected $Jobs;
+  protected $Jobs = [];
 
 }

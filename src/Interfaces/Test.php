@@ -8,6 +8,7 @@ namespace Qck\Interfaces;
  */
 interface Test extends ServicedFunctor
 {
+
   /**
    * @return string[] A set of test Fqcns that must be run before
    */
