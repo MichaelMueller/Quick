@@ -23,5 +23,5 @@ interface Schema extends Convertable
   /**
    * @return Query[]
    */
-  function toQueries(Interfaces\DbDialect $Dictionary);
+  function toQueries( DbDialect $Dictionary );
 }

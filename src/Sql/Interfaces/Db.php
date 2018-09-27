@@ -21,6 +21,11 @@ interface Db
   function beginTransaction();
 
   /**
+   * @return DbDialect
+   */
+  function getDialect();
+
+  /**
    * @return void
    */
   function isInTransaction();

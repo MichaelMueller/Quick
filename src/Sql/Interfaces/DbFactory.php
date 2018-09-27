@@ -15,5 +15,5 @@ interface DbFactory
    * @param \Qck\Sql\Interfaces\DbDialect $DbDialect
    * @return Db
    */
-  function create( $DbName, DbDialect $DbDialect, QueryFactory $QueryFactory );
+  function create( $DbName, DbDialect $DbDialect );
 }
