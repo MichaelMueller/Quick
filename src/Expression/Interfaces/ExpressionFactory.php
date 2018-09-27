@@ -76,6 +76,11 @@ interface ExpressionFactory
   /**
    * @return Comparison
    */
+  function varEqVar( $varName, $var2Name );
+
+  /**
+   * @return Comparison
+   */
   function eq( ValueExpression $LeftOperand, ValueExpression $RightOperand );
 
   /**

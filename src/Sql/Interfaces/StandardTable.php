@@ -15,6 +15,11 @@ interface StandardTable extends Table
   function getPrimaryKeyColumn();
 
   /**
+   * @return string
+   */
+  function getPrimaryKeyFullName();
+
+  /**
    * @return bool whether this table is actually hidden (e.g. helper tables for logging etc.) or if it is a regular data table
    */
   function isHiddenTable();

@@ -33,4 +33,9 @@ interface Table extends Convertable
    * @return array
    */
   function addKeys( $ValueArray, $SkipPrimaryKeys = true );
+  
+  /**
+   * @return array
+   */
+  function getColumnNames( $SkipPrimaryKeys = true, $FullyQualified=false );
 }

@@ -18,4 +18,15 @@ interface RelationTable extends Table
    * @return ForeignKeyColumn
    */
   function getRight();
+
+  /**
+   * @return string
+   */
+  function getLeftFullName();
+
+  /**
+   * @return string
+   */
+  function getRightFullName();
+
 }
