@@ -14,4 +14,9 @@ interface Column extends Convertable
    * @return string
    */
   function getName();
+  
+  /**
+   * @return string
+   */
+  function getDatatype( DbDialect $DbDialect );
 }
