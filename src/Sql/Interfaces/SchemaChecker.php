@@ -10,6 +10,13 @@ interface SchemaChecker
 {
 
   /**
+   * installs the schema on this Db
+   * @param \Qck\Sql\Interfaces\Db $Db
+   * @param \Qck\Sql\Interfaces\Schema $CurrentSchema
+   */
+  function install( Db $Db, Schema $CurrentSchema );
+
+  /**
    * 
    * @param \Qck\Sql\Interfaces\Db $Db
    * @param \Qck\Sql\Interfaces\Schema $CurrentSchema

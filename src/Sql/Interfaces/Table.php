@@ -28,4 +28,9 @@ interface Table extends Convertable
    * @return string
    */
   function getName();
+
+  /**
+   * @return array mapping ColNames to Values, must be same size
+   */
+  function toDataArray( $Values, $SkipPrimaryKeyColumns = true );
 }

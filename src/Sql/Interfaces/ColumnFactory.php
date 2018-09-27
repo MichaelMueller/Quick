@@ -43,7 +43,15 @@ interface ColumnFactory
    * @param int $MinLength
    * @param int $MaxLength
    * @param bool $Blob
+   * @return Column
    */
   function createStringColumn( $Name, $MinLength = 0, $MaxLength = self::SHORTTEXT,
                                $Blob = false );
+
+  /**
+   * 
+   * @param \Qck\Sql\Interfaces\Interfaces\StandardTable $RefTable
+   * @return Column
+   */
+  function createForeignKeyColumn( Interfaces\StandardTable $RefTable );
 }

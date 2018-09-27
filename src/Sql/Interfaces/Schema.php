@@ -10,6 +10,12 @@ interface Schema extends Convertable
 {
 
   /**
+   * 
+   * @param \Qck\Sql\Interfaces\Table $Table
+   */
+  function addTable( Table $Table );
+
+  /**
    * @return Table[]
    */
   function getTables();

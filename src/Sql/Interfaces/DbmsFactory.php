@@ -7,12 +7,12 @@ namespace Qck\Sql\Interfaces;
  * 
  * @author muellerm
  */
-interface SchemaFactory
+interface DbmsFactory
 {
 
   /**
    * 
-   * @return Schema
+   * @return Dbms
    */
-  function createSchema();
+  function createSqliteDbms();
 }
