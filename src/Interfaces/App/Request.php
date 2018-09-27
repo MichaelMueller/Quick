@@ -18,6 +18,13 @@ interface Request
   public function get( $Name, $Default = null );
 
   /**
+   * 
+   * @param string $Name
+   * @return bool
+   */
+  public function has( $Name );
+
+  /**
    * @return bool
    */
   function isCli();
