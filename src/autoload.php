@@ -8,8 +8,7 @@ $ServiceRepo = Qck\ServiceRepo::getInstance();
 $ServiceRepo->addServiceFactory( Qck\Log::class, function()
 {
   $Log = new Qck\Log( Qck\Log::class );
-  $Log->pushHandler( new StreamHandler( 'php://stdout', Logger::WARNING ) ); // <<< uses a stream
-
+  $Log->pushHandler( new StreamHandler( 'php://stdout', Logger::WARNING ) );
   return $Log;
 } );
 
@@ -23,4 +22,10 @@ $ServiceRepo->addServiceFactory( Qck\FileSystem::class, function()
 $ServiceRepo->addServiceFactory( Qck\Cleaner::class, function() use($ServiceRepo)
 {
   return new \Qck\Cleaner( $ServiceRepo->get( \Qck\Interfaces\FileSystem::class ) );
+} );
+
+// add Qck\TestDriver
+$ServiceRepo->addServiceFactory( Qck\TestDriver::class, function() use($ServiceRepo)
+{
+  return new \Qck\TestDriver( $ServiceRepo );
 } );

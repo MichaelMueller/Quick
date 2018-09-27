@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\TestApp\Controller;
+namespace Qck;
 
 use Qck\App\Interfaces\Response;
 
