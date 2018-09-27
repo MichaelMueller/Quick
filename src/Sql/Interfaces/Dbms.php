@@ -17,7 +17,7 @@ interface Dbms
    * @param Schema $DbSchema
    * @param bool $CheckSchema If true the DBMS will try to check the schema by any means before any operation happens.
    * @throws \InvalidArgumentException if the Schema Check fails
-   * @return Db
+   * @return \Qck\Sql\Interfaces\Db
    */
   function connect( $DbName, Schema $DbSchema, $CheckSchema = true );
 
