@@ -80,12 +80,12 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   public function getContents( $FilePath )
   {
-    if ( !file_exists( $filePath ) || filesize( $filePath ) == 0 )
+    if ( !file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
       return null;
 
-    $f = fopen( $filePath, "r" );
+    $f = fopen( $FilePath, "r" );
     flock( $f, LOCK_SH );
-    $content = fread( $f, filesize( $filePath ) );
+    $content = fread( $f, filesize( $FilePath ) );
     flock( $f, LOCK_UN );
     fclose( $f );
     return $content;
@@ -115,7 +115,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     file_put_contents( $FilePath, $Data, LOCK_EX );
   }
 
-  protected function deleteInternal( $FilePath, $DeleteFilePath = true )
+  protected function deleteInternal( $FilePath, $Delete = true )
   {
     if ( is_dir( $FilePath ) )
     {
@@ -125,15 +125,14 @@ class FileSystem implements \Qck\Interfaces\FileSystem
         if ( $object != "." && $object != ".." )
         {
           $CurrentFilePath = $FilePath . "/" . $object;
-          if ( is_dir( $CurrentFilePath ) )
-            $this->delete( $CurrentFilePath );
-          else
-            unlink( $CurrentFilePath );
+          $this->delete( $CurrentFilePath, true );
         }
       }
-      if ( $DeleteFilePath )
+      if ( $Delete )
         rmdir( $FilePath );
     }
+    else if ( is_file( $FilePath ) && $Delete )
+      unlink( $FilePath );
   }
 
   protected function assureParentDirExists( $FilePath )

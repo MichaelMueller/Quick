@@ -20,9 +20,14 @@ interface Db
   function isInTransaction();
 
   /**
+   * @return void
+   */
+  function query( Convertable $Sql );
+
+  /**
    * @return mixed Will return last id for inserts, affected rows for updates and deletes, data rows for select
    */
-  function execute( Convertable $Sql, &$LastInsertedId = null );
+  function execute( Query $Query );
 
   /**
    * @return void
