@@ -8,5 +8,9 @@ namespace Qck\Expression\Interfaces;
  */
 interface Expression extends \Qck\Sql\Interfaces\Convertable
 {
-  
+
+  /**
+   * @return string
+   */
+  function __toString();
 }

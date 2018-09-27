@@ -7,7 +7,7 @@ namespace Qck\Sql\Interfaces;
  * 
  * @author muellerm
  */
-interface Column extends \Qck\Sql\Convertable, \Qck\Interfaces\Expression
+interface Column extends \Qck\Sql\Convertable
 {
 
   function getName();
