@@ -30,7 +30,7 @@ interface Table extends Convertable
   function getName();
 
   /**
-   * @return array mapping ColNames to Values, must be same size
+   * @return array
    */
-  function toDataArray( $Values, $SkipPrimaryKeyColumns = true );
+  function addKeys( $ValueArray, $SkipPrimaryKeys = true );
 }

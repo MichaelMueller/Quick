@@ -19,4 +19,9 @@ interface Schema extends Convertable
    * @return Table[]
    */
   function getTables();
+
+  /**
+   * @return Query[]
+   */
+  function toQueries(Interfaces\DbDialect $Dictionary);
 }

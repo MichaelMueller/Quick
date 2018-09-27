@@ -51,7 +51,17 @@ interface ExpressionFactory
   /**
    * @return Comparison
    */
+  function varGreater( $varName, $Value );
+
+  /**
+   * @return Comparison
+   */
   function gt( ValueExpression $LeftOperand, ValueExpression $RightOperand );
+
+  /**
+   * @return Comparison
+   */
+  function varGt( $varName, $Value );
 
   /**
    * @return Comparison
@@ -61,7 +71,17 @@ interface ExpressionFactory
   /**
    * @return Comparison
    */
+  function varEq( $varName, $Value );
+
+  /**
+   * @return Comparison
+   */
   function eq( ValueExpression $LeftOperand, ValueExpression $RightOperand );
+
+  /**
+   * @return Comparison
+   */
+  function varNe( $varName, $Value );
 
   /**
    * @return Comparison
@@ -71,7 +91,17 @@ interface ExpressionFactory
   /**
    * @return Comparison
    */
+  function varLt( $varName, $Value );
+
+  /**
+   * @return Comparison
+   */
   function lt( ValueExpression $LeftOperand, ValueExpression $RightOperand );
+
+  /**
+   * @return Comparison
+   */
+  function varLe( $varName, $Value );
 
   /**
    * @return Comparison

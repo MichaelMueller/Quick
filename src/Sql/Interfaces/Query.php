@@ -13,6 +13,9 @@ interface Query extends Convertable
   const UPDATE = "UPDATE";
   const DELETE = "DELETE";
   const SELECT = "SELECT";
+  const CREATE_TABLE = "CREATE TABLE";
 
   function getType();
+
+  function getTableName();
 }

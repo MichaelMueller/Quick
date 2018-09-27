@@ -13,32 +13,48 @@ interface QueryFactory
 {
 
   /**
+   * Create custom Query
+   * @param string $Type
+   * @param string $Sql
+   * @param array $Params
+   */
+  function create( $Type, $TableName, $Sql, array $Params = [] );
+
+  /**
    * 
-   * @param string $TableName
+   * @param Table $Table
    * @param array $Data
    * @return Query
    */
-  function createInsert( $TableName, array $Data );
+  function createInsert( Table $Table, array $Data );
 
   /**
    * 
-   * @param string $TableName
+   * @param Table $Table
    * @param array $Data
    * @return Query
    */
-  function createUpdate( $TableName, array $Data, BooleanExpression $BooleanExpression );
+  function createUpdate( Table $Table, array $Data, BooleanExpression $BooleanExpression );
 
   /**
    * 
-   * @param string $Name
+   * @param Table $Table
    * @return Query
    */
-  function createDelete( $TableName, BooleanExpression $BooleanExpression );
+  function createDelete( Table $Table, BooleanExpression $BooleanExpression );
 
   /**
    * 
-   * @param string $Name
+   * @param Table $Table
    * @return Select
    */
-  function createSelect( $TableName, BooleanExpression $BooleanExpression = null );
+  function createSelect( Table $Table, BooleanExpression $BooleanExpression = null, array $Columns=[] );
+
+  /**
+   * 
+   * @param Table[] $Tables
+   * @return Select
+   */
+  public function createMultiTableSelect( array $Tables,
+                                          \Qck\Expression\Interfaces\BooleanExpression $BooleanExpression = null );
 }
