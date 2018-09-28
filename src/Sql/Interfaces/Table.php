@@ -38,4 +38,9 @@ interface Table extends Convertable
    * @return array
    */
   function getColumnNames( $SkipPrimaryKeys = true, $FullyQualified=false );
+  
+  /**
+   * @return \Qck\Sql\ForeignKeyCol[]
+   */
+  function getForeignKeyCols();
 }

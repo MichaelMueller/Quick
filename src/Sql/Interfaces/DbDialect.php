@@ -37,6 +37,11 @@ interface DbDialect
   /**
    * @return string
    */
+  function getForeignKeyConstraint( $ColName, $RefTableName, $RefColName );
+
+  /**
+   * @return string
+   */
   function getStringDatatype( $MinLength = 0, $MaxLength = 255, $Blob = false );
 
   /**
