@@ -11,15 +11,9 @@ interface Router
 {
 
   /**
-   * @return Controller 
-   * @throws \InvalidArgumentException if Controller could not be determined
+   * @return string
    */
-  public function getController();
-
-  /**
-   * @return string the controller namespace
-   */
-  public function getCurrentControllerFqcn();
+  public function getCurrentRoute();
 
   /**
    * 

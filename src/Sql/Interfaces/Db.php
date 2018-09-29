@@ -2,8 +2,6 @@
 
 namespace Qck\Sql\Interfaces;
 
-use \Qck\Expression\Interfaces\BooleanExpression;
-
 /**
  *
  * @author muellerm
@@ -11,9 +9,9 @@ use \Qck\Expression\Interfaces\BooleanExpression;
 interface Db
 {
 
-  const LOG_NO_STATEMENTS = 0;
-  const LOG_ALL_STATEMENTS = 1;
-  const LOG_DML_STATEMENTS = 2;
+  const LOG_NO_QUERIES = 0;
+  const LOG_ALL_QUERIES = 1;
+  const LOG_WRITE_QUERIES = 2;
 
   /**
    * @return void
@@ -76,29 +74,5 @@ interface Db
   /**
    * @return void
    */
-  function setLogStatements( $LogStatements = self::LOG_DML_STATEMENTS );
-
-  /**
-   * insert
-   * @param \Qck\Sql\Interfaces\Table $Table
-   * @param array $Data
-   * @param type $UsePrimaryKeyCol
-   */
-  function insert( Table $Table, array $Data );
-
-  /**
-   * update
-   * @param \Qck\Sql\Interfaces\Table $Table
-   * @param array $Data
-   * @param BooleanExpression $Expression
-   */
-  function update( Table $Table, array $Data, BooleanExpression $Expression );
-
-  /**
-   * delete something
-   * @param \Qck\Sql\Interfaces\Table $Table
-   * @param BooleanExpression $Expression
-   * @return number of affected rows
-   */
-  function delete( Table $Table, BooleanExpression $Expression );
+  function setLogQueries( $LogStatements = self::LOG_WRITE_QUERIES );
 }

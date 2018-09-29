@@ -15,21 +15,14 @@ interface TableFactory
    * @param \Qck\Sql\Interfaces\Column $PrimaryKeyColumn
    * @return \Qck\Sql\StandardTable
    */
-  function createStandardTable( $Name, Column $PrimaryKeyColumn );
+  function createStandardTable( $Name, Column $PrimaryKeyColumn, array $Columns );
 
   /**
-   * create a relation table
-   * @param \Qck\Sql\Interfaces\ForeignKeyColumn $Left
-   * @param \Qck\Sql\Interfaces\ForeignKeyColumn $Right
-   * @return \Qck\Sql\RelationTable
-   */
-  function createRelationTable( ForeignKeyColumn $Left, ForeignKeyColumn $Right );
-
-  /**
-   * create a relation table
+   * create a relation table using the connected standard tables
    * @param \Qck\Sql\Interfaces\StandardTable $Left
    * @param \Qck\Sql\Interfaces\StandardTable $Right
    * @return \Qck\Sql\RelationTable
    */
-  function createRelationTableByTables( StandardTable $Left, StandardTable $Right );
+  function createRelationTable( StandardTable $Left, StandardTable $Right,
+                                array $Columns = [] );
 }

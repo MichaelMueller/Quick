@@ -12,11 +12,6 @@ interface Table extends Convertable
   /**
    * @return string
    */
-  function addColumn( Column $Column );
-
-  /**
-   * @return string
-   */
   function addUniqueIndex( $ColumnName );
 
   /**
@@ -43,4 +38,10 @@ interface Table extends Convertable
    * @return \Qck\Sql\ForeignKeyCol[]
    */
   function getForeignKeyCols();
+  
+  
+  /**
+   * @return bool whether this table is actually hidden (e.g. helper tables for logging etc.) or if it is a regular data table
+   */
+  function isHiddenTable();
 }

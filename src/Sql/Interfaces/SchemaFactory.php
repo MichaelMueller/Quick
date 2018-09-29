@@ -11,8 +11,8 @@ interface SchemaFactory
 {
 
   /**
-   * 
+   * @param Table[] $Tables
    * @return Schema
    */
-  function createSchema();
+  function createSchema(array $Tables);
 }

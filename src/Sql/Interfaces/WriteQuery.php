@@ -6,7 +6,7 @@ namespace Qck\Sql\Interfaces;
  *
  * @author muellerm
  */
-interface Query extends Convertable
+interface WriteQuery extends Query
 {
 
   const INSERT = "INSERT";
@@ -14,9 +14,15 @@ interface Query extends Convertable
   const DELETE = "DELETE";
   const SELECT = "SELECT";
   const CREATE_TABLE = "CREATE TABLE";
-
+  const DROP_TABLE = "DROP TABLE";
+  
   /**
-   * @return string
+   * @return Table
+   */
+  function getTable();
+  
+  /**
+   * @return String
    */
   function getType();
   
