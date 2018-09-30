@@ -10,106 +10,74 @@ interface ExpressionFactory
 {
 
   /**
+   * @return ExpressionFactory
+   */
+  function check( $VarName );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isEquals( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isNotEquals( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isGreater( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isGreaterOrEquals( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isLess( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param mixed $Value A value to compare.
+   * @param bool $ValueIsVarName if true the value will be treated as string varname
+   * @return Comparison
+   */
+  function isLessOrEquals( $Value, $ValueIsVarName = false );
+
+  /**
+   * @param array $Expressions
    * @param bool $EvaluateAll
    * @return BooleanChain
    */
-  function and_( $EvaluateAll = false );
+  function createAnd( array $Expressions = [], $EvaluateAll = false );
 
   /**
+   * @param array $Expressions
    * @return BooleanChain
    */
-  function or_();
+  function createOr( array $Expressions = [] );
 
   /**
-   * 
-   * @param \Qck\Expression\Interfaces\ValueExpression $Value
-   * @param array $Choices
-   * @return BooleanExpression
-   */
-  function choice( ValueExpression $Value, array $Choices );
-
-  /**
+   * @param string $VarName
    * @return SingleParamFunction
    */
-  function strlen( ValueExpression $Param );
+  function createStrlen( $VarName );
 
   /**
-   * @return Var_
+   * @param \Qck\Sql\Interfaces\Table[] $Tables
+   * @return \Qck\Expression\BooleanExpression
    */
-  function var_( $Name, $FilterOut = false );
-
-  /**
-   * @return ValueExpression
-   */
-  function val( $Value );
-
-  /**
-   * @return BooleanExpression
-   */
-  function boolVal( $BoolValue );
-
-  /**
-   * @return Comparison
-   */
-  function varGreater( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function gt( ValueExpression $LeftOperand, ValueExpression $RightOperand );
-
-  /**
-   * @return Comparison
-   */
-  function varGt( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function ge( ValueExpression $LeftOperand, ValueExpression $RightOperand );
-
-  /**
-   * @return Comparison
-   */
-  function varEq( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function varEqVar( $varName, $var2Name );
-
-  /**
-   * @return Comparison
-   */
-  function eq( ValueExpression $LeftOperand, ValueExpression $RightOperand );
-
-  /**
-   * @return Comparison
-   */
-  function varNe( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function ne( BooleanExpression $BooleanExpression );
-
-  /**
-   * @return Comparison
-   */
-  function varLt( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function lt( ValueExpression $LeftOperand, ValueExpression $RightOperand );
-
-  /**
-   * @return Comparison
-   */
-  function varLe( $varName, $Value );
-
-  /**
-   * @return Comparison
-   */
-  function le( ValueExpression $LeftOperand, ValueExpression $RightOperand );
+  function createJoinExpression( array $Tables );
 }
