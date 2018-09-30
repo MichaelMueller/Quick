@@ -54,6 +54,6 @@ interface ColumnFactory
    * @return Column
    */
   function createForeignKeyColumn( StandardTable $RefTable,
-                                   $OnUpdate = ForeignKeyColumn::CASCADE,
-                                   $OnDelete = ForeignKeyColumn::SET_NULL );
+                                   $OnDelete = ForeignKeyColumn::SET_NULL,
+                                   $OnUpdate = ForeignKeyColumn::CASCADE );
 }

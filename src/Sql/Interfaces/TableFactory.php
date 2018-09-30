@@ -13,7 +13,7 @@ interface TableFactory
    * create a standard sql table
    * @param string $Name
    * @param \Qck\Sql\Interfaces\Column $PrimaryKeyColumn
-   * @return \Qck\Sql\StandardTable
+   * @return StandardTable
    */
   function createStandardTable( $Name, Column $PrimaryKeyColumn, array $Columns,
                                 $Hidden = false );
@@ -22,7 +22,7 @@ interface TableFactory
    * create a relation table using the connected standard tables
    * @param \Qck\Sql\Interfaces\StandardTable $Left
    * @param \Qck\Sql\Interfaces\StandardTable $Right
-   * @return \Qck\Sql\RelationTable
+   * @return RelationTable
    */
   function createRelationTable( StandardTable $Left, StandardTable $Right,
                                 array $Columns = [] );

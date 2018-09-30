@@ -12,49 +12,49 @@ interface ExpressionFactory
   /**
    * @return ExpressionFactory
    */
-  function check( $VarName );
+  function check( $VarName, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isEquals( $Value, $ValueIsVarName = false );
+  function isEquals( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isNotEquals( $Value, $ValueIsVarName = false );
+  function isNotEquals( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isGreater( $Value, $ValueIsVarName = false );
+  function isGreater( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isGreaterOrEquals( $Value, $ValueIsVarName = false );
+  function isGreaterOrEquals( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isLess( $Value, $ValueIsVarName = false );
+  function isLess( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param mixed $Value A value to compare.
    * @param bool $ValueIsVarName if true the value will be treated as string varname
    * @return Comparison
    */
-  function isLessOrEquals( $Value, $ValueIsVarName = false );
+  function isLessOrEquals( $Value, $ValueIsVarName = false, $FilterOut = false );
 
   /**
    * @param array $Expressions
@@ -73,11 +73,11 @@ interface ExpressionFactory
    * @param string $VarName
    * @return SingleParamFunction
    */
-  function createStrlen( $VarName );
+  function createStrlen( $VarName, $FilterOut = false );
 
   /**
    * @param \Qck\Sql\Interfaces\Table[] $Tables
    * @return \Qck\Expression\BooleanExpression
    */
-  function createJoinExpression( array $Tables );
+  function createJoin( array $Tables );
 }

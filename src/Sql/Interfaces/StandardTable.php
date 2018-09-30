@@ -15,10 +15,14 @@ interface StandardTable extends Table
   function getPrimaryKeyColumn();
 
   /**
+   * @return Column
+   */
+  function getPrimaryKey( $FullName = false );
+
+  /**
    * @return string
    */
   function getPrimaryKeyFullName();
-
 
   /**
    * 
