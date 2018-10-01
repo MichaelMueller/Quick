@@ -10,6 +10,14 @@ namespace Qck\App\Interfaces;
 interface Router
 {
 
+  const DEFAULT_ROUTE = "Start";
+
+  /**
+   * 
+   * @param string $DefaultRoute the route if no parameter is set
+   */
+  function setDefaultRoute( $DefaultRoute = self::DEFAULT_ROUTE );
+
   /**
    * @return string
    */

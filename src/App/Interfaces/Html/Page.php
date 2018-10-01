@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Html\Interfaces;
+namespace Qck\App\Interfaces\Html;
 
 /**
  * An interface for an object that can be rendered to HTML
