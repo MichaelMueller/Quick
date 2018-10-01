@@ -12,13 +12,6 @@ use \Qck\Expression\Interfaces\BooleanExpression;
 interface QueryFactory
 {
 
-  /**
-   * Create custom Query
-   * @param string $Type
-   * @param string $Sql
-   * @param array $Params
-   */
-  function create( $Type, $TableName, $Sql, array $Params = [] );
 
   /**
    * 

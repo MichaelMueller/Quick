@@ -15,7 +15,7 @@ interface TableFactory
    * @param \Qck\Sql\Interfaces\Column $PrimaryKeyColumn
    * @return StandardTable
    */
-  function createStandardTable( $Name, Column $PrimaryKeyColumn, array $Columns,
+  function createStandardTable( $Name, Column $PrimaryKeyColumn, array $Columns=[],
                                 $Hidden = false );
 
   /**

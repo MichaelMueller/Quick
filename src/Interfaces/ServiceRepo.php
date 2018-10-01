@@ -10,6 +10,19 @@ interface ServiceRepo
 {
 
   /**
+   * 
+   * @param object $Service
+   */
+  function addService( $Service );
+
+  /**
+   * 
+   * @param string $Fqcn
+   * @param \Qck\Interfaces\callable $Factory
+   */
+  function addServiceFactory( $Fqcn, callable $Factory );
+
+  /**
    * get a service
    * @param string $Fqin the fully qualified interface name
    * @param string $Fqcn an optional ClassName if a specific instance is requested the function throws an exception

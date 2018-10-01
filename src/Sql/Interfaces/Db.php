@@ -34,7 +34,7 @@ interface Db
    * @param bool $MakeTransaction if true beginTransaction() and commit() will be used
    * @return array an array of values coming from execute()
    */
-  function executeMultiple( array $Queries, $MakeTransaction = true );
+  function executeMultiple( array $Queries, $MakeTransaction = false );
 
   /**
    * @return mixed Will return last id for inserts, affected rows for updates and deletes, data rows for select
