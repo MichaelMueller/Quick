@@ -10,18 +10,36 @@ namespace Qck\App\Interfaces;
 interface Router
 {
 
-  const DEFAULT_ROUTE = "Start";
-
   /**
-   * 
-   * @param string $DefaultRoute the route if no parameter is set
+   * the default route if no route is specified by the client
    */
-  function setDefaultRoute( $DefaultRoute = self::DEFAULT_ROUTE );
+  const DEFAULT_ROUTE = "Start";
 
   /**
    * @return string
    */
   public function getCurrentRoute();
+
+  /**
+   * 
+   * @param string $Route
+   * @return string The Fqcn of the Controller
+   */
+  public function getFqcn( $Route );
+
+  /**
+   * 
+   * @param string $Fqcn
+   * @return string The route for the fqcn
+   */
+  public function getRoute( $Fqcn );
+
+  /**
+   * Whether this Route is protected from public access
+   * @param string $Route
+   * @return bool
+   */
+  public function isProtected( $Route );
 
   /**
    * 
