@@ -21,11 +21,34 @@ interface Router
   public function getCurrentRoute();
 
   /**
+   * @param string $Route
+   */
+  public function setDefaultRoute( $Route );
+
+  /**
+   * @return string
+   */
+  public function getDefaultRoute();
+
+  /**
    * 
    * @param string $Route
    * @return string The Fqcn of the Controller
    */
   public function getFqcn( $Route );
+
+  /**
+   * 
+   * @param string $Route
+   * @param string $ControllerFqcn
+   */
+  function addRoute( $Route, $ControllerFqcn );
+
+  /**
+   * 
+   * @param string $Route
+   */
+  function addProtectedRoute( $Route );
 
   /**
    * 
@@ -43,16 +66,16 @@ interface Router
 
   /**
    * 
-   * @param string $ControllerFqcn
+   * @param string $Route
    * @param array $args
    * @return string A valid Link conformant to this factory
    */
-  public function getLink( $ControllerFqcn, $args = array () );
+  public function getLink( $Route, $args = array () );
 
   /**
    * Will immediately redirect to another Page
-   * @param string $ControllerFqcn
+   * @param string $Route
    * @param array $args
    */
-  public function redirect( $ControllerFqcn, $args = array () );
+  public function redirect( $Route, $args = array () );
 }
