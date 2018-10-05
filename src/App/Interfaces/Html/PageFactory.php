@@ -7,7 +7,7 @@ namespace Qck\App\Interfaces\Html;
  * 
  * @author muellerm
  */
-interface PageFactory
+interface PageGuard
 {
 
   /**
@@ -16,6 +16,5 @@ interface PageFactory
    * @param mixed $BodyTemplateOrText
    * @return Page
    */
-  function create( $Title, $BodyTemplateOrText,
-                   \Qck\App\Interfaces\LanguageProvider $LanguageProvider = null );
+  function getPage( $Title, $BodyTemplateOrText );
 }

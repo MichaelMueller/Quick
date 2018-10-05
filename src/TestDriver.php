@@ -21,8 +21,8 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
   {
     $ExitCode = $this->runInternal( $ServiceRepo );
     /* @var $ResponseFactory Qck\App\Interfaces\ResponseFactory */
-    $ResponseFactory = $ServiceRepo->get( \Qck\App\Interfaces\ResponseFactory::class );
-    return $ResponseFactory->create( null, $ExitCode );
+    $ResponseFactory = $ServiceRepo->get( \Qck\App\Interfaces\ResponseGuard::class );
+    return $ResponseFactory->getResponse( null, $ExitCode );
   }
 
   public function exec()

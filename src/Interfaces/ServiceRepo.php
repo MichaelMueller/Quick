@@ -34,11 +34,28 @@ interface ServiceRepo
    * get a service
    * @param string $Fqin the fully qualified interface name
    * @param string $Fqcn an optional ClassName if a specific instance is requested the function throws an exception   
-   * @throws \InvalidArgumentException if no instance could be found and $ThrowIfNotFound is true
+   * @throws \InvalidArgumentException if no instance could be found 
    * @return mixed a class implementing the requested interface, possibly matching $Fqcn or null
    */
   function get( $Fqin, $Fqcn = null );
 
+  /**
+   * create a class based on an interface if a factory can be found
+   * @param string $Fqin the fully qualified interface name
+   * @param string $Fqcn an optional ClassName if a specific instance is requested the function throws an exception   
+   * @return mixed a class implementing the requested interface, possibly matching $Fqcn or null
+   */
+  function createOptional( $Fqin, $Fqcn = null );
+  
+  /**
+   * create a class based on an interface if a factory can be found
+   * @param string $Fqin the fully qualified interface name
+   * @param string $Fqcn an optional ClassName if a specific instance is requested the function throws an exception   
+   * @throws \InvalidArgumentException if no instance could be found
+   * @return mixed a class implementing the requested interface, possibly matching $Fqcn
+   */
+  function create( $Fqin, $Fqcn = null );
+  
   /**
    * 
    * @param string $Fqin

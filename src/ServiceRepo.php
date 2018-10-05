@@ -48,31 +48,28 @@ class ServiceRepo implements Interfaces\ServiceRepo
    */
   public function getOptional( $Fqin, $Fqcn = null )
   {
-    if ( is_null( $Fqcn ) && isset( $this->LatestServices[ $Fqin ] ) )
-    {
-      $Fqcn = $this->LatestServices[ $Fqin ];
-      return $this->getOptional( $Fqin, $Fqcn );
-    }
-    else if ( isset( $this->Services[ $Fqin ][ $Fqcn ] ) )
-    {
-      $InstanceOrFactory = $this->Services[ $Fqin ][ $Fqcn ];
-      if ( is_callable( $InstanceOrFactory ) )
-      {
-        $InstanceOrFactory = call_user_func( $InstanceOrFactory );
-        if ( $InstanceOrFactory !== null )
-          $this->Services[ $Fqin ][ $Fqcn ] = $InstanceOrFactory;
-      }
-      return $InstanceOrFactory;
-    }
-    return null;
+    return $this->getOrCreate( $Fqin, $Fqcn, false );
   }
 
   function get( $Fqin, $Fqcn = null )
   {
     $Service = $this->getOptional( $Fqin, $Fqcn );
     if ( is_null( $Service ) )
-      throw new \InvalidArgumentException( sprintf( "Could not locate a Service Instance for interface %s (requested class: %s)", $Fqin, $Fqcn ? $Fqcn : "unspecified"  ) );
+      throw new \InvalidArgumentException( sprintf( "Could not locate an Instance for interface %s (requested class: %s)", $Fqin, $Fqcn ? $Fqcn : "unspecified"  ) );
     return $Service;
+  }
+
+  public function create( $Fqin, $Fqcn = null )
+  {
+    $Service = $this->createOptional( $Fqin, $Fqcn );
+    if ( is_null( $Service ) )
+      throw new \InvalidArgumentException( sprintf( "Could not create an Instance for interface %s (requested class: %s)", $Fqin, $Fqcn ? $Fqcn : "unspecified"  ) );
+    return $Service;
+  }
+
+  public function createOptional( $Fqin, $Fqcn = null )
+  {
+    return $this->getOrCreate( $Fqin, $Fqcn, true );
   }
 
   function getAll( $Fqin )
@@ -105,6 +102,27 @@ class ServiceRepo implements Interfaces\ServiceRepo
     }
   }
 
+  protected function getOrCreate( $Fqin, $Fqcn = null, $create = false )
+  {
+    if ( is_null( $Fqcn ) && isset( $this->LatestServices[ $Fqin ] ) )
+    {
+      $Fqcn = $this->LatestServices[ $Fqin ];
+      return $this->getOrCreate( $Fqin, $Fqcn, $create );
+    }
+    else if ( isset( $this->Services[ $Fqin ][ $Fqcn ] ) )
+    {
+      if ( $create == false && isset( $this->Instances[ $Fqin ][ $Fqcn ] ) )
+        return $this->Instances[ $Fqin ][ $Fqcn ];
+
+      $Factory = $this->Services[ $Fqin ][ $Fqcn ];
+      $Instance = call_user_func( $Factory );
+      if ( $Instance !== null )
+        $this->Instances[ $Fqin ][ $Fqcn ] = $Instance;
+      return $Instance;
+    }
+    return null;
+  }
+
   /**
    * the only singelton in the world
    */
@@ -124,6 +142,12 @@ class ServiceRepo implements Interfaces\ServiceRepo
    * @var array
    */
   protected $Services = [];
+
+  /**
+   *
+   * @var array
+   */
+  protected $Instances = [];
 
   /**
    *

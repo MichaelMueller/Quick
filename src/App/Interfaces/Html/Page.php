@@ -27,4 +27,10 @@ interface Page extends \Qck\App\Interfaces\Output, Template
    */
   function addJavaScript( $src, $integrity = null, $crossOrigin = null,
                           $PlaceBeforeBodyEndTag = true );
+
+  /**
+   * sets a language provider
+   * @param \Qck\App\Interfaces\LanguageProvider $LanguageProvider
+   */
+  function setLanguageProvider( \Qck\App\Interfaces\LanguageProvider $LanguageProvider );
 }
