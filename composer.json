@@ -1,7 +1,7 @@
 {
   "name": "michaelmueller/quick",
   "type": "library",
-  "description": "A SOA framework for PHP",
+  "description": "An application framework for PHP",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -11,8 +11,7 @@
   ],
   "require": {
     "php": ">=5.6",
-    "monolog/monolog": "~1.23.0",
-    "willdurand/negotiation": "^2.3"
+    "michaelmueller/quick": "dev-master"
   },
   "require-dev": {
   },
