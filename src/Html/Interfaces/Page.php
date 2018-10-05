@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\App\Interfaces\Html;
+namespace Qck\Html\Interfaces;
 
 /**
  * An interface for an object that can be rendered to HTML
@@ -28,6 +28,12 @@ interface Page extends \Qck\App\Interfaces\Output, Template
   function addJavaScript( $src, $integrity = null, $crossOrigin = null,
                           $PlaceBeforeBodyEndTag = true );
 
+  /**
+   * 
+   * @param string $Title
+   */
+  function setTitle($Title);
+  
   /**
    * sets a language provider
    * @param \Qck\App\Interfaces\LanguageProvider $LanguageProvider

@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\App\Interfaces\Html;
+namespace Qck\Html\Interfaces;
 
 /**
  * An interface for an object that can be rendered to HTML
@@ -14,7 +14,7 @@ interface PageGuard
    * 
    * @param string $Title
    * @param mixed $BodyTemplateOrText
-   * @return Page
+   * @return \Qck\Html\Interfaces\Page
    */
-  function getPage( $Title, $BodyTemplateOrText );
+  function getPage( $BodyTemplateOrText );
 }
