@@ -1,4 +1,4 @@
-{
+  {
   "name": "michaelmueller/quick",
   "type": "library",
   "description": "An application framework for PHP",
@@ -11,17 +11,13 @@
   ],
   "require": {
     "php": ">=5.6",
-    "michaelmueller/quick": "dev-master"
-  },
-  "require-dev": {
+    "michaelmueller/quickinterfaces": "dev-master",
+    "sinergi/browser-detector": "~6.1.2"
   },
   "autoload": {
     "psr-4": {
       "Qck\\": "src"
-    },
-    "files": [
-      "src/quick_autoload.php"
-    ]
+    }
   },
   "bin": ["src/run_tests.php"]
 }
