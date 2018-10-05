@@ -2,14 +2,14 @@
 
 namespace Qck;
 
-use Qck\App\Interfaces\Response;
+use Qck\Interfaces\Response;
 
 /**
  * Description of HelloWorldController
  *
  * @author muellerm
  */
-class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Controller
+class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\Interfaces\Controller
 {
 
   function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
@@ -20,8 +20,8 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
   public function run( \Qck\Interfaces\ServiceRepo $ServiceRepo )
   {
     $ExitCode = $this->runInternal( $ServiceRepo );
-    /* @var $ResponseFactory Qck\App\Interfaces\ResponseFactory */
-    $ResponseFactory = $ServiceRepo->get( \Qck\App\Interfaces\ResponseGuard::class );
+    /* @var $ResponseFactory Qck\Interfaces\ResponseFactory */
+    $ResponseFactory = $ServiceRepo->get( \Qck\Interfaces\ResponseGuard::class );
     return $ResponseFactory->getResponse( null, $ExitCode );
   }
 
@@ -44,7 +44,7 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\App\Interfaces\Cont
   {
     $ExitCode = Response::EXIT_CODE_OK;
     // Check if we have a specific testsuite
-    /* @var $Request \Qck\App\Interfaces\Request */
+    /* @var $Request \Qck\Interfaces\Request */
     $Request = $ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
     if ( $Request && !$Request->isCli() )
       print "<html><head><title>" . self::class . "</title></head><body><pre>";
