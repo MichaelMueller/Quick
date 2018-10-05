@@ -10,10 +10,11 @@ namespace Qck;
 class AppConfigFactory implements \Qck\Interfaces\AppConfigFactory
 {
 
-  function __construct( $AppConfigFqcn, $LocalConfigPath )
+  function __construct( $DefaultAppConfigFqcn, $WorkingDir, Env $Env )
   {
-    $this->AppConfigFqcn = $AppConfigFqcn;
-    $this->LocalConfigPath = $LocalConfigPath;
+    $this->DefaultAppConfigFqcn = $DefaultAppConfigFqcn;
+    $this->WorkingDir = $WorkingDir;
+    $this->Env = $Env;
   }
 
   /**
@@ -22,27 +23,33 @@ class AppConfigFactory implements \Qck\Interfaces\AppConfigFactory
    */
   public function create()
   {
-    $LocalConfigName = $this->LocalConfigPath . "/AppConfig.php";
+    $LocalConfigName = $this->WorkingDir . $this->Env . "/AppConfig.php";
     if ( file_exists( $LocalConfigName ) )
     {
       require_once $LocalConfigName;
       return new \AppConfig();
     }
     else
-      return new $this->AppConfigFqcn();
+      return new $this->DefaultAppConfigFqcn();
   }
 
   /**
    *
    * @var string
    */
-  protected $AppConfigFqcn;
+  protected $DefaultAppConfigFqcn;
 
   /**
    *
    * @var string
    */
-  protected $LocalConfigPath;
+  protected $WorkingDir;
+  
+  /**
+   *
+   * @var string
+   */
+  protected $LocalConfigClassName="AppConfig";
 
   /**
    *
