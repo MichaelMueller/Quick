@@ -7,7 +7,7 @@ namespace Qck\Html\Interfaces;
  * 
  * @author muellerm
  */
-interface LoginFormGuard
+interface LoginFormBroker
 {
 
   /**

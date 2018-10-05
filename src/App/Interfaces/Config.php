@@ -20,8 +20,4 @@ interface Config
    */
   function getWorkingDir( $createIfNotExists = true );
 
-  /**
-   * @return string
-   */
-  function getHostName();
 }

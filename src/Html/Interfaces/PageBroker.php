@@ -7,7 +7,7 @@ namespace Qck\Html\Interfaces;
  * 
  * @author muellerm
  */
-interface PageGuard
+interface PageBroker
 {
 
   /**
