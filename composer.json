@@ -21,7 +21,7 @@
       "Qck\\": "src"
     },
     "files": [
-      "src/autoload.php"
+      "src/quick_autoload.php"
     ]
   },
   "bin": ["src/run_tests.php"]
