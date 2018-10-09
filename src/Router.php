@@ -15,23 +15,17 @@ class Router implements \Qck\Interfaces\Router
   function __construct( \Qck\Interfaces\Request $Request )
   {
     $this->Request = $Request;
-
-    $this->DefaultQuery = \Qck\Interfaces\Router::DEFAULT_ROUTE;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
+
   function addRoute( $Route, $ControllerFqcn )
   {
     $this->ControllerFqcns[ $Route ] = $ControllerFqcn;
   }
+
   function addProtectedRoute( $Route )
   {
-    $this->ProtectedRoutes[ $Route ] = $Route;
-  }
-  
-  
-  function addController( $Query, $ControllerFqcn )
-  {
-    $this->ControllerFqcns[ $Query ] = $ControllerFqcn;
+    $this->ProtectedRoutes[] = $Route;
   }
 
   function setQueryKey( $QueryKey )
@@ -39,44 +33,9 @@ class Router implements \Qck\Interfaces\Router
     $this->QueryKey = $QueryKey;
   }
 
-  function getDefaultQuery()
+  public function getLink( $Route, $args = array () )
   {
-    return $this->DefaultQuery;
-  }
-
-  function setDefaultQuery( $DefaultQuery )
-  {
-    $this->DefaultQuery = $DefaultQuery;
-  }
-
-  public function getController()
-  {
-    static $controller = null;
-    if ( is_null( $controller ) )
-    {
-      $fqcn = $this->getCurrentControllerFqcn();
-      if ( $fqcn )
-        $controller = new $fqcn;
-    }
-    return $controller;
-  }
-
-  public function getCurrentControllerFqcn()
-  {
-    static $controllerFqcn = null;
-    if ( is_null( $controllerFqcn ) )
-    {
-      /* @var $Request Interfaces\Request */
-      $Request = $this->Request;
-      $className = $Request->get( $this->QueryKey, $this->DefaultQuery );
-      $controllerFqcn = isset( $this->ControllerFqcns[ $className ] ) ? $this->ControllerFqcns[ $className ] : null;
-    }
-    return $controllerFqcn;
-  }
-
-  public function getLink( $ControllerFqcn, $args = array () )
-  {
-    $query = $this->getRoute( $ControllerFqcn );
+    $query = $this->getRoute( $Route );
 
     $link = "?" . $this->QueryKey . "=" . $query;
 
@@ -88,9 +47,9 @@ class Router implements \Qck\Interfaces\Router
     return $link;
   }
 
-  public function redirect( $ControllerFqcn, $args = array () )
+  public function redirect( $Route, $args = array () )
   {
-    $Link = $this->getLink( $ControllerFqcn, $args );
+    $Link = $this->getLink( $Route, $args );
     header( "Location: " . $Link );
   }
 
@@ -98,18 +57,8 @@ class Router implements \Qck\Interfaces\Router
   {
     static $CurrentRoute = null;
     if ( !$CurrentRoute )
-      $CurrentRoute = $this->Request->get( $this->QueryKey, $this->DefaultQuery );
+      $CurrentRoute = $this->Request->get( $this->QueryKey, null );
     return $CurrentRoute;
-  }
-
-  public function setDefaultRoute( $DefaultRoute = self::DEFAULT_ROUTE )
-  {
-    $this->DefaultQuery = $DefaultRoute;
-  }
-
-  public function setRouteKey( $RouteKey )
-  {
-    $this->QueryKey = $RouteKey;
   }
 
   public function getFqcn( $Route )
@@ -143,13 +92,13 @@ class Router implements \Qck\Interfaces\Router
    *
    * @var array 
    */
-  protected $Routes=[];
+  protected $Routes = [];
 
   /**
    *
    * @var array
    */
-  protected $ProtectedRoutes=[];
+  protected $ProtectedRoutes = [];
 
   /**
    *

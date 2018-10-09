@@ -40,9 +40,13 @@ class Request implements \Qck\Interfaces\Request
     {
       $match = [];
       if ( preg_match( '/^--([^=]+)=(.*)/', $argv[ $i ], $match ) )
+      {
         $Params[ $match[ 1 ] ] = $match[ 2 ];
+      }
       else if ( preg_match( '/^-([^=]+)=(.*)/', $argv[ $i ], $match ) )
+      { 
         $Params[ $match[ 1 ] ] = $match[ 2 ];
+      }
       else
       {
         $Params[ $pos ] = $argv[ $i ];
