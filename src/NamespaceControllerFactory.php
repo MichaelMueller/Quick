@@ -10,6 +10,11 @@ namespace Qck;
 class NamespaceControllerFactory implements Interfaces\ControllerFactory
 {
 
+  function __construct( $DefaultControllerClassName )
+  {
+    $this->DefaultControllerClassName = $DefaultControllerClassName;
+  }
+
   function addControllerNamespace( $ControllerNamespace )
   {
     $this->ControllerNamespaces[] = $ControllerNamespace;
@@ -17,6 +22,7 @@ class NamespaceControllerFactory implements Interfaces\ControllerFactory
 
   public function create( $Route )
   {
+    $Route = $Route ? $Route : $this->DefaultControllerClassName;
     $Route = $this->MakeFirstCharacterUpperCase ? ucfirst( $Route ) : $Route;
     foreach ( $this->ControllerNamespaces as $ControllerNamespace )
     {
@@ -34,5 +40,6 @@ class NamespaceControllerFactory implements Interfaces\ControllerFactory
 
   protected $MakeFirstCharacterUpperCase = false;
   protected $ControllerNamespaces = [];
+  protected $DefaultControllerClassName;
 
 }

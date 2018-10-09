@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Response implements \Qck\Interfaces\Response, Interfaces\ResponseGuard
+class Response implements \Qck\Interfaces\Response
 {
 
   function getExitCode()
@@ -19,12 +19,11 @@ class Response implements \Qck\Interfaces\Response, Interfaces\ResponseGuard
     return $this->Output;
   }
 
-  public function getResponse( \Qck\Interfaces\Output $Output = null,
+  public function __construct( \Qck\Interfaces\Output $Output = null,
                                $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
   {
     $this->ExitCode = $ExitCode;
     $this->Output = $Output;
-    return $this;
   }
 
   /**

@@ -18,16 +18,6 @@ class Router implements \Qck\Interfaces\Router
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
 
-  function addRoute( $Route, $ControllerFqcn )
-  {
-    $this->ControllerFqcns[ $Route ] = $ControllerFqcn;
-  }
-
-  function addProtectedRoute( $Route )
-  {
-    $this->ProtectedRoutes[] = $Route;
-  }
-
   function setQueryKey( $QueryKey )
   {
     $this->QueryKey = $QueryKey;
@@ -61,50 +51,11 @@ class Router implements \Qck\Interfaces\Router
     return $CurrentRoute;
   }
 
-  public function getFqcn( $Route )
-  {
-    return isset( $this->Routes[ $Route ] ) ? $this->Routes[ $Route ] : null;
-  }
-
-  public function isProtected( $Route )
-  {
-    return in_array( $Route, $this->ProtectedRoutes );
-  }
-
-  public function getRoute( $Fqcn )
-  {
-    $key = array_search( $Fqcn, $this->Routes );
-    return $key !== false ? $key : null;
-  }
-
-  public function getDefaultRoute()
-  {
-    return $this->DefaultQuery;
-  }
-
   /**
    *
    * @var \Qck\Interfaces\Request
    */
   protected $Request;
-
-  /**
-   *
-   * @var array 
-   */
-  protected $Routes = [];
-
-  /**
-   *
-   * @var array
-   */
-  protected $ProtectedRoutes = [];
-
-  /**
-   *
-   * @var array 
-   */
-  protected $ControllerFqcns;
 
   /**
    *
