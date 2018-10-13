@@ -46,7 +46,7 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\Interfaces\Controll
     // Check if we have a specific testsuite
     /* @var $Request \Qck\Interfaces\Request */
     $Request = $ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
-    if ( $Request && !$Request->isCli() )
+    if ( $Request && !$Request->wasRunFromCommandLine() )
       print "<html><head><title>" . self::class . "</title></head><body><pre>";
 
     $TestsRun = array ();
@@ -73,7 +73,7 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\Interfaces\Controll
       $Text = count( $TestsFailed ) . " tests failed!";
     $this->msg( "******** RESULTS: " . count( $TestsRun ) . " tests run. " . $Text . " ********" );
 
-    if ( $Request && !$Request->isCli() )
+    if ( $Request && !$Request->wasRunFromCommandLine() )
       print "</pre></body></html>";
     /* @var $Cleaner \Qck\Interfaces\Cleaner */
     $Cleaner = $ServiceRepo->getOptional( \Qck\Interfaces\Cleaner::class );

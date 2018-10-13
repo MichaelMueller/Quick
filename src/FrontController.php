@@ -7,10 +7,10 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class App implements \Qck\Interfaces\App
+class FrontController implements \Qck\Interfaces\Controller
 {
 
-  function run( \Qck\Interfaces\AppConfig $Config )
+  function handle( \Qck\Interfaces\Request $Request )
   {
     error_reporting( E_ALL );
     ini_set( 'log_errors', 1 );
@@ -18,9 +18,9 @@ class App implements \Qck\Interfaces\App
 
     try
     {
-      $Request = $Config->getRequest();
+      $Config = $Request->getConfig();
 
-      if ( $Request->isCli() )
+      if ( $Request->wasRunFromCommandLine() )
       {
         ini_set( 'display_errors', 1 );
         ini_set( 'log_errors', 0 );
@@ -59,14 +59,14 @@ class App implements \Qck\Interfaces\App
   }
 
   protected function handleController( \Qck\Interfaces\Controller $Controller,
-                                       Interfaces\AppConfig $Config )
+                                       Interfaces\Config $Config )
   {
     $Response = $Controller->run( $Config );
     $Output = $Response->getOutput();
     if ( $Output !== null )
     {
       $Request = $Config->getRequest();
-      if ( $Request->isCli() == false )
+      if ( $Request->wasRunFromCommandLine() == false )
       {
         http_response_code( $Response->getExitCode() );
         header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
