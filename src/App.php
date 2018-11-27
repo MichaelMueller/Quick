@@ -24,7 +24,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
    * @return Interfaces\ControllerFactory
    */
   abstract function getRequest();
-  
+
   /**
    * @return string
    */
@@ -33,7 +33,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   /**
    * @return Interfaces\Mail\AdminMailer
    */
-  protected function getAdminMailer()
+  function getAdminMailer()
   {
     return null;
   }
@@ -41,7 +41,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   /**
    * @return Interfaces\ErrorController
    */
-  protected function getErrorController()
+  function getErrorController()
   {
     return null;
   }
@@ -49,7 +49,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   /**
    * @return Interfaces\Mail\AdminMailer
    */
-  protected function getHostName()
+  function getHostName()
   {
     if (!$this->HostName)
       $this->HostName = gethostname();
@@ -63,7 +63,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
       // basic error reporting
       error_reporting(E_ALL);
       ini_set('log_errors', 1);
-      ini_set('display_errors', 0);
+      ini_set('display_errors', 1);
       set_error_handler(array($this, "exceptionErrorHandler"));
 
       // reset if issued from cli
