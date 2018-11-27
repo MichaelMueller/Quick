@@ -10,36 +10,36 @@ namespace Qck;
 class NamespaceControllerFactory implements Interfaces\ControllerFactory
 {
 
-  function __construct( $DefaultControllerClassName )
+  function __construct($DefaultControllerClassName)
   {
     $this->DefaultControllerClassName = $DefaultControllerClassName;
   }
 
-  function addControllerNamespace( $ControllerNamespace )
+  function addControllerNamespace($ControllerNamespace)
   {
     $this->ControllerNamespaces[] = $ControllerNamespace;
   }
 
-  public function create( $Route )
+  public function create($Route)
   {
-    $Route = $Route ? $Route : $this->DefaultControllerClassName;
-    $Route = $this->MakeFirstCharacterUpperCase ? ucfirst( $Route ) : $Route;
-    foreach ( $this->ControllerNamespaces as $ControllerNamespace )
+    $CurrentRoute = $Route ? $Route : $this->DefaultControllerClassName;
+    $CurrentRoute = $this->MakeFirstCharacterUpperCase ? ucfirst($CurrentRoute) : $CurrentRoute;
+    foreach ($this->ControllerNamespaces as $ControllerNamespace)
     {
-      $Fqcn = $ControllerNamespace . "\\" . $Route;
-      if ( class_exists( $Fqcn, true ) )
+      $Fqcn = $ControllerNamespace . "\\" . $CurrentRoute;
+      if (class_exists($Fqcn, true))
         return new $Fqcn;
     }
     return null;
   }
 
-  function setMakeFirstCharacterUpperCase( $MakeFirstCharacterUpperCase )
+  function setMakeFirstCharacterUpperCase($MakeFirstCharacterUpperCase)
   {
     $this->MakeFirstCharacterUpperCase = $MakeFirstCharacterUpperCase;
   }
 
   protected $MakeFirstCharacterUpperCase = false;
-  protected $ControllerNamespaces = [];
+  protected $ControllerNamespaces        = [];
   protected $DefaultControllerClassName;
 
 }

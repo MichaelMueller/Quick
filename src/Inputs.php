@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Request implements \Qck\Interfaces\Request
+class Request implements \Qck\Interfaces\Inputs
 {
 
   function __construct( $OverwriteParams = null )
