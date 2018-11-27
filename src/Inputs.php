@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Request implements \Qck\Interfaces\Inputs
+class Inputs implements \Qck\Interfaces\Inputs
 {
 
   function __construct( $OverwriteParams = null )
@@ -17,11 +17,6 @@ class Request implements \Qck\Interfaces\Inputs
   function setOverwriteParams( $OverwriteParams )
   {
     $this->OverwriteParams = $OverwriteParams;
-  }
-
-  function wasRunFromCommandLine()
-  {
-    return isset( $_SERVER[ 'argc' ] );
   }
 
   public function get( $Name, $Default = null )

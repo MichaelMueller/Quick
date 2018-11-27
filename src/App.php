@@ -21,9 +21,9 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   abstract function getControllerFactory();
 
   /**
-   * @return Interfaces\ControllerFactory
+   * @return Interfaces\Inputs
    */
-  abstract function getRequest();
+  abstract function getInputs();
 
   /**
    * @return string
@@ -47,11 +47,31 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   }
 
   /**
+   * @return Interfaces\DirectoryConfig
+   */
+  function getDirectoryConfig()
+  {
+    return $this->DirectoryConfig;
+  }
+
+  function setDirectoryConfig( Interfaces\DirectoryConfig $DirectoryConfig )
+  {
+    $this->DirectoryConfig = $DirectoryConfig;
+  }
+
+  function wasInvokedFromCli()
+  {
+    if ( !$this->InvokedFromCli )
+      $this->InvokedFromCli = isset( $_SERVER[ 'argc' ] );
+    return $this->InvokedFromCli;
+  }
+
+  /**
    * @return Interfaces\Mail\AdminMailer
    */
   function getHostName()
   {
-    if (!$this->HostName)
+    if ( !$this->HostName )
       $this->HostName = gethostname();
     return $this->HostName;
   }
@@ -61,48 +81,48 @@ abstract class App implements Interfaces\App, Interfaces\Functor
     try
     {
       // basic error reporting
-      error_reporting(E_ALL);
-      ini_set('log_errors', 1);
-      ini_set('display_errors', 1);
-      set_error_handler(array($this, "exceptionErrorHandler"));
+      error_reporting( E_ALL );
+      ini_set( 'log_errors', 1 );
+      ini_set( 'display_errors', 1 );
+      set_error_handler( array ( $this, "exceptionErrorHandler" ) );
 
       // reset if issued from cli
-      if ($this->getRequest()->wasRunFromCommandLine())
+      if ( $this->wasInvokedFromCli() )
       {
-        ini_set('display_errors', 1);
-        ini_set('log_errors', 0);
+        ini_set( 'display_errors', 1 );
+        ini_set( 'log_errors', 0 );
       }
 
       // get controller for current route
       $CurrentRoute = $this->getRouter()->getCurrentRoute();
-      $Controller   = $this->getControllerFactory()->create($CurrentRoute);
+      $Controller   = $this->getControllerFactory()->create( $CurrentRoute );
 
       // throw a good error message if controller is not found
-      if (!$Controller)
+      if ( !$Controller )
       {
-        $Error = sprintf("Controller for Route %s not found. Please check route definitions.", $CurrentRoute);
-        throw new \Exception($Error, Interfaces\Response::EXIT_CODE_NOT_FOUND);
+        $Error = sprintf( "Controller for Route %s not found. Please check route definitions.", $CurrentRoute );
+        throw new \Exception( $Error, Interfaces\Response::EXIT_CODE_NOT_FOUND );
       }
 
-      $this->handleController($Controller);
+      $this->handleController( $Controller );
     }
-    catch (\Exception $exc)
+    catch ( \Exception $exc )
     {
       /* @var $exc \Exception */
-      $ErrText = strval($exc);
+      $ErrText = strval( $exc );
 
       // First step to handle the error: Mail it (if configured)
       $AdminMailer = $this->getAdminMailer();
-      if ($AdminMailer)
-        $AdminMailer->sendToAdmin("Error for App " . $this->getAppName() . " on " . $this->getHostName(), $ErrText);
+      if ( $AdminMailer )
+        $AdminMailer->sendToAdmin( "Error for App " . $this->getAppName() . " on " . $this->getHostName(), $ErrText );
 
       // second: try use the error controller
       /* @var $ErrorController \Qck\Interfaces\Controller */
       $ErrorController = $this->getErrorController();
-      if ($ErrorController)
+      if ( $ErrorController )
       {
-        $ErrorController->setErrorCode($exc->getCode());
-        $this->handleController($ErrorController);
+        $ErrorController->setErrorCode( $exc->getCode() );
+        $this->handleController( $ErrorController );
       }
       // third: let php decide
       else
@@ -112,30 +132,37 @@ abstract class App implements Interfaces\App, Interfaces\Functor
     }
   }
 
-  function exceptionErrorHandler($errno, $errstr, $errfile, $errline)
+  function exceptionErrorHandler( $errno, $errstr, $errfile, $errline )
   {
-    throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+    throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
   }
 
-  protected function handleController(\Qck\Interfaces\Controller $Controller)
+  protected function handleController( \Qck\Interfaces\Controller $Controller )
   {
-    $Response = $Controller->run($this);
+    $Response = $Controller->run( $this );
     $Output   = $Response->getOutput();
-    if ($Output !== null)
+    if ( $Output !== null )
     {
-      $Request = $this->getRequest();
-      if ($Request->wasRunFromCommandLine() == false)
+      $Inputs = $this->getInputs();
+      if ( $this->wasInvokedFromCli() == false )
       {
-        http_response_code($Response->getExitCode());
-        header(sprintf("Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset()));
-        foreach ($Output->getAdditionalHeaders() as $header)
-          header($header);
+        http_response_code( $Response->getExitCode() );
+        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
+        foreach ( $Output->getAdditionalHeaders() as $header )
+          header( $header );
       }
       echo $Output->render();
     }
-    exit($Response->getExitCode());
+    exit( $Response->getExitCode() );
   }
 
   protected $HostName;
+  protected $InvokedFromCli;
+
+  /**
+   *
+   * @var Interfaces\DirectoryConfig
+   */
+  protected $DirectoryConfig;
 
 }
