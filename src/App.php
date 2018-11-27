@@ -76,23 +76,36 @@ abstract class App implements Interfaces\App, Interfaces\Functor
     return $this->HostName;
   }
 
+  function getShowErrors()
+  {
+    return $this->ShowErrors;
+  }
+
+  function setShowErrors( $ShowErrors )
+  {
+    $this->ShowErrors = $ShowErrors;
+  }
+
   function run()
   {
     try
     {
       // basic error reporting
       error_reporting( E_ALL );
-      ini_set( 'log_errors', 1 );
-      ini_set( 'display_errors', 1 );
-      set_error_handler( array ( $this, "exceptionErrorHandler" ) );
 
       // reset if issued from cli
-      if ( $this->wasInvokedFromCli() )
+      if ( $this->ShowErrors || $this->wasInvokedFromCli() )
       {
         ini_set( 'display_errors', 1 );
         ini_set( 'log_errors', 0 );
       }
+      else
+      {
+        ini_set( 'log_errors', 1 );
+        ini_set( 'display_errors', 1 );
+      }
 
+      set_error_handler( array ( $this, "exceptionErrorHandler" ) );
       // get controller for current route
       $CurrentRoute = $this->getRouter()->getCurrentRoute();
       $Controller   = $this->getControllerFactory()->create( $CurrentRoute );
@@ -158,6 +171,7 @@ abstract class App implements Interfaces\App, Interfaces\Functor
 
   protected $HostName;
   protected $InvokedFromCli;
+  protected $ShowErrors = false;
 
   /**
    *

@@ -14,7 +14,7 @@ class Router implements \Qck\Interfaces\Router
 
   function __construct( \Qck\Interfaces\Inputs $Inputs )
   {
-    $this->Inputs = $Inputs;
+    $this->Inputs   = $Inputs;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
 
@@ -47,8 +47,13 @@ class Router implements \Qck\Interfaces\Router
   {
     static $CurrentRoute = null;
     if ( !$CurrentRoute )
-      $CurrentRoute = $this->Inputs->get( $this->QueryKey, null );
+      $CurrentRoute        = $this->Inputs->get( $this->QueryKey, $this->DefaultRoute );
     return $CurrentRoute;
+  }
+
+  function setDefaultRoute( $DefaultRoute )
+  {
+    $this->DefaultRoute = $DefaultRoute;
   }
 
   /**
@@ -67,6 +72,6 @@ class Router implements \Qck\Interfaces\Router
    *
    * @var string
    */
-  protected $DefaultQuery = "Start";
+  protected $DefaultRoute = "Start";
 
 }
