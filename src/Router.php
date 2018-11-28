@@ -12,46 +12,45 @@ class Router implements \Qck\Interfaces\Router
 
   const DEFAULT_QUERY_KEY = "q";
 
-  function __construct( \Qck\Interfaces\Inputs $Inputs )
+  function __construct(\Qck\Interfaces\Inputs $Inputs)
   {
     $this->Inputs   = $Inputs;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
 
-  function setQueryKey( $QueryKey )
+  function setQueryKey($QueryKey)
   {
     $this->QueryKey = $QueryKey;
   }
 
-  public function getLink( $Route, $args = array () )
+  public function getLink($Route, $args = array())
   {
-    $query = $this->getRoute( $Route );
 
-    $link = "?" . $this->QueryKey . "=" . $query;
+    $link = "?" . $this->QueryKey . "=" . $Route;
 
-    if ( is_array( $args ) )
+    if (is_array($args))
     {
-      foreach ( $args as $key => $value )
-        $link .= "&" . $key . "=" . (urlencode( $value ));
+      foreach ($args as $key => $value)
+        $link .= "&" . $key . "=" . (urlencode($value));
     }
     return $link;
   }
 
-  public function redirect( $Route, $args = array () )
+  public function redirect($Route, $args = array())
   {
-    $Link = $this->getLink( $Route, $args );
-    header( "Location: " . $Link );
+    $Link = $this->getLink($Route, $args);
+    header("Location: " . $Link);
   }
 
   public function getCurrentRoute()
   {
     static $CurrentRoute = null;
-    if ( !$CurrentRoute )
-      $CurrentRoute        = $this->Inputs->get( $this->QueryKey, $this->DefaultRoute );
+    if (!$CurrentRoute)
+      $CurrentRoute        = $this->Inputs->get($this->QueryKey, $this->DefaultRoute);
     return $CurrentRoute;
   }
 
-  function setDefaultRoute( $DefaultRoute )
+  function setDefaultRoute($DefaultRoute)
   {
     $this->DefaultRoute = $DefaultRoute;
   }
