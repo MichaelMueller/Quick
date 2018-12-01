@@ -7,7 +7,7 @@ namespace Qck;
  * 
  * @author muellerm
  */
-abstract class App implements Interfaces\App, Interfaces\Functor
+abstract class App implements Interfaces\App, Interfaces\Controller
 {
 
   /**
@@ -108,7 +108,8 @@ abstract class App implements Interfaces\App, Interfaces\Functor
       set_error_handler( array ( $this, "exceptionErrorHandler" ) );
       // get controller for current route
       $CurrentRoute = $this->getRouter()->getCurrentRoute();
-      $Controller   = $this->getControllerFactory()->create( $CurrentRoute );
+
+      $Controller = $this->getControllerFactory()->create( $CurrentRoute );
 
       // throw a good error message if controller is not found
       if ( !$Controller )
@@ -116,26 +117,27 @@ abstract class App implements Interfaces\App, Interfaces\Functor
         $Error = sprintf( "Controller for Route %s not found. Please check route definitions.", $CurrentRoute );
         throw new \Exception( $Error, Interfaces\Response::EXIT_CODE_NOT_FOUND );
       }
-
-      $this->handleController( $Controller );
+      if ( $Controller instanceof Interfaces\App )
+        $Controller->setDirectoryConfig( $this->DirectoryConfig );
+      $Controller->run();
     }
     catch ( \Exception $exc )
     {
       /* @var $exc \Exception */
-      $ErrText = strval( $exc );
-
       // First step to handle the error: Mail it (if configured)
       $AdminMailer = $this->getAdminMailer();
       if ( $AdminMailer )
-        $AdminMailer->sendToAdmin( "Error for App " . $this->getAppName() . " on " . $this->getHostName(), $ErrText );
+        $AdminMailer->sendToAdmin( "Error for App " . $this->getAppName() . " on " . $this->getHostName(), strval( $exc ) );
 
       // second: try use the error controller
       /* @var $ErrorController \Qck\Interfaces\Controller */
+      if ( $ErrorController instanceof Interfaces\App )
+        $ErrorController->setDirectoryConfig( $this->DirectoryConfig );
       $ErrorController = $this->getErrorController();
       if ( $ErrorController )
       {
         $ErrorController->setErrorCode( $exc->getCode() );
-        $this->handleController( $ErrorController );
+        $ErrorController->run();
       }
       // third: let php decide
       else
@@ -148,25 +150,6 @@ abstract class App implements Interfaces\App, Interfaces\Functor
   function exceptionErrorHandler( $errno, $errstr, $errfile, $errline )
   {
     throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
-  }
-
-  protected function handleController( \Qck\Interfaces\Controller $Controller )
-  {
-    $Response = $Controller->run( $this );
-    $Output   = $Response->getOutput();
-    if ( $Output !== null )
-    {
-      $Inputs = $this->getInputs();
-      if ( $this->wasInvokedFromCli() == false )
-      {
-        http_response_code( $Response->getExitCode() );
-        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
-        foreach ( $Output->getAdditionalHeaders() as $header )
-          header( $header );
-      }
-      echo $Output->render();
-    }
-    exit( $Response->getExitCode() );
   }
 
   protected $HostName;

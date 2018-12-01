@@ -23,7 +23,24 @@ class Response implements \Qck\Interfaces\Response
                                $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
   {
     $this->ExitCode = $ExitCode;
-    $this->Output = $Output;
+    $this->Output   = $Output;
+  }
+
+  public function send( Interfaces\App $App )
+  {
+    $Output = $this->getOutput();
+    if ( $Output !== null )
+    {
+      if ( $App->wasInvokedFromCli() == false )
+      {
+        http_response_code( $this->getExitCode() );
+        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
+        foreach ( $Output->getAdditionalHeaders() as $header )
+          header( $header );
+      }
+      echo $Output->render();
+    }
+    exit( $this->getExitCode() );
   }
 
   /**
