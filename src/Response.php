@@ -36,7 +36,9 @@ class Response implements \Qck\Interfaces\Response
         http_response_code( $this->getExitCode() );
         header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
         foreach ( $Output->getAdditionalHeaders() as $header )
+        {
           header( $header );
+        }
       }
       echo $Output->render();
     }

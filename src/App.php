@@ -7,7 +7,7 @@ namespace Qck;
  * 
  * @author muellerm
  */
-abstract class App implements Interfaces\App, Interfaces\Controller
+abstract class App implements Interfaces\App, Interfaces\Functor
 {
 
   /**
@@ -119,7 +119,7 @@ abstract class App implements Interfaces\App, Interfaces\Controller
       }
       if ( $Controller instanceof Interfaces\App )
         $Controller->setDirectoryConfig( $this->DirectoryConfig );
-      $Controller->run();
+      $Controller->run($this);
     }
     catch ( \Exception $exc )
     {
@@ -137,7 +137,7 @@ abstract class App implements Interfaces\App, Interfaces\Controller
       if ( $ErrorController )
       {
         $ErrorController->setErrorCode( $exc->getCode() );
-        $ErrorController->run();
+        $ErrorController->run($this);
       }
       // third: let php decide
       else
