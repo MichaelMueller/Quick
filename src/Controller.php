@@ -27,6 +27,11 @@ abstract class Controller implements \Qck\Interfaces\Controller
     return $this->App;
   }
 
+  function redirect($Location)
+  {
+    header("Location: " . $Location);
+  }
+
   /**
    *
    * @var Interfaces\App 

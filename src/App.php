@@ -117,8 +117,6 @@ abstract class App implements Interfaces\App, Interfaces\Functor
         $Error = sprintf( "Controller for Route %s not found. Please check route definitions.", $CurrentRoute );
         throw new \Exception( $Error, Interfaces\Response::EXIT_CODE_NOT_FOUND );
       }
-      if ( $Controller instanceof Interfaces\App )
-        $Controller->setDirectoryConfig( $this->DirectoryConfig );
       $Controller->run($this);
     }
     catch ( \Exception $exc )
@@ -131,8 +129,6 @@ abstract class App implements Interfaces\App, Interfaces\Functor
 
       // second: try use the error controller
       /* @var $ErrorController \Qck\Interfaces\Controller */
-      if ( $ErrorController instanceof Interfaces\App )
-        $ErrorController->setDirectoryConfig( $this->DirectoryConfig );
       $ErrorController = $this->getErrorController();
       if ( $ErrorController )
       {
