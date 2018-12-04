@@ -31,7 +31,7 @@ abstract class Controller implements \Qck\Interfaces\Controller
   {
     header("Location: " . $Location);
   }
-
+  
   /**
    *
    * @var Interfaces\App 

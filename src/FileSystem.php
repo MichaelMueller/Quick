@@ -35,6 +35,22 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     return $FilePath;
   }
 
+  function ls($Dir, $ListType = 0)
+  {
+    $Files      = $this->getAllFiles($Dir, false);
+    $LsContents = [];
+    foreach ($Files as $File)
+    {
+      if ($ListType == 2 && !is_dir($File))
+        continue;
+      else if ($ListType == 1 && !is_file($File))
+        continue;
+      $BaseName     = pathinfo($File, PATHINFO_FILENAME);
+      $LsContents[] = $BaseName;
+    }
+    return $LsContents;
+  }
+
   public function createRandomFile($NamePrefix = null, $Ext = null, $Dir = null)
   {
     $Dir = $Dir ? $Dir : sys_get_temp_dir();
@@ -83,7 +99,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
       $Files[]  = $FilePath;
       if (is_dir($FilePath) && $Recursive)
       {
-        $Files = array_merge($Files, $this->getFiles($FilePath, [], $Recursive));
+        $Files = array_merge($Files, $this->getAllFiles($FilePath, $Recursive));
       }
     }
     closedir($Handle);
@@ -168,6 +184,17 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     copy($path, $newPath);
 
     return true;
+  }
+
+  public function findMatchingHashedName($Dir, $Recursive = true, $HashValue, $Function = "md5")
+  {
+    $Files = $this->getAllFiles($Dir, $Recursive);
+    foreach ($Files as $File)
+    {
+      $Hash = call_user_func($Function, $File);
+      if ($Hash == $HashValue)
+        return $File;
+    }
   }
 
 }
