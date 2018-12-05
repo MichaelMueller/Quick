@@ -22,7 +22,7 @@ class Router implements \Qck\Interfaces\Router
   {
     $ClassName = self::getClassName($Fqcn);
     $Router    = new Router();
-    $Router->addRoute($ClassName, $ClassName);
+    $Router->addRoute($ClassName, $Fqcn);
     $Router->setDefaultRoute($ClassName);
     return $Router;
   }
@@ -36,7 +36,7 @@ class Router implements \Qck\Interfaces\Router
   function addFqcn($Fqcn)
   {
     $ClassName = self::getClassName($Fqcn);
-    $this->addRoute($ClassName, $ClassName);
+    $this->addRoute($ClassName, $Fqcn);
   }
 
   function addRoute($Route, $Fqcn)
