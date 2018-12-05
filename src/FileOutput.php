@@ -1,6 +1,6 @@
 <?php
 
-namespace mbits\labeling\Controller;
+namespace Qck;
 
 /**
  * Description of ProjectDashboard
