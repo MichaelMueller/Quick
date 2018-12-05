@@ -19,8 +19,5 @@
     "psr-4": {
       "Qck\\": "src"
     }
-  },
-  "bin": [
-    "src/run_tests.php"
-  ]
+  }
 }
