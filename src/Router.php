@@ -12,11 +12,31 @@ class Router implements \Qck\Interfaces\Router
 
   const DEFAULT_QUERY_KEY = "q";
 
-  function __construct(\Qck\Interfaces\Inputs $Inputs, array $RouteFqcnMap = [])
+  static function getClassName($Fqcn)
   {
-    $this->Inputs       = $Inputs;
-    $this->QueryKey     = self::DEFAULT_QUERY_KEY;
-    $this->RouteFqcnMap = $RouteFqcnMap;
+    $path = explode('\\', $Fqcn);
+    return array_pop($path);
+  }
+
+  static function createSingleRoute($Fqcn)
+  {
+    $ClassName = self::getClassName($Fqcn);
+    $Router    = new Router();
+    $Router->addRoute($ClassName, $ClassName);
+    $Router->setDefaultRoute($ClassName);
+    return $Router;
+  }
+
+  function __construct(\Qck\Interfaces\Inputs $Inputs = null)
+  {
+    $this->Inputs   = $Inputs;
+    $this->QueryKey = self::DEFAULT_QUERY_KEY;
+  }
+
+  function addFqcn($Fqcn)
+  {
+    $ClassName = self::getClassName($Fqcn);
+    $this->addRoute($ClassName, $ClassName);
   }
 
   function addRoute($Route, $Fqcn)
@@ -52,7 +72,7 @@ class Router implements \Qck\Interfaces\Router
   {
     static $CurrentRoute = null;
     if (!$CurrentRoute)
-      $CurrentRoute        = $this->Inputs->get($this->QueryKey, $this->DefaultRoute);
+      $CurrentRoute        = $this->Inputs ? $this->Inputs->get($this->QueryKey, $this->DefaultRoute) : $this->DefaultRoute;
     return $CurrentRoute;
   }
 
@@ -77,7 +97,7 @@ class Router implements \Qck\Interfaces\Router
    *
    * @var array
    */
-  protected $RouteFqcnMap;
+  protected $RouteFqcnMap = [];
 
   /**
    *
