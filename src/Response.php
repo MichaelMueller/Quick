@@ -26,7 +26,7 @@ class Response implements \Qck\Interfaces\Response
     $this->Output   = $Output;
   }
 
-  public function send( Interfaces\App $App )
+  public function send( Interfaces\AppConfig $App )
   {
     $Output = $this->getOutput();
     if ( $Output !== null )

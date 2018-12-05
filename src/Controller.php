@@ -12,7 +12,7 @@ abstract class Controller implements \Qck\Interfaces\Controller
 
   abstract protected function proxyRun();
 
-  function run(\Qck\Interfaces\App $App)
+  function run(\Qck\Interfaces\AppConfig $App)
   {
     $this->App = $App;
     $this->proxyRun();

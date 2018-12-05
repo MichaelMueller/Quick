@@ -7,7 +7,7 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class DirectoryConfig implements Interfaces\DirectoryConfig
+class DefaultDirectoryConfig implements Interfaces\DirectoryConfig
 {
 
   function __construct( $BaseDir )
