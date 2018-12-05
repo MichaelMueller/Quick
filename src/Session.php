@@ -14,10 +14,10 @@ class Session implements \Qck\Interfaces\Session
   const LAST_LOGIN_KEY = "__LT__";
   const USER_ID_KEY = "__ID__";
 
-  function __construct( \Qck\Interfaces\ClientInfo $ClientInfo, $SessionDir,
+  function __construct( \Qck\Interfaces\Client $Client, $SessionDir,
                         $CheckBrowser, $LoginTtlSecs = 600 )
   {
-    $this->ClientInfo = $ClientInfo;
+    $this->Client = $Client;
     $this->SessionDir = $SessionDir;
     $this->CheckBrowser = $CheckBrowser;
     $this->LoginTtlSecs = $LoginTtlSecs;
@@ -48,14 +48,14 @@ class Session implements \Qck\Interfaces\Session
   {
     // check ip and browser info first
     $filterFlags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-    $ip = $this->ClientInfo->getIp();
+    $ip = $this->Client->getIp();
     $ip = filter_var( $ip, FILTER_VALIDATE_IP, $filterFlags );
     if ( $ip === false )
       throw new \Exception(
       "Cannot start session. Reason: Invalid IP detected. REMOTE_ADDR was: " . $_SERVER[ "REMOTE_ADDR" ], \Qck\Core\Response::CODE_UNAUTHORIZED );
 
-    $browser = $this->ClientInfo->getBrowser();
-    if ( $browser == \Qck\Interfaces\ClientInfo::BROWSER_UNKNOWN && $this->CheckBrowser )
+    $browser = $this->Client->getBrowser();
+    if ( $browser == \Qck\Interfaces\Client::BROWSER_UNKNOWN && $this->CheckBrowser )
     {
       throw new \Exception(
       "Cannot start session. Reason: Invalid Browser detected. HTTP_USER_AGENT was: " . $_SERVER[ "HTTP_USER_AGENT" ], \Qck\Core\Response::CODE_UNAUTHORIZED );
@@ -114,9 +114,9 @@ class Session implements \Qck\Interfaces\Session
 
   /**
    *
-   * @var \Qck\Interfaces\ClientInfo
+   * @var \Qck\Interfaces\Client
    */
-  protected $ClientInfo;
+  protected $Client;
   protected $SessionDir;
   protected $LoginTtlSecs; // 10 minutesx
   protected $CheckBrowser;
