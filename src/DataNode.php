@@ -9,8 +9,29 @@ namespace Qck;
 class DataNode implements Interfaces\Node
 {
 
-  
-  
+  function keys()
+  {
+    return array_keys( $this->Data );
+  }
+
+  function __get( $key )
+  {
+
+    $Value = isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
+    if ( $Value instanceof NodeLoader )
+    {
+      $this->Data[ $key ] = $Value->load();
+      $Value              = $this->Data[ $key ];
+    }
+    return $Value;
+  }
+
+  function __set( $key, $value )
+  {
+    $this->Data[ $key ] = $value;
+    $this->Changed      = true;
+  }
+
   public function hasChanged()
   {
     return $this->Changed;
@@ -18,7 +39,7 @@ class DataNode implements Interfaces\Node
 
   public function setUnchanged()
   {
-    $this->Changed = false;    
+    $this->Changed = false;
   }
 
   function getData()
@@ -26,7 +47,7 @@ class DataNode implements Interfaces\Node
     return $this->Data;
   }
 
-  function setData($Data)
+  function setData( $Data )
   {
     $this->Data    = $Data;
     $this->Changed = true;

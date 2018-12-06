@@ -1,13 +1,13 @@
 <?php
 
-namespace Qck\Ext;
+namespace Qck;
 
 /**
  * Description of Env
  *
  * @author muellerm
  */
-class ClientInfo implements \Qck\Interfaces\ClientInfo
+class Client implements \Qck\Interfaces\Client
 {
 
   function getIp()
@@ -45,16 +45,16 @@ class ClientInfo implements \Qck\Interfaces\ClientInfo
     $browserId = $browser->getName();
 
     if ( $browserId == \Sinergi\BrowserDetector\Browser::UNKNOWN )
-      return \Qck\Interfaces\ClientInfo::BROWSER_UNKNOWN;
+      return \Qck\Interfaces\Client::BROWSER_UNKNOWN;
     else if ( $browserId == \Sinergi\BrowserDetector\Browser::IE )
-      return \Qck\Interfaces\ClientInfo::BROWSER_IE;
+      return \Qck\Interfaces\Client::BROWSER_IE;
     else if ( $browserId == \Sinergi\BrowserDetector\Browser::FIREFOX )
-      return \Qck\Interfaces\ClientInfo::BROWSER_FIREFOX;
+      return \Qck\Interfaces\Client::BROWSER_FIREFOX;
     else if ( $browserId == \Sinergi\BrowserDetector\Browser::CHROME )
-      return \Qck\Interfaces\ClientInfo::BROWSER_CHROME;
+      return \Qck\Interfaces\Client::BROWSER_CHROME;
     else if ( $browserId == \Sinergi\BrowserDetector\Browser::SAFARI )
-      return \Qck\Interfaces\ClientInfo::BROWSER_SAFARI;
+      return \Qck\Interfaces\Client::BROWSER_SAFARI;
     else
-      return \Qck\Interfaces\ClientInfo::BROWSER_KNOWN;
+      return \Qck\Interfaces\Client::BROWSER_KNOWN;
   }
 }

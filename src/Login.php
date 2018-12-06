@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Ext;
+namespace Qck;
 
 /**
  *
@@ -9,27 +9,31 @@ namespace Qck\Ext;
 class Login implements \Qck\Interfaces\Authenticator
 {
 
-  function __construct(\Qck\Interfaces\UserDb $UserDb, \Qck\Interfaces\PasswordHasher $PasswordHasher, \Qck\Interfaces\Session $Session)
+  function __construct( \Qck\Interfaces\UserDb $UserDb,
+                        \Qck\Interfaces\PasswordHasher $PasswordHasher,
+                        \Qck\Interfaces\Session $Session )
   {
     $this->UserDb         = $UserDb;
     $this->PasswordHasher = $PasswordHasher;
     $this->Session        = $Session;
   }
 
-  public function check($Username, $PlainTextPassword)
+  public function check( $Username, $PlainTextPassword )
   {
-    $User = $this->UserDb->getUser($Username);
-    if ($User)
+    $CredentialsOk = false;
+    $User          = $this->UserDb->getUser( $Username );
+
+    if ( $User )
     {
       // Use a custom Authenticator?
       $Authenticator = $User->getAuthenticator();
-      $CredentialsOk = false;
-      if ($Authenticator)
-        $CredentialsOk = $Authenticator->check($Username, $PlainTextPassword);
+
+      if ( $Authenticator )
+        $CredentialsOk = $Authenticator->check( $Username, $PlainTextPassword );
       else
-        $CredentialsOk = $this->PasswordHasher->verify($PlainTextPassword, $User->getHashedPassword());
+        $CredentialsOk = $this->PasswordHasher->verify( $PlainTextPassword, $User->getHashedPassword() );
     }
-    return false;
+    return $CredentialsOk;
   }
 
   /**
