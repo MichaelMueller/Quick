@@ -1,17 +1,17 @@
 <?php
 
-namespace qck\Data2;
+namespace Qck;
 
 /**
  *
  * @author muellerm
  */
-class ObjectList extends Abstracts\Object implements Interfaces\ObjectList
+class NodeList implements Interfaces\NodeList
 {
 
-  public function add( Interfaces\Object $Object )
+  public function add( Interfaces\Node $Node )
   {
-    $this->Data[] = $Object;
+    $this->Data[] = $Node;
     $this->Version++;
   }
 

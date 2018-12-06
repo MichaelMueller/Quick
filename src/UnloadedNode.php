@@ -1,40 +1,56 @@
 <?php
 
-namespace qck\Data2;
+namespace Qck;
 
 /**
  *
  * @author muellerm
  */
-class LazyLoader implements Interfaces\UnloadedObject
+class NodeLoader implements \Qck\Interfaces\NodeLoader
 {
 
-  function __construct( $Fqcn, $Id, Interfaces\Db $Db = null )
+  function __construct($Uuid, $Fqcn, Interfaces\NodeLoader $NodeLoader)
   {
-    $this->Fqcn = $Fqcn;
-    $this->Id = $Id;
-    $this->Db = $Db;
+    $this->Uuid       = $Uuid;
+    $this->Fqcn       = $Fqcn;
+    $this->NodeLoader = $NodeLoader;
   }
 
-  function setDb( Db $Db )
+  function getUuid()
   {
-    $this->Db = $Db;
-  }
-
-  function getId()
-  {
-    return $this->Id;
+    return $this->Uuid;
   }
 
   public function load()
   {
-    return $this->Db->load( $this->Fqcn, $this->Id );
+    return $this->NodeLoader->load($this->Uuid);
   }
 
   public function getFqcn()
   {
     return $this->Fqcn;
   }
+
+  public function getData()
+  {
+    return [];
+  }
+
+  public function setData(array $Data)
+  {
+    
+  }
+
+  public function setUuid($Uuid)
+  {
+    $this->Uuid = $Uuid;
+  }
+
+  /**
+   *
+   * @var string 
+   */
+  protected $Uuid;
 
   /**
    *
@@ -44,14 +60,8 @@ class LazyLoader implements Interfaces\UnloadedObject
 
   /**
    *
-   * @var int 
+   * @var Interfaces\NodeLoader
    */
-  protected $Id;
-
-  /**
-   *
-   * @var Interfaces\Db
-   */
-  protected $Db;
+  protected $NodeLoader;
 
 }
