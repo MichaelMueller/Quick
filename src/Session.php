@@ -10,15 +10,14 @@ namespace Qck;
 class Session implements \Qck\Interfaces\Session
 {
 
-  const FP_KEY = "__FP__";
+  const FP_KEY         = "__FP__";
   const LAST_LOGIN_KEY = "__LT__";
-  const USER_ID_KEY = "__ID__";
+  const USER_ID_KEY    = "__ID__";
 
-  function __construct( \Qck\Interfaces\Client $Client, $SessionDir,
-                        $CheckBrowser, $LoginTtlSecs = 600 )
+  function __construct(\Qck\Interfaces\Client $Client, $SessionDir, $CheckBrowser, $LoginTtlSecs = 600)
   {
-    $this->Client = $Client;
-    $this->SessionDir = $SessionDir;
+    $this->Client       = $Client;
+    $this->SessionDir   = $SessionDir;
     $this->CheckBrowser = $CheckBrowser;
     $this->LoginTtlSecs = $LoginTtlSecs;
   }
@@ -26,14 +25,14 @@ class Session implements \Qck\Interfaces\Session
   public function getUsername()
   {
     $this->start();
-    return isset( $_SESSION[ self::USER_ID_KEY ] ) ? $_SESSION[ self::USER_ID_KEY ] : null;
+    return isset($_SESSION[self::USER_ID_KEY]) ? $_SESSION[self::USER_ID_KEY] : null;
   }
 
-  public function setUsername( $id )
+  public function setUsername($id)
   {
     $this->start();
-    session_regenerate_id( true );
-    $_SESSION[ self::USER_ID_KEY ] = $id;
+    session_regenerate_id(true);
+    $_SESSION[self::USER_ID_KEY] = $id;
   }
 
   function destroySession()
@@ -48,68 +47,68 @@ class Session implements \Qck\Interfaces\Session
   {
     // check ip and browser info first
     $filterFlags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-    $ip = $this->Client->getIp();
-    $ip = filter_var( $ip, FILTER_VALIDATE_IP, $filterFlags );
-    if ( $ip === false )
+    $ip          = $this->Client->getIp();
+    $ip          = filter_var($ip, FILTER_VALIDATE_IP, $filterFlags);
+    if ($ip === false)
       throw new \Exception(
-      "Cannot start session. Reason: Invalid IP detected. REMOTE_ADDR was: " . $_SERVER[ "REMOTE_ADDR" ], \Qck\Core\Response::CODE_UNAUTHORIZED );
+      "Cannot start session. Reason: Invalid IP detected. REMOTE_ADDR was: " . $_SERVER["REMOTE_ADDR"], \Qck\Core\Response::CODE_UNAUTHORIZED);
 
-    $browser = $this->Client->getBrowser();
-    if ( $browser == \Qck\Interfaces\Client::BROWSER_UNKNOWN && $this->CheckBrowser )
+    $browser = $this->Client->getUserAgent();
+    if ($browser == \Qck\Interfaces\Client::BROWSER_UNKNOWN && $this->CheckBrowser)
     {
       throw new \Exception(
-      "Cannot start session. Reason: Invalid Browser detected. HTTP_USER_AGENT was: " . $_SERVER[ "HTTP_USER_AGENT" ], \Qck\Core\Response::CODE_UNAUTHORIZED );
+      "Cannot start session. Reason: Invalid Browser detected. HTTP_USER_AGENT was: " . $_SERVER["HTTP_USER_AGENT"], \Qck\Core\Response::CODE_UNAUTHORIZED);
     }
 
     // Ok, user delivers valid info for starting the session
-    if ( session_id() == "" )
+    if (session_id() == "")
     {
       //session_set_cookie_params( $this->SessionTimeOutSecs );
-      if ( $this->SessionDir )
+      if ($this->SessionDir)
       {
-        if ( !file_exists( $this->SessionDir ) )
+        if (!file_exists($this->SessionDir))
         {
-          mkdir( $this->SessionDir, 0777, true );
+          mkdir($this->SessionDir, 0777, true);
         }
-        session_save_path( $this->SessionDir );
+        session_save_path($this->SessionDir);
       }
       // set session dir
       session_start();
     }
 
     // check if we have a logged in user, otherwise he was waiting at the login
-    if ( isset( $_SESSION[ self::FP_KEY ] ) && isset( $_SESSION[ self::LAST_LOGIN_KEY ] ) && !isset( $_SESSION[ self::LAST_LOGIN_KEY ] ) )
+    if (isset($_SESSION[self::FP_KEY]) && isset($_SESSION[self::LAST_LOGIN_KEY]) && !isset($_SESSION[self::LAST_LOGIN_KEY]))
     {
-      unset( $_SESSION[ self::FP_KEY ] );
-      unset( $_SESSION[ self::LAST_LOGIN_KEY ] );
+      unset($_SESSION[self::FP_KEY]);
+      unset($_SESSION[self::LAST_LOGIN_KEY]);
     }
 
     // now check for changes if we had a session before or a timeout
-    $currFp = md5( $ip . $_SERVER[ "HTTP_USER_AGENT" ] );
-    $prevFp = isset( $_SESSION[ self::FP_KEY ] ) ? $_SESSION[ self::FP_KEY ] : null;
-    if ( $prevFp )
+    $currFp = md5($ip . $_SERVER["HTTP_USER_AGENT"]);
+    $prevFp = isset($_SESSION[self::FP_KEY]) ? $_SESSION[self::FP_KEY] : null;
+    if ($prevFp)
     {
-      if ( $prevFp != $currFp )
+      if ($prevFp != $currFp)
       {
         session_destroy();
-        throw new \Exception( "Cannot start session. Reason: IP changed. Current is $currFp, previous was: $prevFp", 401 );
+        throw new \Exception("Cannot start session. Reason: IP changed. Current is $currFp, previous was: $prevFp", 401);
       }
     }
 
     // check timeout
     $currTime = time();
-    $prevTime = isset( $_SESSION[ self::LAST_LOGIN_KEY ] ) ? $_SESSION[ self::LAST_LOGIN_KEY ] : null;
-    if ( $prevTime )
+    $prevTime = isset($_SESSION[self::LAST_LOGIN_KEY]) ? $_SESSION[self::LAST_LOGIN_KEY] : null;
+    if ($prevTime)
     {
-      if ( $prevTime + $this->LoginTtlSecs < $currTime )
+      if ($prevTime + $this->LoginTtlSecs < $currTime)
       {
         session_destroy();
-        throw new \Exception( "Session timeout", 440 );
+        throw new \Exception("Session timeout", 440);
       }
     }
 
-    $_SESSION[ self::FP_KEY ] = $currFp;
-    $_SESSION[ self::LAST_LOGIN_KEY ] = $currTime;
+    $_SESSION[self::FP_KEY]         = $currFp;
+    $_SESSION[self::LAST_LOGIN_KEY] = $currTime;
   }
 
   /**

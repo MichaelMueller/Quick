@@ -26,12 +26,12 @@ class Response implements \Qck\Interfaces\Response
     $this->Output   = $Output;
   }
 
-  public function send( Interfaces\AppConfig $AppConfig )
+  public function send( $CliUsed )
   {
     $Output = $this->getOutput();
     if ( $Output !== null )
     {
-      if ( $AppConfig->wasInvokedFromCli() == false )
+      if ( $CliUsed == false )
       {
         http_response_code( $this->getExitCode() );
         header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
