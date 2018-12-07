@@ -17,13 +17,10 @@ class DataNode implements Interfaces\Node
   function __get( $key )
   {
 
-    $Value = isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
+    $Value              = $this->Data[ $key ];
     if ( $Value instanceof NodeLoader )
-    {
       $this->Data[ $key ] = $Value->load();
-      $Value              = $this->Data[ $key ];
-    }
-    return $Value;
+    return $this->Data[ $key ];
   }
 
   function __set( $key, $value )
