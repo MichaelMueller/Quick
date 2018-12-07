@@ -69,7 +69,12 @@ class File implements \Qck\Interfaces\File
   {
     $Path = $BasePath . DIRECTORY_SEPARATOR . $FileName;
 
-    return strpos($Path, "\\") !== false ? str_replace("/", "\\", $Path) : str_replace("\\", "/", $Path);  
+    return strpos($Path, "\\") !== false ? str_replace("/", "\\", $Path) : str_replace("\\", "/", $Path);
+  }
+
+  public function getSize()
+  {
+    return filesize($this->getPath());
   }
 
   protected $DirPath;
