@@ -3,7 +3,7 @@
 namespace Qck;
 
 /**
- * Basic App
+ * Basic AppConfig
  *
  * @author muellerm
  */
@@ -12,30 +12,30 @@ abstract class Controller implements \Qck\Interfaces\Controller
 
   abstract protected function proxyRun();
 
-  function run(\Qck\Interfaces\AppConfig $App)
+  function run(\Qck\Interfaces\AppConfig $AppConfig)
   {
-    $this->App = $App;
+    $this->AppConfig = $AppConfig;
     $this->proxyRun();
   }
 
   /**
    * 
-   * @return Interfaces\App
+   * @return Interfaces\AppConfig
    */
-  function getApp()
+  function getAppConfig()
   {
-    return $this->App;
+    return $this->AppConfig;
   }
 
   function redirect($Location)
   {
     header("Location: " . $Location);
   }
-  
+
   /**
    *
-   * @var Interfaces\App 
+   * @var Interfaces\AppConfig 
    */
-  protected $App;
+  protected $AppConfig;
 
 }

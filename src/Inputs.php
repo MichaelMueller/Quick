@@ -9,7 +9,7 @@ namespace Qck;
 class Inputs implements \Qck\Interfaces\Inputs
 {
 
-  function __construct($OverwriteParams = null)
+  function __construct($Params = null)
   {
     $this->Params = $Params;
   }

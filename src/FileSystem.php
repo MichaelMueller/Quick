@@ -32,7 +32,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
   public function createFile($Name, $Dir = null, $DeleteIfExists = false)
   {
     $Dir      = $Dir ? $Dir : ".";
-    $FilePath = $Dir . "/" . $Name;
+    $FilePath = $this->join($Dir, $Name);
     if ($DeleteIfExists && file_exists($FilePath))
       unlink($FilePath);
     $this->assureParentDirExists($FilePath);
@@ -46,7 +46,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     $i   = 0;
     do
     {
-      $FilePath = $Dir . "/" . $NamePrefix . ($i > 0 ? strval($i) : "") . ($Ext ? "." . $Ext : "");
+      $FilePath = $this->join($Dir, $NamePrefix . ($i > 0 ? strval($i) : "") . ($Ext ? "." . $Ext : ""));
       $i++;
     }
     while (file_exists($FilePath));
@@ -65,7 +65,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     if (!is_dir($Dir))
       return [];
     $Files  = [];
-    $TheDir = realpath($Dir);
+    $TheDir = $Dir; //realpath($Dir);
     $Handle = opendir($TheDir);
 
     while (false !== ($FileName = readdir($Handle)))
@@ -78,7 +78,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
         if ($Mode == 0 || $Mode == 2)
           $Files[] = $File;
         if ($Recursive)
-          $Files   = array_merge($Files, $this->getAllFiles($File->getPath(), $Recursive));
+          $Files   = array_merge($Files, $this->getFiles($File->getPath(), $Recursive));
       }
       else
       {
@@ -118,7 +118,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
       {
         if ($object != "." && $object != "..")
         {
-          $CurrentFilePath = $FilePath . "/" . $object;
+          $CurrentFilePath = $this->join($FilePath, $object);
           $this->delete($CurrentFilePath, true);
         }
       }
@@ -150,6 +150,20 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     copy($path, $newPath);
 
     return true;
+  }
+
+  public function writeToFile($FilePath, $Data)
+  {
+    $File = $this->FileFactory->createFileFromPath($FilePath);
+    $this->assureParentDirExists($File->getParentDir());
+    $File->writeContents($Data);
+  }
+
+  public function join($BasePath, $FileName)
+  {
+    $Path = $BasePath . DIRECTORY_SEPARATOR . $FileName;
+
+    return strpos($Path, "\\") !== false ? str_replace("/", "\\", $Path) : str_replace("\\", "/", $Path);
   }
 
   /**
