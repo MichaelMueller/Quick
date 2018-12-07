@@ -10,127 +10,144 @@ namespace Qck;
 class FileSystem implements \Qck\Interfaces\FileSystem
 {
 
-  public function clearFolder( $FilePath )
+  function __construct(Interfaces\FileFactory $FileFactory)
   {
-    $this->deleteInternal( $FilePath, true );
+    $this->FileFactory = $FileFactory;
   }
 
-  public function createDir( $FilePath, $DeleteIfExists = false )
+  public function clearFolder($FilePath)
   {
-    if ( file_exists( $FilePath ) && $DeleteIfExists )
-      $this->delete( $FilePath );
-
-    if ( !file_exists( $FilePath ) )
-      mkdir( $FilePath, 0777, true );
+    $this->deleteInternal($FilePath, true);
   }
 
-  public function createFile( $Name, $Dir = null, $DeleteIfExists = false )
+  public function createDir($FilePath, $DeleteIfExists = false)
+  {
+    if (file_exists($FilePath) && $DeleteIfExists)
+      $this->delete($FilePath);
+
+    if (!file_exists($FilePath))
+      mkdir($FilePath, 0777, true);
+  }
+
+  public function createFile($Name, $Dir = null, $DeleteIfExists = false)
   {
     $Dir      = $Dir ? $Dir : ".";
     $FilePath = $Dir . "/" . $Name;
-    if ( $DeleteIfExists && file_exists( $FilePath ) )
-      unlink( $FilePath );
-    $this->assureParentDirExists( $FilePath );
-    touch( $FilePath );
+    if ($DeleteIfExists && file_exists($FilePath))
+      unlink($FilePath);
+    $this->assureParentDirExists($FilePath);
+    touch($FilePath);
     return $FilePath;
   }
 
-  public function createRandomFile( $NamePrefix = null, $Ext = null, $Dir = null )
+  public function createRandomFile($NamePrefix = null, $Ext = null, $Dir = null)
   {
     $Dir = $Dir ? $Dir : sys_get_temp_dir();
     $i   = 0;
     do
     {
-      $FilePath = $Dir . "/" . $NamePrefix . ($i > 0 ? strval( $i ) : "") . ($Ext ? "." . $Ext : "");
+      $FilePath = $Dir . "/" . $NamePrefix . ($i > 0 ? strval($i) : "") . ($Ext ? "." . $Ext : "");
       $i++;
     }
-    while ( file_exists( $FilePath ) );
+    while (file_exists($FilePath));
 
-    touch( $FilePath );
+    touch($FilePath);
     return $FilePath;
   }
 
-  public function delete( $FilePath )
+  public function delete($FilePath)
   {
-    $this->deleteInternal( $FilePath, true );
+    $this->deleteInternal($FilePath, true);
   }
 
-  public function getFiles( $Dir, $Recursive = true )
+  public function getFiles($Dir, $Mode = 0, $Recursive = true, $Extensions = null)
   {
-    if ( !is_dir( $Dir ) )
+    if (!is_dir($Dir))
       return [];
     $Files  = [];
-    $TheDir = realpath( $Dir );
-    $Handle = opendir( $TheDir );
+    $TheDir = realpath($Dir);
+    $Handle = opendir($TheDir);
 
-    while ( false !== ($Entry = readdir( $Handle )) )
+    while (false !== ($FileName = readdir($Handle)))
     {
-      if ( $Entry == "." || $Entry == ".." )
+      if ($FileName == "." || $FileName == "..")
         continue;
-      $FilePath = $TheDir . DIRECTORY_SEPARATOR . $Entry;
-      $Files[]  = $FilePath;
-      if ( is_dir( $FilePath ) && $Recursive )
+      $File = $this->FileFactory->createFile($TheDir, $FileName);
+      if ($File->isDir())
       {
-        $Files = array_merge( $Files, $this->getAllFiles( $FilePath, $Recursive ) );
+        if ($Mode == 0 || $Mode == 2)
+          $Files[] = $File;
+        if ($Recursive)
+          $Files   = array_merge($Files, $this->getAllFiles($File->getPath(), $Recursive));
+      }
+      else
+      {
+        if ($Mode == 0 || $Mode == 1)
+        {
+          if (is_string($Extensions))
+            $Extensions = array($Extensions);
+          if ($Extensions == null || (is_array($Extensions) && in_array($File->getExtension(), $Extensions)))
+            $Files[]    = $File;
+        }
       }
     }
-    closedir( $Handle );
+    closedir($Handle);
     return $Files;
   }
 
-  public function getFolderSize( $Dir )
+  public function getFolderSize($Dir)
   {
     $size = 0;
-    foreach ( glob( rtrim( $Dir, '/' ) . '/*', GLOB_NOSORT ) as $each )
-      $size += is_file( $each ) ? filesize( $each ) : $this->getFolderSize( $each );
+    foreach (glob(rtrim($Dir, '/') . '/*', GLOB_NOSORT) as $each)
+      $size += is_file($each) ? filesize($each) : $this->getFolderSize($each);
     return $size;
   }
 
-  public function writeFile( $FilePath, $Data )
+  public function writeFile($FilePath, $Data)
   {
-    $this->assureParentDirExists( $FilePath );
-    file_put_contents( $FilePath, $Data, LOCK_EX );
+    $this->assureParentDirExists($FilePath);
+    file_put_contents($FilePath, $Data, LOCK_EX);
   }
 
-  protected function deleteInternal( $FilePath, $Delete = true )
+  protected function deleteInternal($FilePath, $Delete = true)
   {
-    if ( is_dir( $FilePath ) )
+    if (is_dir($FilePath))
     {
-      $objects = scandir( $FilePath );
-      foreach ( $objects as $object )
+      $objects = scandir($FilePath);
+      foreach ($objects as $object)
       {
-        if ( $object != "." && $object != ".." )
+        if ($object != "." && $object != "..")
         {
           $CurrentFilePath = $FilePath . "/" . $object;
-          $this->delete( $CurrentFilePath, true );
+          $this->delete($CurrentFilePath, true);
         }
       }
-      if ( $Delete )
-        rmdir( $FilePath );
+      if ($Delete)
+        rmdir($FilePath);
     }
-    else if ( is_file( $FilePath ) && $Delete )
-      unlink( $FilePath );
+    else if (is_file($FilePath) && $Delete)
+      unlink($FilePath);
   }
 
-  protected function assureParentDirExists( $FilePath )
+  protected function assureParentDirExists($FilePath)
   {
-    $dir = dirname( $FilePath );
-    if ( !is_dir( $dir ) )
-      $this->createDir( $dir );
+    $dir = dirname($FilePath);
+    if (!is_dir($dir))
+      $this->createDir($dir);
   }
 
-  public function move( $path, $newPath )
+  public function move($path, $newPath)
   {
-    $this->assureParentDirExists( $newPath );
-    rename( $path, $newPath );
+    $this->assureParentDirExists($newPath);
+    rename($path, $newPath);
 
     return true;
   }
 
-  function copy( $path, $newPath )
+  function copy($path, $newPath)
   {
-    $this->assureParentDirExists( $newPath );
-    copy( $path, $newPath );
+    $this->assureParentDirExists($newPath);
+    copy($path, $newPath);
 
     return true;
   }
@@ -140,4 +157,5 @@ class FileSystem implements \Qck\Interfaces\FileSystem
    * @var Interfaces\FileFactory
    */
   protected $FileFactory;
+
 }
