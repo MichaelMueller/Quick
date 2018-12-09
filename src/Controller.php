@@ -10,12 +10,22 @@ namespace Qck;
 abstract class Controller implements \Qck\Interfaces\Controller
 {
 
+  /**
+   * @return Interfaces\Session
+   */
+  abstract protected function getSession();
+
   abstract protected function proxyRun();
 
-  function run(\Qck\Interfaces\AppConfig $AppConfig)
+  function run( \Qck\Interfaces\AppConfig $AppConfig )
   {
     $this->AppConfig = $AppConfig;
     $this->proxyRun();
+  }
+
+  function getCurrentUsername()
+  {
+    $Username = $this->getSession()->getUsername();
   }
 
   /**
@@ -27,9 +37,9 @@ abstract class Controller implements \Qck\Interfaces\Controller
     return $this->AppConfig;
   }
 
-  function redirect($Location)
+  function redirect( $Location )
   {
-    header("Location: " . $Location);
+    header( "Location: " . $Location );
   }
 
   /**
