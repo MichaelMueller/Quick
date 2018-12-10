@@ -26,6 +26,15 @@ abstract class Controller implements \Qck\Interfaces\Controller
   function getCurrentUsername()
   {
     $Username = $this->getSession()->getUsername();
+    return $Username;
+  }
+
+  function assertAuthenticated()
+  {
+    if ( $this->getCurrentUsername() === null )
+    {
+      throw new \LogicException( "Not authenticated", Interfaces\Response::EXIT_CODE_UNAUTHORIZED );
+    }
   }
 
   /**
