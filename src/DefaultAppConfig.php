@@ -10,12 +10,22 @@ namespace Qck;
 abstract class DefaultAppConfig implements Interfaces\AppConfig
 {
 
+  function setErrorController( Interfaces\ErrorController $ErrorController )
+  {
+    $this->ErrorController = $ErrorController;
+  }
+
+  function setAdminMailer( Interfaces\Mail\AdminMailer $AdminMailer )
+  {
+    $this->AdminMailer = $AdminMailer;
+  }
+
   /**
    * @return Interfaces\Mail\AdminMailer
    */
   function getAdminMailer()
   {
-    return null;
+    return $this->AdminMailer;
   }
 
   /**
@@ -23,7 +33,7 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
    */
   function getErrorController()
   {
-    return null;
+    return $this->ErrorController;
   }
 
   /**
@@ -34,15 +44,15 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
     return $this->DirectoryConfig;
   }
 
-  function setDirectoryConfig(Interfaces\DirectoryConfig $DirectoryConfig)
+  function setDirectoryConfig( Interfaces\DirectoryConfig $DirectoryConfig )
   {
     $this->DirectoryConfig = $DirectoryConfig;
   }
 
   function wasInvokedFromCli()
   {
-    if (!$this->InvokedFromCli)
-      $this->InvokedFromCli = isset($_SERVER['argc']);
+    if ( !$this->InvokedFromCli )
+      $this->InvokedFromCli = isset( $_SERVER[ 'argc' ] );
     return $this->InvokedFromCli;
   }
 
@@ -51,7 +61,7 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
    */
   function getHostName()
   {
-    if (!$this->HostName)
+    if ( !$this->HostName )
       $this->HostName = gethostname();
     return $this->HostName;
   }
@@ -61,18 +71,50 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
     return $this->ShowErrors;
   }
 
-  function setShowErrors($ShowErrors)
+  function setShowErrors( $ShowErrors )
   {
     $this->ShowErrors = $ShowErrors;
   }
 
-  function setHostName($HostName)
+  function setHostName( $HostName )
   {
     $this->HostName = $HostName;
   }
 
+  /**
+   *
+   * @var string
+   */
+  protected $AppName;
+
+  /**
+   *
+   * @var Interfaces\Router
+   */
+  protected $Router;
+
+  /**
+   *
+   * @var Interfaces\Inputs
+   */
+  protected $Inputs;
+
+  /**
+   *
+   * @var string
+   */
   protected $HostName;
+
+  /**
+   *
+   * @var bool
+   */
   protected $InvokedFromCli;
+
+  /**
+   *
+   * @var bool
+   */
   protected $ShowErrors = false;
 
   /**
@@ -80,5 +122,17 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
    * @var Interfaces\DirectoryConfig
    */
   protected $DirectoryConfig;
+
+  /**
+   *
+   * @var Interfaces\ErrorController
+   */
+  protected $ErrorController;
+
+  /**
+   *
+   * @var Interfaces\Mail\AdminMailer
+   */
+  protected $AdminMailer;
 
 }

@@ -12,71 +12,72 @@ class Router implements \Qck\Interfaces\Router
 
   const DEFAULT_QUERY_KEY = "q";
 
-  static function getClassName($Fqcn)
+  static function getClassName( $Fqcn )
   {
-    $path = explode('\\', $Fqcn);
-    return array_pop($path);
+    $path = explode( '\\', $Fqcn );
+    return array_pop( $path );
   }
 
-  static function createSingleRoute($Fqcn)
+  static function createSingleRoute( $Fqcn )
   {
-    $ClassName = self::getClassName($Fqcn);
-    $Router    = new Router();
-    $Router->addRoute($ClassName, $Fqcn);
-    $Router->setDefaultRoute($ClassName);
+    $ClassName = self::getClassName( $Fqcn );
+    $Router = new Router();
+    $Router->addRoute( $ClassName, $Fqcn );
     return $Router;
   }
 
-  function __construct(\Qck\Interfaces\Inputs $Inputs = null)
+  function __construct( \Qck\Interfaces\Inputs $Inputs = null )
   {
-    $this->Inputs   = $Inputs;
+    $this->Inputs = $Inputs;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
 
-  function addFqcn($Fqcn)
+  function addFqcn( $Fqcn )
   {
-    $ClassName = self::getClassName($Fqcn);
-    $this->addRoute($ClassName, $Fqcn);
+    $ClassName = self::getClassName( $Fqcn );
+    $this->addRoute( $ClassName, $Fqcn );
   }
 
-  function addRoute($Route, $Fqcn)
+  function addRoute( $Route, $Fqcn )
   {
-    $this->RouteFqcnMap[$Route] = $Fqcn;
+    $this->RouteFqcnMap[ $Route ] = $Fqcn;
+    if ( !$this->DefaultRoute )
+      $this->DefaultRoute = $Route;
   }
 
-  function setQueryKey($QueryKey)
+  function setQueryKey( $QueryKey )
   {
     $this->QueryKey = $QueryKey;
   }
 
-  public function getLink($Route, $args = array())
+  public function getLink( $Route, $args = array () )
   {
 
     $link = "?" . $this->QueryKey . "=" . $Route;
 
-    if (is_array($args))
+    if ( is_array( $args ) )
     {
-      foreach ($args as $key => $value)
-        $link .= "&" . $key . "=" . (urlencode($value));
+      foreach ( $args as $key => $value )
+        $link .= "&" . $key . "=" . (urlencode( $value ));
     }
     return $link;
   }
 
-  public function redirect($Route, $args = array())
+  public function redirect( $Route, $args = array () )
   {
-    $Link = $this->getLink($Route, $args);
-    header("Location: " . $Link);
+    $Link = $this->getLink( $Route, $args );
+    header( "Location: " . $Link );
   }
 
   public function getCurrentRoute()
   {
     static $CurrentRoute = null;
-    if (!$CurrentRoute)
-      $CurrentRoute        = $this->Inputs ? $this->Inputs->get($this->QueryKey, $this->DefaultRoute) : $this->DefaultRoute;
+    if ( !$CurrentRoute )
+      $CurrentRoute = $this->Inputs ? $this->Inputs->get( $this->QueryKey, $this->DefaultRoute ) : $this->DefaultRoute;
     return $CurrentRoute;
   }
 
-  function setDefaultRoute($DefaultRoute)
+  function setDefaultRoute( $DefaultRoute )
   {
     $this->DefaultRoute = $DefaultRoute;
   }
@@ -84,7 +85,7 @@ class Router implements \Qck\Interfaces\Router
   public function getCurrentController()
   {
     $CurrentRoute = $this->getCurrentRoute();
-    return isset($this->RouteFqcnMap[$CurrentRoute]) ? new $this->RouteFqcnMap[$CurrentRoute]() : null;
+    return isset( $this->RouteFqcnMap[ $CurrentRoute ] ) ? new $this->RouteFqcnMap[ $CurrentRoute ]() : null;
   }
 
   /**
@@ -109,6 +110,6 @@ class Router implements \Qck\Interfaces\Router
    *
    * @var string
    */
-  protected $DefaultRoute = "Start";
+  protected $DefaultRoute;
 
 }
