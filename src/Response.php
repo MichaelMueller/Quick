@@ -9,40 +9,39 @@ namespace Qck;
 class Response implements \Qck\Interfaces\Response
 {
 
-  function getExitCode()
+  function getExitCode ()
   {
     return $this->ExitCode;
   }
 
-  function getOutput()
+  function getOutput ()
   {
     return $this->Output;
   }
 
-  public function __construct( \Qck\Interfaces\Output $Output = null,
-                               $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
+  public function __construct ( \Qck\Interfaces\Output $Output = null, $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
   {
     $this->ExitCode = $ExitCode;
     $this->Output   = $Output;
   }
 
-  public function send( $CliUsed )
+  public function send ( $CliUsed )
   {
-    $Output = $this->getOutput();
+    $Output = $this->getOutput ();
     if ( $Output !== null )
     {
       if ( $CliUsed == false )
       {
-        http_response_code( $this->getExitCode() );
-        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
-        foreach ( $Output->getAdditionalHeaders() as $header )
+        http_response_code ( $this->getExitCode () );
+        header ( sprintf ( "Content-Type: %s; charset=%s", $Output->getContentType (), $Output->getCharset () ) );
+        foreach ( $Output->getAdditionalHeaders () as $header )
         {
-          header( $header );
+          header ( $header );
         }
       }
-      echo $Output->render();
+      echo ($Output instanceof Interfaces\Template) ? $Output->render () : strval ( $Output );
     }
-    exit( $this->getExitCode() );
+    exit ( $this->getExitCode () );
   }
 
   /**
