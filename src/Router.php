@@ -21,14 +21,14 @@ class Router implements \Qck\Interfaces\Router
   static function createSingleRoute( $Fqcn )
   {
     $ClassName = self::getClassName( $Fqcn );
-    $Router = new Router();
+    $Router    = new Router();
     $Router->addRoute( $ClassName, $Fqcn );
     return $Router;
   }
 
   function __construct( \Qck\Interfaces\Inputs $Inputs = null )
   {
-    $this->Inputs = $Inputs;
+    $this->Inputs   = $Inputs;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
   }
 
@@ -41,8 +41,8 @@ class Router implements \Qck\Interfaces\Router
   function addRoute( $Route, $Fqcn )
   {
     $this->RouteFqcnMap[ $Route ] = $Fqcn;
-    if ( !$this->DefaultRoute )
-      $this->DefaultRoute = $Route;
+    if ( ! $this->DefaultRoute )
+      $this->DefaultRoute           = $Route;
   }
 
   function setQueryKey( $QueryKey )
@@ -66,14 +66,14 @@ class Router implements \Qck\Interfaces\Router
   public function redirect( $Route, $args = array () )
   {
     $Link = $this->getLink( $Route, $args );
-    header( "Location: " . $Link );
+    $this->redirectToUrl( $Link );
   }
 
   public function getCurrentRoute()
   {
     static $CurrentRoute = null;
-    if ( !$CurrentRoute )
-      $CurrentRoute = $this->Inputs ? $this->Inputs->get( $this->QueryKey, $this->DefaultRoute ) : $this->DefaultRoute;
+    if ( ! $CurrentRoute )
+      $CurrentRoute        = $this->Inputs ? $this->Inputs->get( $this->QueryKey, $this->DefaultRoute ) : $this->DefaultRoute;
     return $CurrentRoute;
   }
 
@@ -86,6 +86,11 @@ class Router implements \Qck\Interfaces\Router
   {
     $CurrentRoute = $this->getCurrentRoute();
     return isset( $this->RouteFqcnMap[ $CurrentRoute ] ) ? new $this->RouteFqcnMap[ $CurrentRoute ]() : null;
+  }
+
+  public function redirectToUrl( $Url )
+  {
+    header( "Location: " . $Url );
   }
 
   /**
