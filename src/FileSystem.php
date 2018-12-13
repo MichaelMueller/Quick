@@ -72,7 +72,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     {
       if ($FileName == "." || $FileName == "..")
         continue;
-      $File = $this->FileFactory->createFile($TheDir, $FileName);
+      $File = $this->FileFactory->createFileObject($TheDir, $FileName);
       if ($File->isDir())
       {
         if ($Mode == 0 || $Mode == 2)
@@ -154,7 +154,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   public function writeToFile($FilePath, $Data)
   {
-    $File = $this->FileFactory->createFileFromPath($FilePath);
+    $File = $this->FileFactory->createFileObjectFromPath($FilePath);
     $this->assureParentDirExists($File->getParentDir());
     $File->writeContents($Data);
   }

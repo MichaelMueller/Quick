@@ -23,7 +23,7 @@ class ExtendedRouter implements \Qck\Interfaces\ExtendedRouter
 
   public function getBaseUrl()
   {
-    return $this->BaseUrl();
+    return $this->BaseUrl;
   }
 
   public function getCurrentController()
@@ -43,7 +43,7 @@ class ExtendedRouter implements \Qck\Interfaces\ExtendedRouter
 
   public function getFrontControllerScriptName()
   {
-    return $this->FrontControllerScriptName();
+    return $this->FrontControllerScriptName;
   }
 
   public function getLink( $Route, $args = array () )

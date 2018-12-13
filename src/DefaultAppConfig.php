@@ -51,7 +51,7 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
 
   function wasInvokedFromCli()
   {
-    if ( !$this->InvokedFromCli )
+    if ( ! $this->InvokedFromCli )
       $this->InvokedFromCli = isset( $_SERVER[ 'argc' ] );
     return $this->InvokedFromCli;
   }
@@ -61,9 +61,7 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
    */
   function getHostName()
   {
-    if ( !$this->HostName )
-      $this->HostName = gethostname();
-    return $this->HostName;
+    return $this->getDirectoryConfig()->getHostName();
   }
 
   function showErrors()
@@ -74,11 +72,6 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
   function setShowErrors( $ShowErrors )
   {
     $this->ShowErrors = $ShowErrors;
-  }
-
-  function setHostName( $HostName )
-  {
-    $this->HostName = $HostName;
   }
 
   /**
@@ -98,12 +91,6 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
    * @var Interfaces\Inputs
    */
   protected $Inputs;
-
-  /**
-   *
-   * @var string
-   */
-  protected $HostName;
 
   /**
    *
