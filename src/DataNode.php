@@ -16,7 +16,6 @@ class DataNode implements Interfaces\Node
 
   function __get( $key )
   {
-
     $Value              = $this->Data[ $key ];
     if ( $Value instanceof NodeLoader )
       $this->Data[ $key ] = $Value->load();

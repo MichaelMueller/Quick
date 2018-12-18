@@ -3,39 +3,39 @@
 namespace Qck;
 
 /**
- * App class is essentially the class to start. It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
+ * App class is essentially the class to start.
+ * It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
  * 
  * @author muellerm
  */
-class App
+class App implements Interfaces\Controller
 {
 
   function createAppConfigAndRun( Interfaces\DirectoryConfig $DirectoryConfig )
   {
-    // basic error setup
-    error_reporting( E_ALL );
-    ini_set( 'log_errors', 1 );
-    ini_set( 'display_errors', 0 );
+    $this->setDefaultErrorSettings();
 
     $this->run( $this->loadConfig( $DirectoryConfig ) );
   }
 
-  function run( Interfaces\AppConfig $AppConfig )
+  protected function setDefaultErrorSettings( $DisplayErrors = false, $LogErrors = true )
   {
     // basic error setup
     error_reporting( E_ALL );
-    ini_set( 'log_errors', 1 );
-    ini_set( 'display_errors', 0 );
+    ini_set( 'log_errors', intval( $LogErrors ) );
+    ini_set( 'display_errors', intval( $DisplayErrors ) );
+  }
+
+  function run( Interfaces\AppConfig $AppConfig )
+  {
+    $this->setDefaultErrorSettings();
 
     try
     {
-      // basic error reporting
-      error_reporting( E_ALL );
       // reset if issued from cli
       if ( $AppConfig->showErrors() || $AppConfig->wasInvokedFromCli() )
       {
-        ini_set( 'display_errors', 1 );
-        ini_set( 'log_errors', 0 );
+        $this->setDefaultErrorSettings( true, false );
       }
 
       set_error_handler( array ( $this, "exceptionErrorHandler" ) );
