@@ -8,18 +8,23 @@ namespace Qck;
  * 
  * @author muellerm
  */
-abstract class App implements Interfaces\App
+abstract class App
 {
 
   /**
    * the default method has to be implemented
    */
-  abstract function index();
+  abstract public function index();
+
+  /**
+   * @return Inputs
+   */
+  abstract protected function getInputs();
 
   /**
    * @return Interfaces\ErrorHandler
    */
-  function getErrorHandler()
+  protected function getErrorHandler()
   {
     return null;
   }
@@ -39,7 +44,7 @@ abstract class App implements Interfaces\App
    * 
    * @return bool
    */
-  function getLink( $MethodName, $args = array () )
+  protected function getLink( $MethodName, $args = array () )
   {
     $link = "?" . $this->MethodParamName . "=" . $MethodName;
 
@@ -49,6 +54,17 @@ abstract class App implements Interfaces\App
         $link .= "&" . $key . "=" . (urlencode( $value ));
     }
     return $link;
+  }
+
+  protected function isMethodAllowed( $MethodName )
+  {
+    if ( $MethodName == "run" || $MethodName == "wasInvokedFromCli" )
+      return false;
+    $reflection = new \ReflectionMethod( $this, $MethodName );
+    if ( ! $reflection->isPublic() )
+      return false;
+
+    return true;
   }
 
   function run()
@@ -65,8 +81,14 @@ abstract class App implements Interfaces\App
     {
       $Error = sprintf( "Method %s not implemented.", $RequestedMethodName );
       throw new \Exception( $Error, Interfaces\Response::EXIT_CODE_NOT_IMPLEMENTED );
+    }    // throw a good error message if controller is not found
+    else if ( $this->isMethodAllowed( $RequestedMethodName ) === false )
+    {
+      $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
+      throw new \Exception( $Error, Interfaces\Response::EXIT_CODE_UNAUTHORIZED );
     }
-    call_user_func( array ( $this, $RequestedMethodName ) );
+    else
+      call_user_func( array ( $this, $RequestedMethodName ) );
   }
 
   /**

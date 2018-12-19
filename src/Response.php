@@ -19,11 +19,11 @@ class Response implements \Qck\Interfaces\Response
     return $this->Output;
   }
 
-  public function __construct( Interfaces\App $App, \Qck\Interfaces\Output $Output = null, $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
+  public function __construct( \Qck\Interfaces\Output $Output = null, $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK, $HttpResponse = true )
   {
-    $this->App      = $App;
-    $this->ExitCode = $ExitCode;
-    $this->Output   = $Output;
+    $this->ExitCode     = $ExitCode;
+    $this->Output       = $Output;
+    $this->HttpResponse = $HttpResponse;
   }
 
   public function send()
@@ -31,7 +31,7 @@ class Response implements \Qck\Interfaces\Response
     $Output = $this->getOutput();
     if ( $Output !== null )
     {
-      if ( $this->App->wasInvokedFromCli() == false )
+      if ( $this->HttpResponse == true )
       {
         http_response_code( $this->getExitCode() );
         header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
@@ -42,7 +42,10 @@ class Response implements \Qck\Interfaces\Response
       }
       echo ($Output instanceof Interfaces\Template) ? $Output->render() : strval( $Output );
     }
-    exit( $this->getExitCode() );
+    $AppExitCode = 0;
+    if ( $this->HttpResponse == false && $this->ExitCode != Response::EXIT_CODE_OK )
+      $AppExitCode = $this->ExitCode;
+    exit( $AppExitCode );
   }
 
   /**
@@ -59,8 +62,8 @@ class Response implements \Qck\Interfaces\Response
 
   /**
    *
-   * @var \Qck\Interfaces\App
+   * @var \Qck\Interfaces\HttpResponse
    */
-  protected $App;
+  protected $HttpResponse = true;
 
 }
