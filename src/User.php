@@ -39,7 +39,29 @@ class User implements \Qck\Interfaces\User
     $this->Authenticator = $Authenticator;
   }
 
+  function getPicture()
+  {
+    return $this->Picture;
+  }
+
+  function getDescription()
+  {
+    return $this->Description;
+  }
+
+  function setPicture( $Picture )
+  {
+    $this->Picture = $Picture;
+  }
+
+  function setDescription( $Description )
+  {
+    $this->Description = $Description;
+  }
+
   protected $Name;
+  protected $Picture;
+  protected $Description;
   protected $HashedPassword;
   protected $Authenticator;
 

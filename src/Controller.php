@@ -33,7 +33,7 @@ abstract class Controller implements \Qck\Interfaces\Controller
   {
     if ( $this->getCurrentUsername() === null )
     {
-      throw new \LogicException( "Not authenticated", Interfaces\Response::EXIT_CODE_UNAUTHORIZED );
+      throw new \LogicException( "Not authenticated", Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
     }
   }
 

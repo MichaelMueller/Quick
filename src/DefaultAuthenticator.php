@@ -39,22 +39,6 @@ class DefaultAuthenticator implements \Qck\Interfaces\Authenticator
     return $CredentialsOk;
   }
 
-  public function assertAuthenticatedUser( $RedirectUrl = null )
-  {
-    if ( $this->Session->getUsername() === null )
-    {
-      if ( $RedirectUrl )
-      {
-        header( "Location: " . $RedirectUrl );
-        exit();
-      }
-      else
-      {
-        throw new Exception( "User not authenticated", Interfaces\Response::EXIT_CODE_UNAUTHORIZED );
-      }
-    }
-  }
-
   /**
    *
    * @var \Qck\Interfaces\UserDb

@@ -2,7 +2,7 @@
 
 namespace Qck;
 
-use Qck\Interfaces\Response;
+use Qck\Interfaces\HttpResponder;
 
 /**
  * Description of HelloWorldController
@@ -42,7 +42,7 @@ class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\Interfaces\Controll
 
   protected function runInternal( \Qck\Interfaces\ServiceRepo $ServiceRepo )
   {
-    $ExitCode = Response::EXIT_CODE_OK;
+    $ExitCode = HttpResponder::EXIT_CODE_OK;
     // Check if we have a specific testsuite
     /* @var $Request \Qck\Interfaces\Request */
     $Request = $ServiceRepo->getOptional( \Qck\Interfaces\App\Request::class );
