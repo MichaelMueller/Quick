@@ -6,10 +6,10 @@ namespace Qck;
  *
  * @author muellerm
  */
-class ArrayNode implements Interfaces\Node
+class ArrayNode implements Interfaces\DataNode
 {
 
-  public function add( Interfaces\Node $Node )
+  public function add( Interfaces\DataNode $Node )
   {
     $this->Data[]  = $Node;
     $this->Changed = true;
