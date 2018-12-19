@@ -9,39 +9,40 @@ namespace Qck;
 class Response implements \Qck\Interfaces\Response
 {
 
-  function getExitCode ()
+  function getExitCode()
   {
     return $this->ExitCode;
   }
 
-  function getOutput ()
+  function getOutput()
   {
     return $this->Output;
   }
 
-  public function __construct ( \Qck\Interfaces\Output $Output = null, $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
+  public function __construct( Interfaces\App $App, \Qck\Interfaces\Output $Output = null, $ExitCode = \Qck\Interfaces\Response::EXIT_CODE_OK )
   {
+    $this->App      = $App;
     $this->ExitCode = $ExitCode;
     $this->Output   = $Output;
   }
 
-  public function send ( $CliUsed )
+  public function send()
   {
-    $Output = $this->getOutput ();
+    $Output = $this->getOutput();
     if ( $Output !== null )
     {
-      if ( $CliUsed == false )
+      if ( $this->App->wasInvokedFromCli() == false )
       {
-        http_response_code ( $this->getExitCode () );
-        header ( sprintf ( "Content-Type: %s; charset=%s", $Output->getContentType (), $Output->getCharset () ) );
-        foreach ( $Output->getAdditionalHeaders () as $header )
+        http_response_code( $this->getExitCode() );
+        header( sprintf( "Content-Type: %s; charset=%s", $Output->getContentType(), $Output->getCharset() ) );
+        foreach ( $Output->getAdditionalHeaders() as $header )
         {
-          header ( $header );
+          header( $header );
         }
       }
-      echo ($Output instanceof Interfaces\Template) ? $Output->render () : strval ( $Output );
+      echo ($Output instanceof Interfaces\Template) ? $Output->render() : strval( $Output );
     }
-    exit ( $this->getExitCode () );
+    exit( $this->getExitCode() );
   }
 
   /**
@@ -55,5 +56,11 @@ class Response implements \Qck\Interfaces\Response
    * @var \Qck\Interfaces\Output
    */
   protected $Output;
+
+  /**
+   *
+   * @var \Qck\Interfaces\App
+   */
+  protected $App;
 
 }
