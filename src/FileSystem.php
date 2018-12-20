@@ -42,7 +42,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
       unlink( $FilePath );
     $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
-    return $FilePath;
+    return $this->FileFactory->createFileObjectFromPath( $FilePath );
   }
 
   public function createRandomFile( $NamePrefix = null, $Ext = null, $Dir = null )
@@ -56,8 +56,10 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     }
     while ( file_exists( $FilePath ) );
 
+    $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
-    return $FilePath;
+
+    return $this->FileFactory->createFileObjectFromPath( $FilePath );
   }
 
   public function delete( $FilePath )
@@ -65,7 +67,13 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     $this->deleteInternal( $FilePath, true );
   }
 
-  public function getFiles( $Dir, $Mode = 0, $Recursive = true, $Extensions = null )
+  public function getFiles( $Dir, $Mode = 0, $Recursive = true, $Extensions = null, $MaxFiles = null )
+  {
+    $NumFiles = 0;
+    return $this->getFilesInternal( $Dir, $Mode, $Recursive, $Extensions, $MaxFiles, $NumFiles );
+  }
+
+  public function getFilesInternal( $Dir, $Mode = 0, $Recursive = true, $Extensions = null, $MaxFiles = null, &$NumFiles = 0 )
   {
     if ( ! is_dir( $Dir ) )
       return [];
@@ -77,13 +85,18 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     {
       if ( $FileName == "." || $FileName == ".." )
         continue;
+      if ( $NumFiles == $MaxFiles )
+        break;
       $File = $this->FileFactory->createFileObject( $TheDir, $FileName );
       if ( $File->isDir() )
       {
         if ( $Mode == 0 || $Mode == 2 )
+        {
           $Files[] = $File;
+          $NumFiles ++;
+        }
         if ( $Recursive )
-          $Files   = array_merge( $Files, $this->getFiles( $File->getPath(), $Recursive ) );
+          $Files = array_merge( $Files, $this->getFilesInternal( $File->getPath(), $Mode, $Recursive, $Extensions, $MaxFiles, $NumFiles ) );
       }
       else
       {
@@ -92,7 +105,10 @@ class FileSystem implements \Qck\Interfaces\FileSystem
           if ( is_string( $Extensions ) )
             $Extensions = array ( $Extensions );
           if ( $Extensions == null || (is_array( $Extensions ) && in_array( $File->getExtension(), $Extensions )) )
-            $Files[]    = $File;
+          {
+            $Files[] = $File;
+            $NumFiles ++;
+          }
         }
       }
     }

@@ -4,65 +4,33 @@ namespace Qck;
 
 /**
  *
+ * @property string $Username
+ * @property string $HashedPassword
+ * @property Interfaces\Authenticator  $Authenticator
+ * @property bool $Admin
  * @author muellerm
  */
-class User implements \Qck\Interfaces\User
+class User extends PersistableObject implements \Qck\Interfaces\User, Interfaces\PersistableObject
 {
 
-  function getName()
-  {
-    return $this->Name;
-  }
-
-  function getHashedPassword()
-  {
-    return $this->HashedPassword;
-  }
-
-  function getAuthenticator()
+  public function getAuthenticator()
   {
     return $this->Authenticator;
   }
 
-  function setName( $Name )
+  public function getHashedPassword()
   {
-    $this->Name = $Name;
+    return $this->HashedPassword;
   }
 
-  function setHashedPassword( $HashedPassword )
+  public function getUsername()
   {
-    $this->HashedPassword = $HashedPassword;
+    return $this->Username;
   }
 
-  function setAuthenticator( $Authenticator )
+  public function isAdmin()
   {
-    $this->Authenticator = $Authenticator;
+    return $this->Admin;
   }
-
-  function getPicture()
-  {
-    return $this->Picture;
-  }
-
-  function getDescription()
-  {
-    return $this->Description;
-  }
-
-  function setPicture( $Picture )
-  {
-    $this->Picture = $Picture;
-  }
-
-  function setDescription( $Description )
-  {
-    $this->Description = $Description;
-  }
-
-  protected $Name;
-  protected $Picture;
-  protected $Description;
-  protected $HashedPassword;
-  protected $Authenticator;
 
 }

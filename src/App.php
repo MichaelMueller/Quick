@@ -22,6 +22,11 @@ abstract class App implements Interfaces\App
     return $this->InvokedFromCli;
   }
 
+  protected function disableMethodAuthForCli()
+  {
+    return false;
+  }
+
   function buildUrl( $MethodName, array $QueryData = [] )
   {
     $CompleteQueryData = array_merge( [ $this->MethodParamName => $MethodName ], $QueryData );
@@ -46,11 +51,21 @@ abstract class App implements Interfaces\App
     }
     else
     {
-      $Method = new \ReflectionMethod( $this, $RequestedMethodName );
-      if ( $Method->isPublic() == false && $this->getSession()->getUsername() === null )
+      $Method     = new \ReflectionMethod( $this, $RequestedMethodName );
+      $MethodAuth = $this->wasInvokedFromCli() && $this->disableMethodAuthForCli();
+      if ( $MethodAuth && $Method->isPublic() == false )
       {
-        $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
-        throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
+        $MethodAllowed = false;
+        $User          = $this->getUserDb()->getUser( $this->getSession()->getUsername() );
+        if ( $User )
+        {
+          $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
+        }
+        if ( $MethodAllowed === false )
+        {
+          $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
+          throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
+        }
       }
       $RequestedParams = $Method->getParameters();
       $FoundParams     = [];
