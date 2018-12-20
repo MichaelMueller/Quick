@@ -6,24 +6,34 @@ namespace Qck;
  *
  * @author muellerm
  */
-class PersistableObject implements Interfaces\PersistableObject
+class PersistableArray implements Interfaces\PersistableObject
 {
 
-  function __get( $key )
+  function add( $Value )
   {
-    $Value = isset( $this->Data[ $key ] ) ? $this->Data[ $key ] : null;
-    if ( $Value && is_callable( $Value ) )
-    {
-      $Value              = $Value();
-      $this->Data[ $key ] = $Value;
-    }
-    return $Value;
+    $this->Data[]  = $Value;
+    $this->Changed = true;
+  }
+  
+  function indexes()
+  {
+    return array_keys($this->Data);
   }
 
-  function __set( $key, $value )
+  function at( $Index )
   {
-    $this->Data[ $key ] = $value;
-    $this->Changed      = true;
+    return $this->Data[ $Index ];
+  }
+
+  function remove( $Index )
+  {
+    unset( $this->Data[ $Index ] );
+    $this->Changed = true;
+  }
+
+  function getSize()
+  {
+    return count( $this->Data );
   }
 
   public function hasChanged()

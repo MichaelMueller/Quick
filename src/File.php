@@ -7,82 +7,133 @@ namespace Qck;
  *
  * @author muellerm
  */
-class File implements \Qck\Interfaces\File
+class File implements \Qck\Interfaces\File, Interfaces\PersistableObject
 {
 
-  function __construct ( $DirPath, $FileBaseName )
+  static function createFromDirAndBasename( $ParentDir, $FileBasename )
   {
-    $this->DirPath      = $DirPath;
-    $this->FileBaseName = $FileBaseName;
+    $File = new File;
+    $File->setFilePath( self::join( $ParentDir, $FileBasename ) );
+    return $File;
   }
 
-  public function getBasename ()
+  static function createFromPath( $FilePath )
   {
-    return $this->FileBaseName;
+    $File = new File;
+    $File->setFilePath( $FilePath );
+    return $File;
   }
 
-  public function getExtension ()
+  function setFilePath( $FilePath )
   {
-    return pathinfo ( $this->getPath (), PATHINFO_EXTENSION );
+    $this->FilePath = $FilePath;
+    $this->Changed  = true;
   }
 
-  public function getFileName ()
+  public function getBasename()
   {
-    return pathinfo ( $this->getPath (), PATHINFO_FILENAME );
+    return pathinfo( $this->FilePath, PATHINFO_BASENAME );
   }
 
-  public function getPath ()
+  public function getExtension()
   {
-    return $this->join ( $this->DirPath, $this->FileBaseName );
+    return pathinfo( $this->FilePath, PATHINFO_EXTENSION );
   }
 
-  public function isDir ()
+  public function getFileName()
   {
-    return is_dir ( $this->getPath () );
+    return pathinfo( $this->FilePath, PATHINFO_FILENAME );
   }
 
-  public function readContents ()
+  public function getPath()
   {
-    $FilePath = $this->getPath ();
-    if ( ! file_exists ( $FilePath ) || filesize ( $FilePath ) == 0 )
+    return $this->FilePath;
+  }
+
+  public function isDir()
+  {
+    return is_dir( $this->FilePath );
+  }
+
+  public function readContents()
+  {
+    $FilePath = $this->FilePath;
+    if ( ! file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
       return null;
 
-    $f       = fopen ( $FilePath, "r" );
-    flock ( $f, LOCK_SH );
-    $content = fread ( $f, filesize ( $FilePath ) );
-    flock ( $f, LOCK_UN );
-    fclose ( $f );
+    $f       = fopen( $FilePath, "r" );
+    flock( $f, LOCK_SH );
+    $content = fread( $f, filesize( $FilePath ) );
+    flock( $f, LOCK_UN );
+    fclose( $f );
     return $content;
   }
 
-  public function writeContents ( $Data )
+  public function writeContents( $Data )
   {
-    file_put_contents ( $this->getPath (), $Data, LOCK_EX );
+    file_put_contents( $this->FilePath, $Data, LOCK_EX );
   }
 
-  public function getParentDir ()
+  public function getParentDir()
   {
-    return dirname ( $this->getPath () );
+    return dirname( $this->FilePath );
   }
 
-  public function join ( $BasePath, $FileName )
+  static function join( $BasePath, $FileName )
   {
     $Path = $BasePath . DIRECTORY_SEPARATOR . $FileName;
 
-    return strpos ( $Path, "\\" ) !== false ? str_replace ( "/", "\\", $Path ) : str_replace ( "\\", "/", $Path );
+    return strpos( $Path, "\\" ) !== false ? str_replace( "/", "\\", $Path ) : str_replace( "\\", "/", $Path );
   }
 
-  public function getSize ()
+  public function getSize()
   {
-    return filesize ( $this->getPath () );
+    return filesize( $this->FilePath );
   }
 
-  public function exists ()
+  public function exists()
   {
-    return file_exists ( $this->getPath () );
+    return file_exists( $this->FilePath );
   }
 
-  protected $DirPath;
-  protected $FileBaseName;
+  public function getData()
+  {
+    return [ "FilePath" => $this->FilePath ];
+  }
+
+  public function getId()
+  {
+    return $this->Id;
+  }
+
+  public function hasChanged()
+  {
+    return $this->Changed;
+  }
+
+  public function setData( array $Data )
+  {
+    $this->FilePath = $Data[ "FilePath" ];
+  }
+
+  public function setId( $Id )
+  {
+    $this->Id = $Id;
+  }
+
+  public function setUnchanged()
+  {
+    $this->Changed = false;
+  }
+
+  public function delete()
+  {
+    if ( $this->exists() )
+      unlink( $this->FilePath );
+  }
+
+  protected $Id;
+  protected $Changed = false;
+  protected $FilePath;
 
 }

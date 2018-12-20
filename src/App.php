@@ -24,7 +24,7 @@ abstract class App implements Interfaces\App
 
   protected function disableMethodAuthForCli()
   {
-    return false;
+    return true;
   }
 
   function buildUrl( $MethodName, array $QueryData = [] )
@@ -35,6 +35,7 @@ abstract class App implements Interfaces\App
 
   function run()
   {
+    // find method and run
     $ShellMethods        = $this->getShellMethods();
     $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
     if ( in_array( $RequestedMethodName, $ShellMethods ) === false )

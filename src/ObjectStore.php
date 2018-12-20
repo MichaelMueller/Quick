@@ -24,9 +24,12 @@ class ObjectStore implements Interfaces\ObjectStore
     $this->FileSystem = $FileSystem;
   }
 
-  function get( $Fqcn, $Id )
+  function get( $Fqcn, $Id, $Create = false )
   {
-    return isset( $this->Objects[ $Fqcn ][ $Id ] ) ? $this->Objects[ $Fqcn ][ $Id ] : $this->loadFromFile( $this->getDataFile( $Fqcn, $Id ) );
+    $Object = isset( $this->Objects[ $Fqcn ][ $Id ] ) ? $this->Objects[ $Fqcn ][ $Id ] : $this->loadFromFile( $this->getDataFile( $Fqcn, $Id ) );
+    if ( ! $Object && $Create )
+      return $this->create( $Fqcn, $Id );
+    return $Object;
   }
 
   function commit()
@@ -46,12 +49,12 @@ class ObjectStore implements Interfaces\ObjectStore
             elseif ( $Value instanceof Interfaces\PersistableObject )
             {
               $ObjectData[ $Key ] = [ get_class( $Value ), $Value->getId() ];
-              $MetaData[ $Key ]     = self::SERIALIZED_REFERENCE;
+              $MetaData[ $Key ]   = self::SERIALIZED_REFERENCE;
             }
             else
             {
               $ObjectData[ $Key ] = serialize( $Value );
-              $MetaData[ $Key ]     = self::SERIALIZED_OBJECT;
+              $MetaData[ $Key ]   = self::SERIALIZED_OBJECT;
             }
           }
           $Data = [ self::KEY_FQCN => $Fqcn, self::KEY_ID => $Id, self::KEY_OBJECT_DATA => $ObjectData, self::KEY_META_DATA => $MetaData ];
@@ -86,7 +89,7 @@ class ObjectStore implements Interfaces\ObjectStore
       $ActualId = $DataFile->getFileName();
     }
     $NewObject                           = new $Fqcn;
-    $NewObject->setId($ActualId);    
+    $NewObject->setId( $ActualId );
     if ( ! isset( $this->Objects[ $Fqcn ] ) )
       $this->Objects[ $Fqcn ]              = [];
     $this->Objects[ $Fqcn ][ $ActualId ] = $NewObject;
@@ -150,6 +153,7 @@ class ObjectStore implements Interfaces\ObjectStore
     $Mode       = Interfaces\FileSystem::ONLY_FILES;
     $Recursive  = false;
     $Extensions = [ self::EXT ];
+
     return $this->FileSystem->getFiles( $Dir, $Mode, $Recursive, $Extensions, $MaxFiles );
   }
 
@@ -175,6 +179,30 @@ class ObjectStore implements Interfaces\ObjectStore
     return $this->FileSystem->getFileFactory()->createFileObjectFromPath( $this->getDataDirPath( $Fqcn ) . "/" . $Id . "." . self::EXT );
   }
 
+  public function remove( $Fqcn, $Id )
+  {
+    $TheFile = $this->getDataFile( $Fqcn, $Id );
+    $TheFile->delete();
+    if ( isset( $this->Objects[ $Fqcn ][ $Id ] ) )
+      unset( $this->Objects[ $Fqcn ][ $Id ] );
+  }
+
+  public function removeAll( $Fqcn )
+  {
+    $this->FileSystem->clearFolder( $this->getDataDirPath( $Fqcn ) );
+    $this->Objects[ $Fqcn ] = [];
+  }
+
+  public function getAll( $Fqcn )
+  {
+    $Objects   = [];
+    $DataFiles = $this->getDataFiles( $Fqcn );
+    foreach ( $DataFiles as $DataFile )
+      $Objects   = $this->loadFromFile( $DataFile );
+
+    return $Objects;
+  }
+
   /**
    *
    * @var string
@@ -191,6 +219,6 @@ class ObjectStore implements Interfaces\ObjectStore
    *
    * @var array
    */
-  protected $Objects;
+  protected $Objects = [];
 
 }

@@ -22,7 +22,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   public function clearFolder( $FilePath )
   {
-    $this->deleteInternal( $FilePath, true );
+    $this->deleteInternal( $FilePath, false );
   }
 
   public function createDir( $FilePath, $DeleteIfExists = false )
@@ -85,7 +85,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     {
       if ( $FileName == "." || $FileName == ".." )
         continue;
-      if ( $NumFiles == $MaxFiles )
+      if ( $MaxFiles && $NumFiles >= $MaxFiles )
         break;
       $File = $this->FileFactory->createFileObject( $TheDir, $FileName );
       if ( $File->isDir() )
