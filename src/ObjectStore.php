@@ -11,8 +11,12 @@ class ObjectStore implements Interfaces\ObjectStore
 
   const EXT                  = "json";
   const SCALAR               = 0;
-  const SERIALIZED_OBJECT    = 1;
-  const SERIALIZED_REFERENCE = 2;
+  const SERIALIZED_REFERENCE = 1;
+  const SERIALIZED_OBJECT    = 2;
+  const KEY_FQCN             = 0;
+  const KEY_ID               = 1;
+  const KEY_OBJECT_DATA      = 2;
+  const KEY_META_DATA        = 3;
 
   function __construct( $DataDir, Interfaces\FileSystem $FileSystem )
   {
@@ -35,8 +39,23 @@ class ObjectStore implements Interfaces\ObjectStore
         {
           $ObjectData = $Object->getData();
           $MetaData   = [];
-          $Data       = [ $MetaData, $ObjectData ];
-          $File       = $this->getDataFile( $Fqcn, $Id );
+          foreach ( $ObjectData as $Key => $Value )
+          {
+            if ( is_scalar( $Value ) )
+              $MetaData[ $Key ] = self::SCALAR;
+            elseif ( $Value instanceof Interfaces\PersistableObject )
+            {
+              $ObjectData[ $Key ] = [ get_class( $Value ), $Value->getId() ];
+              $MetaData[ $Key ]     = self::SERIALIZED_REFERENCE;
+            }
+            else
+            {
+              $ObjectData[ $Key ] = serialize( $Value );
+              $MetaData[ $Key ]     = self::SERIALIZED_OBJECT;
+            }
+          }
+          $Data = [ self::KEY_FQCN => $Fqcn, self::KEY_ID => $Id, self::KEY_OBJECT_DATA => $ObjectData, self::KEY_META_DATA => $MetaData ];
+          $File = $this->getDataFile( $Fqcn, $Id );
 
           $File->writeContents( json_encode( $Data, JSON_PRETTY_PRINT ) );
           $Object->setUnchanged();
@@ -58,7 +77,7 @@ class ObjectStore implements Interfaces\ObjectStore
     {
       if ( $this->exists( $Fqcn, $Id ) )
         return null;
-      $this->FileSystem->createFile( $Id . self::EXT, $this->getDataDirPath( $Fqcn ) );
+      $this->FileSystem->createFile( $Id . "." . self::EXT, $this->getDataDirPath( $Fqcn ) );
       $ActualId = $Id;
     }
     else
@@ -67,6 +86,7 @@ class ObjectStore implements Interfaces\ObjectStore
       $ActualId = $DataFile->getFileName();
     }
     $NewObject                           = new $Fqcn;
+    $NewObject->setId($ActualId);    
     if ( ! isset( $this->Objects[ $Fqcn ] ) )
       $this->Objects[ $Fqcn ]              = [];
     $this->Objects[ $Fqcn ][ $ActualId ] = $NewObject;
@@ -90,28 +110,32 @@ class ObjectStore implements Interfaces\ObjectStore
       return null;
 
     $Data       = json_decode( $File->readContents(), true );
-    $MetaData   = $Data[ 0 ];
-    $ObjectData = $Data[ 1 ];
-    for ( $i = 0; $i < count( $ObjectData ); $i ++ )
+    $MetaData   = $Data[ self::KEY_META_DATA ];
+    $ObjectData = $Data[ self::KEY_OBJECT_DATA ];
+    $Fqcn       = $Data[ self::KEY_FQCN ];
+    $Id         = $Data[ self::KEY_ID ];
+
+    foreach ( $ObjectData as $Key => $Value )
     {
-      $Type = $MetaData[ $i ];
+      $Type = $MetaData[ $Key ];
       if ( $Type != self::SCALAR )
       {
-        $Object = unserialize( $ObjectData[ $i ] );
+        $Object = unserialize( $Value );
         if ( $Type == self::SERIALIZED_REFERENCE )
         {
-          $Fqcn   = $Object[ 0 ];
-          $Id     = $Object[ 1 ];
-          $Object = function() use($Fqcn, $Id)
+          $RefFqcn = $Object[ 0 ];
+          $RefId   = $Object[ 1 ];
+          $Object  = function() use($RefFqcn, $RefId)
           {
-            return $this->get( $Fqcn, $Id );
+            return $this->get( $RefFqcn, $RefId );
           };
         }
-        $ObjectData[ $i ] = $Object;
+        $ObjectData[ $Key ] = $Object;
       }
     }
     /* @var $Object Interfaces\PersistableObject */
     $Object                                          = new $Fqcn;
+    $Object->setId( $Id );
     $Object->setData( $ObjectData );
     $Object->setUnchanged();
     if ( ! isset( $this->Objects[ $Fqcn ] ) )
@@ -148,7 +172,7 @@ class ObjectStore implements Interfaces\ObjectStore
    */
   protected function getDataFile( $Fqcn, $Id )
   {
-    $this->FileSystem->getFileFactory()->createFileObjectFromPath( $this->getDataDirPath( $Fqcn ) . "/" . $Id . "." . self::EXT );
+    return $this->FileSystem->getFileFactory()->createFileObjectFromPath( $this->getDataDirPath( $Fqcn ) . "/" . $Id . "." . self::EXT );
   }
 
   /**

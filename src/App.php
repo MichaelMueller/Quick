@@ -37,44 +37,34 @@ abstract class App implements Interfaces\App
   {
     $ShellMethods        = $this->getShellMethods();
     $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
-
-    // throw a good error message if controller is not found
-    if ( method_exists( $this, $RequestedMethodName ) === false )
-    {
-      $Error = sprintf( "Method %s not implemented.", $RequestedMethodName );
-      throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_NOT_IMPLEMENTED );
-    }
-    else if ( in_array( $RequestedMethodName, $ShellMethods ) == false )
+    if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
     {
       $Error = sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName );
       throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_INTERNAL_ERROR );
     }
-    else
-    {
-      $Method     = new \ReflectionMethod( $this, $RequestedMethodName );
-      $MethodAuth = $this->wasInvokedFromCli() && $this->disableMethodAuthForCli();
-      if ( $MethodAuth && $Method->isPublic() == false )
-      {
-        $MethodAllowed = false;
-        $User          = $this->getUserDb()->getUser( $this->getSession()->getUsername() );
-        if ( $User )
-        {
-          $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
-        }
-        if ( $MethodAllowed === false )
-        {
-          $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
-          throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
-        }
-      }
-      $RequestedParams = $Method->getParameters();
-      $FoundParams     = [];
-      foreach ( $RequestedParams as $RequestedParam )
-        $FoundParams[]   = $this->getInputs()->get( $RequestedParam->getName(), null );
 
-      $Method->setAccessible( true );
-      $Method->invokeArgs( $this, $FoundParams );
+    $Method             = new \ReflectionMethod( $this, $RequestedMethodName );
+    $MethodAuthDisabled = $this->wasInvokedFromCli() && $this->disableMethodAuthForCli();
+    if ( $MethodAuthDisabled == false && $Method->isPublic() == false )
+    {
+      $MethodAllowed = false;
+      $User          = $this->getUserDb()->getUser( $this->getSession()->getUsername() );
+      if ( $User )
+        $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
+
+      if ( $MethodAllowed === false )
+      {
+        $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
+        throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
+      }
     }
+    $RequestedParams = $Method->getParameters();
+    $FoundParams     = [];
+    foreach ( $RequestedParams as $RequestedParam )
+      $FoundParams[]   = $this->getInputs()->get( $RequestedParam->getName(), null );
+
+    $Method->setAccessible( true );
+    $Method->invokeArgs( $this, $FoundParams );
   }
 
   /**

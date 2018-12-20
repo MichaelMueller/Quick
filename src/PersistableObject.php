@@ -44,6 +44,18 @@ class PersistableObject implements Interfaces\PersistableObject
     $this->Changed = true;
   }
 
+  function getId()
+  {
+    return $this->Id;
+  }
+
+  function setId( $Id )
+  {
+    $this->Id = $Id;
+  }
+
+  protected $Id;
+
   /**
    *
    * @var array the actual data

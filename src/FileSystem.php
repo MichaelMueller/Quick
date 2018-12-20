@@ -48,7 +48,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
   public function createRandomFile( $NamePrefix = null, $Ext = null, $Dir = null )
   {
     $Dir = $Dir ? $Dir : sys_get_temp_dir();
-    $i   = 0;
+    $i   = $NamePrefix ? 0 : 1;
     do
     {
       $FilePath = $this->join( $Dir, $NamePrefix . ($i > 0 ? strval( $i ) : "") . ($Ext ? "." . $Ext : "") );
