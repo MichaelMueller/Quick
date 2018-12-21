@@ -11,18 +11,19 @@ namespace Qck;
 class DefaultErrorHandler implements Interfaces\ErrorHandler
 {
 
-  function __construct( $DisplayErrors = false, Interfaces\AdminMailer $AdminMailer = null )
+  function __construct( $CliMode = false, Interfaces\AdminMailer $AdminMailer = null )
   {
-    $this->DisplayErrors = $DisplayErrors;
-    $this->AdminMailer   = $AdminMailer;
+    $this->CliMode     = $CliMode;
+    $this->AdminMailer = $AdminMailer;
   }
 
   function install()
   {
     // basic error setup
     error_reporting( E_ALL );
-    ini_set( 'log_errors', intval(  ! $this->DisplayErrors ) );
-    ini_set( 'display_errors', intval( $this->DisplayErrors ) );
+    ini_set( 'log_errors', intval(  ! $this->CliMode ) );
+    ini_set( 'display_errors', intval( $this->CliMode ) );
+    ini_set( 'html_errors', intval(  ! $this->CliMode ) );
 
     set_error_handler( array ( $this, "errorHandler" ) );
     set_exception_handler( array ( $this, "exceptionHandler" ) );
@@ -40,7 +41,7 @@ class DefaultErrorHandler implements Interfaces\ErrorHandler
     throw $Exception;
   }
 
-  protected $DisplayErrors = false;
+  protected $CliMode = false;
 
   /**
    *

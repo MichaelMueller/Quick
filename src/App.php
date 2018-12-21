@@ -27,6 +27,21 @@ abstract class App implements Interfaces\App
     return true;
   }
 
+  protected function setupErrorHandling()
+  {
+    error_reporting( E_ALL );
+    $CliMode = $this->wasInvokedFromCli();
+    ini_set( 'log_errors', intval(  ! $CliMode ) );
+    ini_set( 'display_errors', intval( $CliMode ) );
+    ini_set( 'html_errors', intval(  ! $CliMode ) );
+    set_error_handler( array ( $this, "errorHandler" ) );
+  }
+
+  function errorHandler( $errno, $errstr, $errfile, $errline )
+  {
+    throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
+  }
+
   function buildUrl( $MethodName, array $QueryData = [] )
   {
     $CompleteQueryData = array_merge( [ $this->MethodParamName => $MethodName ], $QueryData );
@@ -35,6 +50,8 @@ abstract class App implements Interfaces\App
 
   function run()
   {
+    $this->setupErrorHandling();
+
     // find method and run
     $ShellMethods        = $this->getShellMethods();
     $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
