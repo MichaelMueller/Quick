@@ -27,38 +27,39 @@ class File implements \Qck\Interfaces\File, Interfaces\PersistableObject
   function setFilePath( $FilePath )
   {
     $this->FilePath = $FilePath;
-    $this->Changed  = true;
+    if ( $this->ObjectStorage )
+      $this->ObjectStorage->setScalar( "FilePath", $FilePath );
   }
 
   public function getBasename()
   {
-    return pathinfo( $this->FilePath, PATHINFO_BASENAME );
+    return pathinfo( $this->getPath(), PATHINFO_BASENAME );
   }
 
   public function getExtension()
   {
-    return pathinfo( $this->FilePath, PATHINFO_EXTENSION );
+    return pathinfo( $this->getPath(), PATHINFO_EXTENSION );
   }
 
   public function getFileName()
   {
-    return pathinfo( $this->FilePath, PATHINFO_FILENAME );
+    return pathinfo( $this->getPath(), PATHINFO_FILENAME );
   }
 
   public function getPath()
   {
-    return $this->FilePath;
+    return $this->ObjectStorage ? $this->ObjectStorage->get( "FilePath" ) : $this->FilePath;
   }
 
   public function isDir()
   {
-    return is_dir( $this->FilePath );
+    return is_dir( $this->getPath() );
   }
 
   public function readContents()
   {
-    $FilePath = $this->FilePath;
-    if ( ! file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
+    $FilePath = $this->getPath();
+    if ( !file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
       return null;
 
     $f       = fopen( $FilePath, "r" );
@@ -71,69 +72,46 @@ class File implements \Qck\Interfaces\File, Interfaces\PersistableObject
 
   public function writeContents( $Data )
   {
-    file_put_contents( $this->FilePath, $Data, LOCK_EX );
+    file_put_contents( $this->getPath(), $Data, LOCK_EX );
   }
 
   public function getParentDir()
   {
-    return dirname( $this->FilePath );
+    return dirname( $this->getPath() );
   }
 
   static function join( $BasePath, $FileName )
   {
-    $Path = $BasePath . DIRECTORY_SEPARATOR . $FileName;
+    $Path = $BasePath . "/" . $FileName;
 
-    return strpos( $Path, "\\" ) !== false ? str_replace( "/", "\\", $Path ) : str_replace( "\\", "/", $Path );
+    return strpos( $Path, "\\" ) !== false ? str_replace( "/", "\\", $Path ) : $Path;
   }
 
   public function getSize()
   {
-    return filesize( $this->FilePath );
+    return filesize( $this->getPath() );
   }
 
-  public function exists()
+  public function getObjectStorage()
   {
-    return file_exists( $this->FilePath );
+    return $this->ObjectStorage;
   }
 
-  public function getData()
+  public function setObjectStorage( Interfaces\ObjectStorage $ObjectStorage )
   {
-    return [ "FilePath" => $this->FilePath ];
+    $this->ObjectStorage = $ObjectStorage;
   }
 
-  public function getId()
-  {
-    return $this->Id;
-  }
-
-  public function hasChanged()
-  {
-    return $this->Changed;
-  }
-
-  public function setData( array $Data )
-  {
-    $this->FilePath = $Data[ "FilePath" ];
-  }
-
-  public function setId( $Id )
-  {
-    $this->Id = $Id;
-  }
-
-  public function setUnchanged()
-  {
-    $this->Changed = false;
-  }
-
-  public function delete()
-  {
-    if ( $this->exists() )
-      unlink( $this->FilePath );
-  }
-
-  protected $Id;
-  protected $Changed = false;
+  /**
+   *
+   * @var string
+   */
   protected $FilePath;
+
+  /**
+   *
+   * @var Interfaces\ObjectStorage
+   */
+  protected $ObjectStorage;
 
 }
