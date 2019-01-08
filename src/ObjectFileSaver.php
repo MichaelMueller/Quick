@@ -6,28 +6,21 @@ namespace Qck;
  *
  * @author muellerm
  */
-class FileObjectSaver implements Interfaces\ObjectSaver
+class ObjectFileSaver implements Interfaces\ObjectSaver
 {
-
-  function __construct( Interfaces\MetaObjects $MetaObjects, Interfaces\ObjectFileRegistry $ObjectFileRegistry, Interfaces\Serializer $Serializer )
-  {
-    $this->MetaObjects        = $MetaObjects;
-    $this->ObjectFileRegistry = $ObjectFileRegistry;
-    $this->Serializer         = $Serializer;
-  }
 
   public function save( $Object )
   {
-    // get MetaObject for object
-    $MetaObject = $this->MetaObjects->get( get_class( $Object ) );
+    // get ObjectSerializer for object
+    $ObjectSerializer = $this->ObjectSerializers->get( get_class( $Object ) );
 
     // get referenced objects
     // save all referenced objects first
-    foreach ( $MetaObject->getReferencedObjects( $Object ) as $ReferencedObject )
+    foreach ( $ObjectSerializer->getReferencedObjects( $Object ) as $ReferencedObject )
       $this->save( $ReferencedObject );
 
     // add referenced object ids (stored internally in property array) to data array
-    $StringArray = $MetaObject->toStringArray( $Object );
+    $StringArray = $ObjectSerializer->toStringArray( $Object );
 
     // create data file using an existing or new id
     $File = $this->ObjectFileRegistry->getFile( $Object, $this->Serializer->getFileExtension() );
@@ -38,9 +31,9 @@ class FileObjectSaver implements Interfaces\ObjectSaver
 
   /**
    *
-   * @var Interfaces\MetaObjects 
+   * @var Interfaces\ObjectSerializers 
    */
-  protected $MetaObjects;
+  protected $ObjectSerializers;
 
   /**
    *
