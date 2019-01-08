@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class ObjectFileDeleter implements Interfaces\ObjectDeleter
+class ObjectFileDeleter implements Interfaces\ObjectDatabase
 {
 
   public function deleteMany( $Fqcn, Interfaces\ObjectProperties $Properties )
