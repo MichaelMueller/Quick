@@ -9,11 +9,17 @@ namespace Qck;
 class FileObjectSaver implements Interfaces\ObjectSaver
 {
 
+  function __construct( Interfaces\MetaObjects $MetaObjects, Interfaces\ObjectFileRegistry $ObjectFileRegistry, Interfaces\Serializer $Serializer )
+  {
+    $this->MetaObjects        = $MetaObjects;
+    $this->ObjectFileRegistry = $ObjectFileRegistry;
+    $this->Serializer         = $Serializer;
+  }
+
   public function save( $Object )
   {
-    // get schema for object
-    $Fqcn       = get_class( $Object );
-    $MetaObject = $this->MetaObjects->get( $Fqcn );
+    // get MetaObject for object
+    $MetaObject = $this->MetaObjects->get( get_class( $Object ) );
 
     // get referenced objects
     // save all referenced objects first
