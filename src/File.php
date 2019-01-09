@@ -57,7 +57,7 @@ class File implements \Qck\Interfaces\File, Interfaces\Serialization\Serializabl
   public function readContents()
   {
     $FilePath = $this->getPath();
-    if ( ! file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
+    if ( !file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
       return null;
 
     $f       = fopen( $FilePath, "r" );
@@ -121,7 +121,8 @@ class File implements \Qck\Interfaces\File, Interfaces\Serialization\Serializabl
       unlink( $FilePath );
   }
 
-  public function fromScalarArray( array $ScalarArray, Interfaces\Serialization\Source $Source )
+  public function fromScalarArray( array $ScalarArray,
+                                   Interfaces\Serialization\Source $Source, $Reload = false )
   {
     $this->FilePath = $ScalarArray[ 0 ];
   }

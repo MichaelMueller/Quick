@@ -26,23 +26,31 @@ class FileSource implements \Qck\Interfaces\Serialization\Source
 
     // otherwise load it    
     $File       = $this->DataFileProvider->getFile( $ObjectId );
-    if ( ! $File->exists() )
+    if ( !$File->exists() )
       return null;
     $DataString = $File->readContents();
     $DataArray  = $this->DataFileProvider->getArraySerializer()->unserialize( $DataString );
-    if ( ! $DataArray )
+    if ( !$DataArray )
       return null;
     $Fqcn       = array_pop( $DataArray );
 
     // if object does not exist, create it and save in registry
-    if ( ! $Object )
+    if ( !$Object )
     {
       $Object = new $Fqcn();
       $this->ObjectRegistry->setObject( $ObjectId, $Object );
     }
     // load data
-    $Object->fromScalarArray( $DataArray, $this );
+    $Object->fromScalarArray( $DataArray, $this, $Reload );
     return $Object;
+  }
+
+  public function createLazyLoader( $Id, $Reload = false )
+  {
+    return function() use($Id, $Reload)
+    {
+      return $this->load( $Id, $Reload );
+    };
   }
 
   /**
