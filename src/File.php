@@ -59,7 +59,7 @@ class File implements \Qck\Interfaces\File
   public function readContents()
   {
     $FilePath = $this->getPath();
-    if ( !file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
+    if ( ! file_exists( $FilePath ) || filesize( $FilePath ) == 0 )
       return null;
 
     $f       = fopen( $FilePath, "r" );
@@ -105,6 +105,32 @@ class File implements \Qck\Interfaces\File
   public function exists()
   {
     return file_exists( $this->getPath() );
+  }
+
+  public function deleteIfExists()
+  {
+    if ( $this->exists() )
+      $this->deleteInternal( $this->getPath(), true );
+  }
+
+  protected function deleteInternal( $FilePath, $Delete = true )
+  {
+    if ( is_dir( $FilePath ) )
+    {
+      $objects = scandir( $FilePath );
+      foreach ( $objects as $object )
+      {
+        if ( $object != "." && $object != ".." )
+        {
+          $CurrentFilePath = $this->join( $FilePath, $object );
+          $this->deleteInternal( $CurrentFilePath, true );
+        }
+      }
+      if ( $Delete )
+        rmdir( $FilePath );
+    }
+    else if ( is_file( $FilePath ) && $Delete )
+      unlink( $FilePath );
   }
 
   /**

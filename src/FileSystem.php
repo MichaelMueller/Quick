@@ -140,7 +140,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
         if ( $object != "." && $object != ".." )
         {
           $CurrentFilePath = $this->join( $FilePath, $object );
-          $this->delete( $CurrentFilePath, true );
+          $this->deleteInternal( $CurrentFilePath, true );
         }
       }
       if ( $Delete )
