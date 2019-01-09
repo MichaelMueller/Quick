@@ -7,7 +7,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class File implements \Qck\Interfaces\File, Interfaces\PersistableObject
+class File implements \Qck\Interfaces\File
 {
 
   static function createFromDirAndBasename( $ParentDir, $FileBasename )
@@ -100,6 +100,11 @@ class File implements \Qck\Interfaces\File, Interfaces\PersistableObject
   public function setObjectStorage( Interfaces\ObjectStorage $ObjectStorage )
   {
     $this->ObjectStorage = $ObjectStorage;
+  }
+
+  public function exists()
+  {
+    return file_exists( $this->getPath() );
   }
 
   /**
