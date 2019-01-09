@@ -7,7 +7,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class File implements \Qck\Interfaces\File
+class File implements \Qck\Interfaces\File, Interfaces\Serialization\Serializable
 {
 
   static function createFromDirAndBasename( $ParentDir, $FileBasename )
@@ -27,8 +27,6 @@ class File implements \Qck\Interfaces\File
   function setFilePath( $FilePath )
   {
     $this->FilePath = $FilePath;
-    if ( $this->ObjectStorage )
-      $this->ObjectStorage->setScalar( "FilePath", $FilePath );
   }
 
   public function getBasename()
@@ -48,7 +46,7 @@ class File implements \Qck\Interfaces\File
 
   public function getPath()
   {
-    return $this->ObjectStorage ? $this->ObjectStorage->get( "FilePath" ) : $this->FilePath;
+    return $this->FilePath;
   }
 
   public function isDir()
@@ -92,16 +90,6 @@ class File implements \Qck\Interfaces\File
     return filesize( $this->getPath() );
   }
 
-  public function getObjectStorage()
-  {
-    return $this->ObjectStorage;
-  }
-
-  public function setObjectStorage( Interfaces\ObjectStorage $ObjectStorage )
-  {
-    $this->ObjectStorage = $ObjectStorage;
-  }
-
   public function exists()
   {
     return file_exists( $this->getPath() );
@@ -133,16 +121,30 @@ class File implements \Qck\Interfaces\File
       unlink( $FilePath );
   }
 
+  public function fromScalarArray( array $ScalarArray, Interfaces\Serialization\Source $Source )
+  {
+    $this->FilePath = $ScalarArray[ 0 ];
+  }
+
+  public function getOwnedObjects()
+  {
+    return [];
+  }
+
+  public function toScalarArray( Interfaces\Serialization\ObjectIdProvider $ObjectIdProvider )
+  {
+    return [ $this->FilePath ];
+  }
+
+  public function touch()
+  {
+    touch( $this->getPath() );
+  }
+
   /**
    *
    * @var string
    */
   protected $FilePath;
-
-  /**
-   *
-   * @var Interfaces\ObjectStorage
-   */
-  protected $ObjectStorage;
 
 }

@@ -6,7 +6,7 @@ namespace Qck\Serializer;
  *
  * @author muellerm
  */
-class JsonSerializer implements \Qck\Interfaces\Serializer
+class JsonSerializer implements \Qck\Interfaces\ArraySerializer
 {
 
   public function getFileExtension()

@@ -10,6 +10,13 @@ namespace Qck\Serialization;
 class FileSinkCleaner implements \Qck\Interfaces\Serialization\SinkCleaner
 {
 
+  function __construct( \Qck\Interfaces\Serialization\ObjectRegistry $ObjectRegistry,
+                        \Qck\Interfaces\Serialization\DataFileProvider $DataFileProvider )
+  {
+    $this->ObjectRegistry   = $ObjectRegistry;
+    $this->DataFileProvider = $DataFileProvider;
+  }
+
   public function delete( \Qck\Interfaces\Serialization\Serializable $Object )
   {
     // call export on all possesed objects

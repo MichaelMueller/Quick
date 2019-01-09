@@ -7,7 +7,7 @@ namespace Qck\Serializer;
  *
  * @author muellerm
  */
-class CsvSerializer implements \Qck\Interfaces\Serializer
+class CsvSerializer implements \Qck\Interfaces\ArraySerializer
 {
 
   function __construct( $Delimiter = "\t" )

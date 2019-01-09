@@ -7,7 +7,7 @@ namespace Qck\Serializer;
  *
  * @author muellerm
  */
-class StdSerializer implements \Qck\Interfaces\Serializer
+class StdSerializer implements \Qck\Interfaces\ArraySerializer
 {
 
   public function getFileExtension()

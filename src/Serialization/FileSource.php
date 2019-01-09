@@ -10,6 +10,13 @@ namespace Qck\Serialization;
 class FileSource implements \Qck\Interfaces\Serialization\Source
 {
 
+  function __construct( \Qck\Interfaces\Serialization\ObjectRegistry $ObjectRegistry,
+                        \Qck\Interfaces\Serialization\DataFileProvider $DataFileProvider )
+  {
+    $this->ObjectRegistry   = $ObjectRegistry;
+    $this->DataFileProvider = $DataFileProvider;
+  }
+
   function load( $ObjectId, $Reload = false )
   {
     // check if it exists
@@ -22,7 +29,7 @@ class FileSource implements \Qck\Interfaces\Serialization\Source
     if ( ! $File->exists() )
       return null;
     $DataString = $File->readContents();
-    $DataArray  = $this->DataFileProvider->getSerializer()->unserialize( $DataString );
+    $DataArray  = $this->DataFileProvider->getArraySerializer()->unserialize( $DataString );
     if ( ! $DataArray )
       return null;
     $Fqcn       = array_pop( $DataArray );

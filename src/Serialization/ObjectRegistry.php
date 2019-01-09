@@ -10,6 +10,11 @@ namespace Qck\Serialization;
 class ObjectRegistry implements \Qck\Interfaces\Serialization\ObjectRegistry
 {
 
+  function __construct( \Qck\Interfaces\Serialization\ObjectIdGenerator $ObjectIdGenerator )
+  {
+    $this->ObjectIdGenerator = $ObjectIdGenerator;
+  }
+
   public function getObject( $Id )
   {
     return isset( $this->IdToObject[ $Id ] ) ? $this->IdToObject[ $Id ] : null;
@@ -33,8 +38,14 @@ class ObjectRegistry implements \Qck\Interfaces\Serialization\ObjectRegistry
 
   /**
    *
+   * @var \Qck\Interfaces\Serialization\ObjectIdGenerator
+   */
+  protected $ObjectIdGenerator;
+
+  /**
+   *
    * @var string
    */
-  protected $IdToObject;
+  protected $IdToObject=[];
 
 }

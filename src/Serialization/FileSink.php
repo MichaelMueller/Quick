@@ -26,9 +26,9 @@ class FileSink implements \Qck\Interfaces\Serialization\Sink
 
     // now convert to array, append meta info (fqcn,id) and convert to string
     $DataArray   = $Object->toScalarArray( $this->ObjectIdProvider );
-    $ObjectId    = $this->ObjectIdProvider->getObjectId( $Object );
+    $ObjectId    = $this->ObjectIdProvider->getId( $Object );
     $DataArray[] = get_class( $Object );
-    $DataString  = $this->DataFileProvider->getSerializer()->serialize( $DataArray );
+    $DataString  = $this->DataFileProvider->getArraySerializer()->serialize( $DataArray );
 
     // get or create id and create file based on this id to write to
     $File = $this->DataFileProvider->getFile( $ObjectId );
