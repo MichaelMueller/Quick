@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Serialization;
+namespace Qck;
 
 /**
  * An interface for exporting objects
@@ -20,7 +20,7 @@ class ObjectRegistry implements \Qck\Interfaces\ObjectRegistry
     return isset( $this->IdToObject[ $Id ] ) ? $this->IdToObject[ $Id ] : null;
   }
 
-  public function setObject( $Id, \Qck\Interfaces\Serializable $Object )
+  public function setObject( $Id, $Object )
   {
     $this->IdToObject[ $Id ] = $Object;
   }

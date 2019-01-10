@@ -11,11 +11,11 @@ class ObjectFromFileImporter implements \Qck\Interfaces\ObjectSource
 {
 
   function __construct( \Qck\Interfaces\ObjectArrayMappers $ObjectArrayMapperProvider,
-                        \Qck\Interfaces\FileSerializationHelper $FileSerializationHelper,
+                        \Qck\Interfaces\DataDirectory $DataDirectory,
                         \Qck\Interfaces\ObjectArrayMappers $ObjectArrayMapperProvider )
   {
     $this->ObjectArrayMapperProvider = $ObjectArrayMapperProvider;
-    $this->FileSerializationHelper          = $FileSerializationHelper;
+    $this->DataDirectory             = $DataDirectory;
     $this->ObjectArrayMapperProvider = $ObjectArrayMapperProvider;
   }
 
@@ -27,11 +27,11 @@ class ObjectFromFileImporter implements \Qck\Interfaces\ObjectSource
       return $Object;
 
     // otherwise load it    
-    $File        = $this->FileSerializationHelper->getFile( $ObjectId );
+    $File        = $this->DataDirectory->getFile( $ObjectId );
     if ( !$File->exists() )
       return null;
     $DataString  = $File->readContents();
-    $ScalarArray = $this->FileSerializationHelper->getArraySerializer()->unserialize( $DataString );
+    $ScalarArray = $this->ArraySerializer->unserialize( $DataString );
     if ( !$ScalarArray )
       return null;
     $Fqcn        = array_pop( $ScalarArray );
@@ -59,15 +59,15 @@ class ObjectFromFileImporter implements \Qck\Interfaces\ObjectSource
 
   /**
    *
-   * @var \Qck\Interfaces\ObjectArrayMapperProvider
+   * @var \Qck\Interfaces\DataDirectory
    */
-  protected $ObjectArrayMapperProvider;
+  protected $DataDirectory;
 
   /**
    *
-   * @var \Qck\Interfaces\FileSerializationHelper
+   * @var \Qck\Interfaces\ArraySerializer
    */
-  protected $FileSerializationHelper;
+  protected $ArraySerializer;
 
   /**
    *

@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Serialization;
+namespace Qck;
 
 /**
  * An interface for exporting objects
