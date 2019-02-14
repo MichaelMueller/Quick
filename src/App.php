@@ -8,38 +8,46 @@ namespace Qck;
  * 
  * @author muellerm
  */
-abstract class App implements Interfaces\App
+abstract class App
 {
 
   /**
-   * 
-   * @return bool
+   * @return Interfaces\Inputs
    */
-  function wasInvokedFromCli()
+  abstract function getInputs();
+
+  /**
+   * @return string[]
+   */
+  abstract function getShellMethods();
+
+  function __construct( $DevMode = false, $MethodParamName = "m" )
   {
-    if ( ! $this->InvokedFromCli )
-      $this->InvokedFromCli = ! isset( $_SERVER[ 'SERVER_SOFTWARE' ] ) && (php_sapi_name() == 'cli' || is_numeric( $_SERVER[ 'argc' ] ) && $_SERVER[ 'argc' ] > 0);
-    return $this->InvokedFromCli;
+    $this->DevMode         = $DevMode;
+    $this->MethodParamName = $MethodParamName;
   }
 
-  protected function disableMethodAuthForCli()
+  function isCli()
   {
-    return true;
+    if ( defined( 'STDIN' ) )
+    {
+      return true;
+    }
+
+    if ( empty( $_SERVER[ 'REMOTE_ADDR' ] ) and ! isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) and count( $_SERVER[ 'argv' ] ) > 0 )
+    {
+      return true;
+    }
+
+    return false;
   }
 
   protected function setupErrorHandling()
   {
     error_reporting( E_ALL );
-    $CliMode = $this->wasInvokedFromCli();
-    ini_set( 'log_errors', intval(  ! $CliMode ) );
-    ini_set( 'display_errors', intval( $CliMode ) );
-    ini_set( 'html_errors', intval(  ! $CliMode ) );
-    set_error_handler( array ( $this, "errorHandler" ) );
-  }
-
-  function errorHandler( $errno, $errstr, $errfile, $errline )
-  {
-    throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
+    ini_set( 'log_errors', intval(  ! $this->DevMode ) );
+    ini_set( 'display_errors', intval( $this->DevMode ) );
+    ini_set( 'html_errors', intval(  ! $this->isCli() ) );
   }
 
   function buildUrl( $MethodName, array $QueryData = [] )
@@ -58,24 +66,10 @@ abstract class App implements Interfaces\App
     if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
     {
       $Error = sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName );
-      throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_INTERNAL_ERROR );
+      throw new \InvalidArgumentException( $Error, Interfaces\HttpResponder::EXIT_CODE_INTERNAL_ERROR );
     }
 
-    $Method             = new \ReflectionMethod( $this, $RequestedMethodName );
-    $MethodAuthDisabled = $this->wasInvokedFromCli() && $this->disableMethodAuthForCli();
-    if ( $MethodAuthDisabled == false && $Method->isPublic() == false )
-    {
-      $MethodAllowed = false;
-      $User          = $this->getUserDb()->getUser( $this->getSession()->getUsername() );
-      if ( $User )
-        $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
-
-      if ( $MethodAllowed === false )
-      {
-        $Error = sprintf( "Method %s is not allowed to be called.", $RequestedMethodName );
-        throw new \Exception( $Error, Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
-      }
-    }
+    $Method          = new \ReflectionMethod( $this, $RequestedMethodName );
     $RequestedParams = $Method->getParameters();
     $FoundParams     = [];
     foreach ( $RequestedParams as $RequestedParam )
@@ -89,12 +83,12 @@ abstract class App implements Interfaces\App
    *
    * @var bool 
    */
-  protected $InvokedFromCli;
+  protected $DevMode;
 
   /**
    *
    * @var string
    */
-  protected $MethodParamName = "q";
+  protected $MethodParamName;
 
 }

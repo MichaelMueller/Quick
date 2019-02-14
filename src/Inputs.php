@@ -9,59 +9,93 @@ namespace Qck;
 class Inputs implements \Qck\Interfaces\Inputs
 {
 
-  function __construct($Params = null)
+  function __construct( $Params = null )
   {
     $this->Params = $Params;
   }
 
-  function setParams($Params)
+  function setParams( $Params )
   {
     $this->Params = $Params;
   }
 
-  public function get($Name, $Default = null)
+  public function get( $Name, $Default = null )
   {
     $Params = $this->getParams();
-    return isset($Params[$Name]) ? $Params[$Name] : $Default;
+    return isset( $Params[ $Name ] ) ? $Params[ $Name ] : $Default;
   }
 
   protected function getArgvAsParamsArray()
   {
-    $Params = [];
-
-    $argv = $_SERVER["argv"];
-    $pos  = 1;
-    for ($i = 1; $i < count($argv); $i++)
+    array_shift( $argv );
+    $out = array ();
+    foreach ( $argv as $arg )
     {
-      $match = [];
-      if (preg_match('/^--([^=]+)=(.*)/', $argv[$i], $match))
+      // --foo --bar=baz
+      if ( substr( $arg, 0, 2 ) == '--' )
       {
-        $Params[$match[1]] = $match[2];
+        $eqPos = strpos( $arg, '=' );
+        // --foo
+        if ( $eqPos === false )
+        {
+          $key         = substr( $arg, 2 );
+          $value       = isset( $out[ $key ] ) ? $out[ $key ] : true;
+          $out[ $key ] = $value;
+        }
+        // --bar=baz
+        else
+        {
+          $key         = substr( $arg, 2, $eqPos - 2 );
+          $value       = substr( $arg, $eqPos + 1 );
+          $out[ $key ] = $value;
+        }
       }
-      else if (preg_match('/^-([^=]+)=(.*)/', $argv[$i], $match))
+      // -k=value -abc
+      else if ( substr( $arg, 0, 1 ) == '-' )
       {
-        $Params[$match[1]] = $match[2];
+        // -k=value
+        if ( substr( $arg, 2, 1 ) == '=' )
+        {
+          $key         = substr( $arg, 1, 1 );
+          $value       = substr( $arg, 3 );
+          $out[ $key ] = $value;
+        }
+        // -abc
+        else
+        {
+          $chars = str_split( substr( $arg, 1 ) );
+          foreach ( $chars as $char )
+          {
+            $key         = $char;
+            $value       = isset( $out[ $key ] ) ? $out[ $key ] : true;
+            $out[ $key ] = $value;
+          }
+        }
       }
+      // plain-arg
       else
       {
-        $Params[$pos] = $argv[$i];
-        $pos++;
+        $value = $arg;
+        $out[] = $value;
       }
     }
-    return $Params;
+
+    return $out;
   }
 
-  public function has($Name)
+  public function has( $Name )
   {
     $Params = $this->getParams();
-    return isset($Params[$Name]);
+    return isset( $Params[ $Name ] );
   }
 
   public function getParams()
   {
-    if (!$this->Params)
+    if ( ! $this->Params )
     {
-      $this->Params = isset($_SERVER["argc"]) ? $this->getArgvAsParamsArray() : $_REQUEST;
+      $CmdParams     = isset( $_SERVER[ "argc" ] ) ? $this->getArgvAsParamsArray() : [];
+      $RequestParams = isset( $_REQUEST ) ? $_REQUEST : [];
+      $this->Params  = array_merge( $RequestParams, $CmdParams );
     }
     return $this->Params;
   }

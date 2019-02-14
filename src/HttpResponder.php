@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class DefaultHttpResponder implements \Qck\Interfaces\HttpResponder
+class HttpResponder implements \Qck\Interfaces\HttpResponder
 {
 
   public function send( Interfaces\Output $Output, $ExitCode = \Qck\Interfaces\HttpResponder::EXIT_CODE_OK )
