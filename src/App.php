@@ -11,84 +11,90 @@ namespace Qck;
 abstract class App
 {
 
-  /**
-   * @return Interfaces\Inputs
-   */
-  abstract function getInputs();
+    /**
+     * @return Interfaces\Inputs
+     */
+    abstract function getInputs();
 
-  /**
-   * @return string[]
-   */
-  abstract function getShellMethods();
+    /**
+     * @return Interfaces\CliDetector
+     */
+    abstract function getCliDetector();
 
-  function __construct( $DevMode = false, $MethodParamName = "m" )
-  {
-    $this->DevMode         = $DevMode;
-    $this->MethodParamName = $MethodParamName;
-  }
+    /**
+     * @return Interfaces\CurrentUserService
+     */
+    abstract function getCurrentUserService();
 
-  function isCli()
-  {
-    if ( defined( 'STDIN' ) )
+    /**
+     * @return string[]
+     */
+    abstract function getShellMethods();
+
+    protected function setupErrorHandling()
     {
-      return true;
+        error_reporting(E_ALL);
+        ini_set('log_errors', intval(!$this->DevMode));
+        ini_set('display_errors', intval($this->DevMode));
+        ini_set('html_errors', intval(!$this->getCliDetector()->isCli()));
     }
 
-    if ( empty( $_SERVER[ 'REMOTE_ADDR' ] ) and ! isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) and count( $_SERVER[ 'argv' ] ) > 0 )
+    function buildUrl($MethodName, array $QueryData = [])
     {
-      return true;
+        $CompleteQueryData = array_merge([$this->MethodParamName => $MethodName], $QueryData);
+        return "?" . http_build_query($CompleteQueryData);
     }
 
-    return false;
-  }
-
-  protected function setupErrorHandling()
-  {
-    error_reporting( E_ALL );
-    ini_set( 'log_errors', intval(  ! $this->DevMode ) );
-    ini_set( 'display_errors', intval( $this->DevMode ) );
-    ini_set( 'html_errors', intval(  ! $this->isCli() ) );
-  }
-
-  function buildUrl( $MethodName, array $QueryData = [] )
-  {
-    $CompleteQueryData = array_merge( [ $this->MethodParamName => $MethodName ], $QueryData );
-    return "?" . http_build_query( $CompleteQueryData );
-  }
-
-  function run()
-  {
-    $this->setupErrorHandling();
-
-    // find method and run
-    $ShellMethods        = $this->getShellMethods();
-    $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
-    if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
+    function handleError($Error, $ReturnCode)
     {
-      $Error = sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName );
-      throw new \InvalidArgumentException( $Error, Interfaces\HttpResponder::EXIT_CODE_INTERNAL_ERROR );
+        if ($this->getCliDetector()->isCli() == false)
+            http_response_code($ReturnCode);
+        if ($this->DevMode)
+            print $Error;
+        else
+            error_log($Error);
+        exit(-1);
     }
 
-    $Method          = new \ReflectionMethod( $this, $RequestedMethodName );
-    $RequestedParams = $Method->getParameters();
-    $FoundParams     = [];
-    foreach ( $RequestedParams as $RequestedParam )
-      $FoundParams[]   = $this->getInputs()->get( $RequestedParam->getName(), null );
+    function run()
+    {
 
-    $Method->setAccessible( true );
-    $Method->invokeArgs( $this, $FoundParams );
-  }
+        // find method and run
+        $ShellMethods = $this->getShellMethods();
+        $RequestedMethodName = $this->getInputs()->get($this->MethodParamName, $ShellMethods[0]);
+        if (in_array($RequestedMethodName, $ShellMethods) === false)
+            $this->handleError(sprintf("Method %s is not declared as Shell Method.", $RequestedMethodName), 404);
 
-  /**
-   *
-   * @var bool 
-   */
-  protected $DevMode;
+        $Method = new \ReflectionMethod($this, $RequestedMethodName);
+        if ($Method->isPublic() == false)
+        {
+            $MethodAllowed = false;
+            $User = $this->getCurrentUserService()->getCurrentUser();
+            if ($User)
+                $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
 
-  /**
-   *
-   * @var string
-   */
-  protected $MethodParamName;
+            if ($MethodAllowed === false)
+                $this->handleError(sprintf("Method %s is not allowed to be called.", $RequestedMethodName), Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED);
+        }
+        $RequestedParams = $Method->getParameters();
+        $FoundParams = [];
+        foreach ($RequestedParams as $RequestedParam)
+            $FoundParams[] = $this->getInputs()->get($RequestedParam->getName(), null);
+
+        $Method->setAccessible(true);
+        $Method->invokeArgs($this, $FoundParams);
+    }
+
+    /**
+     *
+     * @var bool 
+     */
+    protected $DevMode = false;
+
+    /**
+     *
+     * @var string
+     */
+    protected $MethodParamName = "function";
 
 }
