@@ -73,6 +73,7 @@ abstract class App
         // find method and run
         $ShellMethods        = $this->getShellMethods();
         $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
+        
         if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
             throw new \Exception( sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName ), 404 );
 
