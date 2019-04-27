@@ -32,12 +32,12 @@ abstract class BooleanExpression implements Interfaces\BooleanExpression
 
   function filterRequest( \Qck\Interfaces\Request $Request, &$FailedExpressions = [] )
   {
-    return $this->filterVar( $Request->getParams(), $FailedExpressions );
+    return $this->filterVar( $Request->getData(), $FailedExpressions );
   }
 
   function evaluateRequest( \Qck\Interfaces\Request $Request,
                             &$FilteredArray = array (), &$FailedExpressions = array () )
   {
-    return $this->evaluate( $Request->getParams(), $FilteredArray, $FailedExpressions );
+    return $this->evaluate( $Request->getData(), $FilteredArray, $FailedExpressions );
   }
 }

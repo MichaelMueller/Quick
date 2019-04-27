@@ -22,9 +22,9 @@ abstract class App
     abstract function getCliDetector();
 
     /**
-     * @return Interfaces\CurrentUserService
+     * @return Interfaces\Session
      */
-    abstract function getCurrentUserService();
+    abstract function getSession();
 
     /**
      * @return string[]
@@ -69,7 +69,7 @@ abstract class App
         if ($Method->isPublic() == false)
         {
             $MethodAllowed = false;
-            $User = $this->getCurrentUserService()->getCurrentUser();
+            $User = $this->getSession()->getCurrentUser();
             if ($User)
                 $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
 
