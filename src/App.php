@@ -27,6 +27,11 @@ abstract class App
     abstract function getSession();
 
     /**
+     * @return Interfaces\UserDb
+     */
+    abstract function getUserDb();
+
+    /**
      * @return string[]
      */
     abstract function getShellMethods();
@@ -69,10 +74,10 @@ abstract class App
         $ShellMethods        = $this->getShellMethods();
         $RequestedMethodName = $this->getInputs()->get( $this->MethodParamName, $ShellMethods[ 0 ] );
         if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
-            throw new \Exception ( sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName ), 404 );
+            throw new \Exception( sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName ), 404 );
 
         $Method = new \ReflectionMethod( $this, $RequestedMethodName );
-        if ( $Method->isPublic() == false && ($this->AuthOnCli || $this->getCliDetector()->isCli() == false) )
+        if ( $Method->isPublic() == false )
         {
             $MethodAllowed = false;
             $User          = $this->getSession()->getCurrentUser();
@@ -91,14 +96,9 @@ abstract class App
         $Method->invokeArgs( $this, $FoundParams );
     }
 
-    function getDevMode()
+    function isDevMode()
     {
         return $this->DevMode;
-    }
-
-    function getAuthOnCli()
-    {
-        return $this->AuthOnCli;
     }
 
     function getMethodParamName()
@@ -111,14 +111,16 @@ abstract class App
         $this->DevMode = $DevMode;
     }
 
-    function setAuthOnCli( $AuthOnCli )
-    {
-        $this->AuthOnCli = $AuthOnCli;
-    }
-
     function setMethodParamName( $MethodParamName )
     {
         $this->MethodParamName = $MethodParamName;
+    }
+
+    protected function getSingleton( $Name, callable $Factory )
+    {
+        if ( !isset( $this->Singletons[ $Name ] ) )
+            $this->Singletons[ $Name ] = call_user_func( $Factory );
+        return $this->Singletons[ $Name ];
     }
 
     /**
@@ -129,14 +131,14 @@ abstract class App
 
     /**
      *
-     * @var bool 
-     */
-    protected $AuthOnCli = true;
-
-    /**
-     *
      * @var string
      */
     protected $MethodParamName = "q";
+
+    /**
+     *
+     * @var array[object]
+     */
+    protected $Singletons;
 
 }
