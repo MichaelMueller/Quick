@@ -100,11 +100,12 @@ class Session implements \Qck\Interfaces\Session
         }
 
         // check timeout
-        $currTime = time();
-        $prevTime = isset( $_SESSION[ "LastSessionStart" ] ) ? $_SESSION[ "LastSessionStart" ] : null;
-        if ( $prevTime )
+        $currTime    = time();
+        $prevTime    = isset( $_SESSION[ "LastSessionStart" ] ) ? $_SESSION[ "LastSessionStart" ] : null;
+        $timeOutSecs = isset( $_SESSION[ "TimeOutSecs" ] ) ? $_SESSION[ "TimeOutSecs" ] : null;
+        if ( $prevTime && $timeOutSecs )
         {
-            if ( $prevTime + $_SESSION[ "TimeOutSecs" ] < $currTime )
+            if ( $prevTime + $timeOutSecs < $currTime )
             {
                 session_unset();
                 session_destroy();

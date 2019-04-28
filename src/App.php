@@ -77,11 +77,13 @@ abstract class App
         if ( in_array( $RequestedMethodName, $ShellMethods ) === false )
             throw new \Exception( sprintf( "Method %s is not declared as Shell Method.", $RequestedMethodName ), 404 );
 
-        $Method = new \ReflectionMethod( $this, $RequestedMethodName );
-        if ( $Method->isPublic() == false )
+        $Method                  = new \ReflectionMethod( $this, $RequestedMethodName );
+        $IsCli                   = $this->getCliDetector()->isCli();
+        $IsOnCliAndAuthNecessary = $this->AuthOnCli && $IsCli;
+        if ( $Method->isPublic() == false && ($IsCli == false || $IsOnCliAndAuthNecessary) )
         {
             $MethodAllowed = false;
-            $User          = $this->getSession()->getCurrentUser();
+            $User          = $this->getUserDb()->getUser( $this->getSession()->getUsername() );
             if ( $User )
                 $MethodAllowed = $Method->isProtected() || ($Method->isPrivate() && $User->isAdmin());
 
@@ -95,6 +97,11 @@ abstract class App
 
         $Method->setAccessible( true );
         $Method->invokeArgs( $this, $FoundParams );
+    }
+
+    function setAuthOnCli( $AuthOnCli )
+    {
+        $this->AuthOnCli = $AuthOnCli;
     }
 
     function isDevMode()
@@ -129,6 +136,12 @@ abstract class App
      * @var bool 
      */
     protected $DevMode = false;
+
+    /**
+     *
+     * @var bool 
+     */
+    protected $AuthOnCli = true;
 
     /**
      *
