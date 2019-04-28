@@ -9,49 +9,69 @@ namespace Qck;
 class User implements \Qck\Interfaces\User, Interfaces\Serialization\Serializable
 {
 
-  public function getAuthenticator()
-  {
-    return $this->Authenticator;
-  }
+    function setUsername( $Username )
+    {
+        $this->Username = $Username;
+    }
 
-  public function getHashedPassword()
-  {
-    return $this->HashedPassword;
-  }
+    function setHashedPassword( $HashedPassword )
+    {
+        $this->HashedPassword = $HashedPassword;
+    }
 
-  public function getUsername()
-  {
-    return $this->Username;
-  }
+    function setAuthenticator( $Authenticator )
+    {
+        $this->Authenticator = $Authenticator;
+    }
 
-  public function isAdmin()
-  {
-    return $this->Admin;
-  }
+    function setAdmin( $Admin )
+    {
+        $this->Admin = $Admin;
+    }
 
-  public function fromScalarArray( array $ScalarArray,
-                                   Interfaces\Serialization\Source $Source,
-                                   $Reload = false )
-  {
-    $this->Username       = $ScalarArray[ 0 ];
-    $this->HashedPassword = $ScalarArray[ 1 ];
-    $this->Authenticator  = $ScalarArray[ 2 ];
-    $this->Admin          = $ScalarArray[ 3 ];
-  }
+    public function getAuthenticator()
+    {
+        return $this->Authenticator;
+    }
 
-  public function getOwnedObjects()
-  {
-    return [];
-  }
+    public function getHashedPassword()
+    {
+        return $this->HashedPassword;
+    }
 
-  public function toScalarArray( Interfaces\Serialization\ObjectIdProvider $ObjectIdProvider )
-  {
-    return [ $this->Username, $this->HashedPassword, $this->Authenticator, $this->Admin ];
-  }
+    public function getUsername()
+    {
+        return $this->Username;
+    }
 
-  protected $Username;
-  protected $HashedPassword;
-  protected $Authenticator;
-  protected $Admin;
+    public function isAdmin()
+    {
+        return $this->Admin;
+    }
+
+    public function fromScalarArray( array $ScalarArray,
+                                     Interfaces\Serialization\Source $Source,
+                                     $Reload = false )
+    {
+        $this->Username       = $ScalarArray[ 0 ];
+        $this->HashedPassword = $ScalarArray[ 1 ];
+        $this->Authenticator  = $ScalarArray[ 2 ];
+        $this->Admin          = $ScalarArray[ 3 ];
+    }
+
+    public function getOwnedObjects()
+    {
+        return [];
+    }
+
+    public function toScalarArray( Interfaces\Serialization\ObjectIdProvider $ObjectIdProvider )
+    {
+        return [ $this->Username, $this->HashedPassword, $this->Authenticator, $this->Admin ];
+    }
+
+    protected $Username;
+    protected $HashedPassword;
+    protected $Authenticator;
+    protected $Admin;
 
 }

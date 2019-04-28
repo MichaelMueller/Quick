@@ -71,19 +71,19 @@ class IpAddress implements \Qck\Interfaces\IpAddress
      */
     public function getValue()
     {
-        $ip = $this->getIpAddressFromProxy();
-        if ( $ip )
+        static $ip = null;
+        if ( is_null( $ip ) )
         {
-            return $ip;
+            $ip = $this->getIpAddressFromProxy();
+
+            // direct IP address
+            if ( isset( $_SERVER[ 'REMOTE_ADDR' ] ) )
+            {
+                $ip = $_SERVER[ 'REMOTE_ADDR' ];
+            }
         }
 
-        // direct IP address
-        if ( isset( $_SERVER[ 'REMOTE_ADDR' ] ) )
-        {
-            return $_SERVER[ 'REMOTE_ADDR' ];
-        }
-
-        return null;
+        return $ip;
     }
 
     /**
@@ -150,7 +150,7 @@ class IpAddress implements \Qck\Interfaces\IpAddress
 
     public function isValid()
     {
-        if ( filter_var( $ip, FILTER_VALIDATE_IP, $this->FilterFlags ) )
+        if ( filter_var( $this->getValue(), FILTER_VALIDATE_IP, $this->FilterFlags ) )
         {
             // it's valid
             return true;

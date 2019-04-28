@@ -17,17 +17,17 @@ class Session implements \Qck\Interfaces\Session
         $this->SessionDir = $SessionDir;
     }
 
-    public function getUserName()
+    public function getUsername()
     {
         $this->startOrRestart();
-        return isset( $_SESSION[ "UserName" ] ) ? $_SESSION[ "UserName" ] : null;
+        return isset( $_SESSION[ "Username" ] ) ? $_SESSION[ "Username" ] : null;
     }
 
-    public function startSession( $UserName, $TimeOutSecs = 900 )
+    public function startSession( $Username, $TimeOutSecs = 900 )
     {
         $this->startOrRestart();
         session_regenerate_id( true );
-        $_SESSION[ "UserName" ]    = $UserName;
+        $_SESSION[ "Username" ]    = $Username;
         $_SESSION[ "TimeOutSecs" ] = $TimeOutSecs;
     }
 
@@ -60,25 +60,31 @@ class Session implements \Qck\Interfaces\Session
 
         // check ip and browser info first
         $FingerPrint = "";
-        if ( $this->IpAddress && !$this->IpAddress->isValid() )
+        if ( $this->IpAddress )
         {
-            session_unset();
-            session_destroy();
-            throw new \Exception(
-                    "Cannot start session. Reason: Invalid IP " . $this->IpAddress->getValue() . " detected", 403 );
+            if ( !$this->IpAddress->isValid() )
+            {
+                session_unset();
+                session_destroy();
+                throw new \Exception(
+                        "Cannot start session. Reason: Invalid IP " . $this->IpAddress->getValue() . " detected", 403 );
+            }
+            else
+                $FingerPrint = $this->IpAddress->getValue();
         }
-        else
-            $FingerPrint = $this->IpAddress->getValue();
 
-        if ( $this->Browser && !$this->Browser->isKnownBrowser() )
+        if ( $this->Browser )
         {
-            session_unset();
-            session_destroy();
-            throw new \Exception(
-                    "Cannot start session. Reason: Invalid Browser " . $this->Browser->getSignature() . " detected.", 403 );
+            if ( !$this->Browser->isKnownBrowser() )
+            {
+                session_unset();
+                session_destroy();
+                throw new \Exception(
+                        "Cannot start session. Reason: Invalid Browser " . $this->Browser->getSignature() . " detected.", 403 );
+            }
+            else
+                $FingerPrint .= $this->Browser->getSignature();
         }
-        else
-            $FingerPrint .= $this->Browser->getSignature();
 
         // now check for changes if we had a session before or a timeout
         $currFp = md5( $FingerPrint );
