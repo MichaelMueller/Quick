@@ -9,94 +9,74 @@ namespace Qck;
 class Inputs implements \Qck\Interfaces\Inputs
 {
 
-    function __construct(CliDetector $CliDetector, $Data = [])
+    function __construct( CliDetector $CliDetector, $Data = [] )
     {
         $this->CliDetector = $CliDetector;
-        $this->Data = $Data;
+        $this->Data        = $Data;
     }
 
-    function setData($Data)
+    function setData( $Data )
     {
         $this->Data = $Data;
     }
 
-    public function get($Name, $Default = null)
+    public function get( $Name, $Default = null )
     {
         $Data = $this->getData();
-        return isset($Data[$Name]) ? $Data[$Name] : $Default;
+        return isset( $Data[ $Name ] ) ? $Data[ $Name ] : $Default;
     }
 
     protected function parseArgv()
     {
-        $argv = $_SERVER['argv'];
-        array_shift($argv);
-        $out = array();
-        foreach ($argv as $arg)
+        $argv    = $_SERVER[ 'argv' ];
+        $Data    = [];
+        $currKey = null;
+        $currVal = null;
+        for ( $i = 1; $i < count( $argv ); $i++ )
         {
-            // --foo --bar=baz
-            if (substr($arg, 0, 2) == '--')
-            {
-                $eqPos = strpos($arg, '=');
-                // --foo
-                if ($eqPos === false)
-                {
-                    $key = substr($arg, 2);
-                    $value = isset($out[$key]) ? $out[$key] : true;
-                    $out[$key] = $value;
-                }
-                // --bar=baz
-                else
-                {
-                    $key = substr($arg, 2, $eqPos - 2);
-                    $value = substr($arg, $eqPos + 1);
-                    $out[$key] = $value;
-                }
-            }
-            // -k=value -abc
-            else if (substr($arg, 0, 1) == '-')
-            {
-                // -k=value
-                if (substr($arg, 2, 1) == '=')
-                {
-                    $key = substr($arg, 1, 1);
-                    $value = substr($arg, 3);
-                    $out[$key] = $value;
-                }
-                // -abc
-                else
-                {
-                    $chars = str_split(substr($arg, 1));
-                    foreach ($chars as $char)
-                    {
-                        $key = $char;
-                        $value = isset($out[$key]) ? $out[$key] : true;
-                        $out[$key] = $value;
-                    }
-                }
-            }
-            // plain-arg
+            $val     = $argv[ $i ];
+            $key     = null;
+            if ( mb_strlen( $val ) > 2 && $val[ 0 ] == "-" && $val[ 1 ] == "-" )
+                $key     = mb_substr( $val, 2 );
+            else if ( mb_strlen( $val ) > 1 && $val[ 0 ] == "-" )
+                $key     = mb_substr( $val, 1 );
             else
+                $currVal = $val;
+
+            if ( $key )
             {
-                $value = $arg;
-                $out[] = $value;
+                if ( $currKey )
+                    $Data[ $currKey ] = true;
+                $currKey          = $key;
+            }
+
+            if ( $currKey && $currVal !== null )
+            {
+                if ( isset( $Data[ $currKey ] ) && !is_bool( $Data[ $currKey ] ) && !is_array( $Data[ $currKey ] ) )
+                    $Data[ $currKey ]   = [ $Data[ $currKey ] ];
+                if ( isset( $Data[ $currKey ] ) && is_array( $Data[ $currKey ] ) )
+                    $Data[ $currKey ][] = $currVal;
+                else
+                    $Data[ $currKey ]   = $currVal;
+                $currVal            = null;
+                $currKey            = null;
             }
         }
-
-        return $out;
+        return $Data;
     }
 
-    public function has($Name)
+    public function has( $Name )
     {
         $Data = $this->getData();
-        return isset($Data[$Name]);
+        return isset( $Data[ $Name ] );
     }
 
     public function getData()
     {
-        if (!$this->Merged)
+        if ( !$this->Merged )
         {
-            $InputData = $this->CliDetector->isCli() ? $this->parseArgv() : $_REQUEST;
-            $this->Data = array_merge($InputData, $this->Data);
+            $InputData    = $this->CliDetector->isCli() ? $this->parseArgv() : $_REQUEST;
+            $this->Data   = array_merge( $InputData, $this->Data );
             $this->Merged = true;
         }
         return $this->Data;
