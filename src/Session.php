@@ -95,7 +95,7 @@ class Session implements \Qck\Interfaces\Session
             {
                 session_unset();
                 session_destroy();
-                throw new \Exception( "Cannot start session. Reason: IP changed. Current is $currFp, previous was: $prevFp", 401 );
+                throw new \Exception( "Cannot start session. Reason: IP changed. Current is $currFp, previous was: $prevFp", Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
             }
         }
 
@@ -109,7 +109,7 @@ class Session implements \Qck\Interfaces\Session
             {
                 session_unset();
                 session_destroy();
-                throw new \Exception( "Session timeout", 440 );
+                throw new \Exception( "Session timeout", Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
             }
         }
 
