@@ -9,7 +9,7 @@ use Qck\Interfaces\HttpResponder;
  *
  * @author muellerm
  */
-class TestDriver implements \Qck\Interfaces\TestDriver, \Qck\Interfaces\Controller
+class TestDriver
 {
 
   function __construct( \Qck\Interfaces\ServiceRepo $ServiceRepo )
