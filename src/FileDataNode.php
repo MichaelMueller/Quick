@@ -7,7 +7,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class FileActiveRecord implements \Qck\Interfaces\ActiveRecord
+class FileDataNode implements \Qck\Interfaces\DataNode
 {
 
     function __construct( $DataDir, Interfaces\ArraySerializer $ArraySerializer, $Id = null )
@@ -44,49 +44,42 @@ class FileActiveRecord implements \Qck\Interfaces\ActiveRecord
 
     public function create( $Id = null )
     {
-        return new FileActiveRecord( $this->DataDir, $this->ArraySerializer, $Id );
+        return new FileDataNode( $this->DataDir, $this->ArraySerializer, $Id );
     }
 
-    public function get( $Key, $Default = null )
+    function __get( $Key )
+    {
+        return $this->get( $Key );
+    }
+
+    function __set( $Key, $Name )
+    {
+        return $this->get( $Key );
+    }
+
+    public function get( $Key, callable $Default = null )
     {
         $this->assertLoaded();
         if (!isset( $this->Data[$Key] ))
         {
-            $this->Data[$Key] = $Default;
-            $this->Modified = true;
+            if ($Default !== null)
+                $this->set( $Key, call_user_func( $Default ) );
+            else
+                return null;
         }
-        else if (is_scalar( $this->Data[$Key] ))
-        {
-            $Value = null;
-            if ($Default instanceof Interfaces\ActiveRecordConsumer)
-            {
-                $Default->setActiveRecord( $this->create( $this->Data[$Key] ) );
-                $Value = $Default;
-            }
-            else if ($Default instanceof Interfaces\ActiveRecord)
-            {
-                $Default->setId( $this->Data[$Key] );
-                $Value = $Default;
-            }
-            if ($Value)
-            {
-                $this->Data[$Key] = $Value;
-                $this->Modified = true;
-            }
-        }
+
+        if (is_array( $this->Data[$Key] ))
+            $this->Data[$Key] = $this->create( $this->Data[$Key][0] );
+
         return $this->Data[$Key];
     }
 
     public function getData()
     {
-        $this->assertLoaded();
-        return $this->Data;
-    }
-
-    public function values()
-    {
-        $this->assertLoaded();
-        return array_values( $this->Data );
+        $Data = [];
+        foreach ($this->keys() as $key)
+            $Data[$key] = $this->get( $Key );
+        return $Data;
     }
 
     public function keys()
@@ -110,16 +103,17 @@ class FileActiveRecord implements \Qck\Interfaces\ActiveRecord
         $ScalarData = [];
         foreach ($this->Data as $Key => $Value)
         {
-            /* @var $ActiveRecord Interfaces\ActiveRecord */
-            $ActiveRecord = null;
-            if ($Value instanceof Interfaces\ActiveRecordProvider)
-                $ActiveRecord = $Value->getActiveRecord();
-            else if ($Value instanceof Interfaces\ActiveRecord)
-                $ActiveRecord = $Value;
-            if ($ActiveRecord !== null)
+            /* @var $DataNode Interfaces\DataNode */
+            $DataNode = null;
+            if ($Value instanceof Interfaces\DataNodeProvider)
+                $DataNode = $Value->getDataNode();
+            else if ($Value instanceof Interfaces\DataNode)
+                $DataNode = $Value;
+
+            if ($DataNode !== null)
             {
-                $ActiveRecord->save();
-                $Value = $ActiveRecord->getId();
+                $DataNode->save();
+                $Value = [$DataNode->getId()];
             }
 
             $ScalarData[$Key] = $Value;
@@ -137,7 +131,9 @@ class FileActiveRecord implements \Qck\Interfaces\ActiveRecord
             return;
 
         $FilePath = $this->getFilePath();
-        if (file_exists( $FilePath ) && filesize( $FilePath ) > 0)
+        if (file_exists( $FilePath )
+                && filesize( $FilePath )
+                > 0)
             $this->Data = $this->ArraySerializer->unserialize( file_get_contents( $FilePath ) );
 
         $this->Loaded = true;
@@ -157,8 +153,7 @@ class FileActiveRecord implements \Qck\Interfaces\ActiveRecord
         {
             ++$this->Id;
             $this->FilePath = $this->createFilePath();
-        }
-        while (file_exists( $this->FilePath ));
+        } while (file_exists( $this->FilePath ));
         touch( $this->FilePath );
     }
 
