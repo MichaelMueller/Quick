@@ -10,10 +10,23 @@ namespace Qck;
 class ErrorHandler
 {
 
-    function __construct( $DevMode, $HtmlErrors = true, Interfaces\AdminMailer $AdminMailer = null )
+    function setDevMode( $DevMode )
     {
-        $this->DevMode     = $DevMode;
-        $this->HtmlErrors  = $HtmlErrors;
+        $this->DevMode = $DevMode;
+    }
+
+    function setHttpRequest( $HttpRequest )
+    {
+        $this->HttpRequest = $HttpRequest;
+    }
+
+    function setHtmlRequested( $HtmlRequested )
+    {
+        $this->HtmlRequested = $HtmlRequested;
+    }
+
+    function setAdminMailer( Interfaces\AdminMailer $AdminMailer )
+    {
         $this->AdminMailer = $AdminMailer;
     }
 
@@ -24,10 +37,10 @@ class ErrorHandler
 
         ini_set( 'log_errors', intval( !$this->DevMode ) );
         ini_set( 'display_errors', intval( $this->DevMode ) );
-        ini_set( 'html_errors', intval( $this->HtmlErrors ) );
+        ini_set( 'html_errors', intval( $this->HtmlRequested ) );
 
-        set_error_handler( array ( $this, "errorHandler" ) );
-        set_exception_handler( array ( $this, "exceptionHandler" ) );
+        set_error_handler( array ($this, "errorHandler") );
+        set_exception_handler( array ($this, "exceptionHandler") );
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -37,8 +50,10 @@ class ErrorHandler
 
     function exceptionHandler( $Exception )
     {
-        if ( $this->AdminMailer )
+        if ($this->AdminMailer)
             $this->AdminMailer->sendToAdmin( strval( $Exception ) );
+        if ($this->HttpRequest)
+            http_response_code( $Exception->getCode() );
         throw $Exception;
     }
 
@@ -46,13 +61,19 @@ class ErrorHandler
      *
      * @var bool
      */
-    protected $DevMode;
+    protected $DevMode = false;
 
     /**
      *
      * @var bool
      */
-    protected $HtmlErrors;
+    protected $HttpRequest = true;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $HtmlRequested = true;
 
     /**
      *
