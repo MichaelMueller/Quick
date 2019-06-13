@@ -13,7 +13,7 @@ class AppFunctionDispatcher implements Interfaces\AppFunction
 
     function addRoute( $AppFunction, $Fqcn )
     {
-        $this->Routes[ $AppFunction ] = $Fqcn;
+        $this->Routes[$AppFunction] = $Fqcn;
     }
 
     function setDefaultAppFunction( $DefaultAppFunction )
@@ -31,15 +31,16 @@ class AppFunctionDispatcher implements Interfaces\AppFunction
         $this->DefaultToFirstRoute = $DefaultToFirstRoute;
     }
 
-    public function run( Interfaces\Inputs $Inputs )
+    public function run( Interfaces\App $App )
     {
+        $Inputs = $App->getInputs();
         $RequestedAppFunction = $Inputs->get( $this->FunctionParamName, $this->DefaultAppFunction );
 
-        $AppFunctionFqcn = isset( $this->Routes[ $RequestedAppFunction ] ) ? $this->Routes[ $RequestedAppFunction ] : null;
-        if ( class_exists( $AppFunctionFqcn, true ) === false )
+        $AppFunctionFqcn = isset( $this->Routes[$RequestedAppFunction] ) ? $this->Routes[$RequestedAppFunction] : null;
+        if (class_exists( $AppFunctionFqcn, true ) === false)
             throw new \InvalidArgumentException( sprintf( "AppFunction %s or AppFunction Class %s not found", $RequestedAppFunction, $AppFunctionFqcn ), Interfaces\HttpResponder::EXIT_CODE_BAD_REQUEST );
-        $AppFunction     = new $AppFunctionFqcn();
-        $AppFunction->run( $Inputs );
+        $AppFunction = new $AppFunctionFqcn();
+        $AppFunction->run( $App );
     }
 
     /**
