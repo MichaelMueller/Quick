@@ -11,17 +11,11 @@ namespace Qck;
 class AppFunctionDispatcher implements Interfaces\AppFunction
 {
 
-    function __construct( $Routes = [], $DefaultAppFunction = null, $FunctionParamName = "q" )
-    {
-        $this->Routes             = $Routes;
-        $this->DefaultAppFunction = $DefaultAppFunction;
-        $this->FunctionParamName  = $FunctionParamName;
-    }
-
     function addRoute( $AppFunction, $Fqcn )
     {
         $this->Routes[ $AppFunction ] = $Fqcn;
     }
+
     function setDefaultAppFunction( $DefaultAppFunction )
     {
         $this->DefaultAppFunction = $DefaultAppFunction;
@@ -32,7 +26,7 @@ class AppFunctionDispatcher implements Interfaces\AppFunction
         $this->FunctionParamName = $FunctionParamName;
     }
 
-        function setDefaultToFirstRoute( $DefaultToFirstRoute )
+    function setDefaultToFirstRoute( $DefaultToFirstRoute )
     {
         $this->DefaultToFirstRoute = $DefaultToFirstRoute;
     }
@@ -40,11 +34,11 @@ class AppFunctionDispatcher implements Interfaces\AppFunction
     public function run( Interfaces\Inputs $Inputs )
     {
         $RequestedAppFunction = $Inputs->get( $this->FunctionParamName, $this->DefaultAppFunction );
-        
-        $AppFunctionFqcn      = isset( $this->Routes[ $RequestedAppFunction ] ) ? $this->Routes[ $RequestedAppFunction ] : null;
+
+        $AppFunctionFqcn = isset( $this->Routes[ $RequestedAppFunction ] ) ? $this->Routes[ $RequestedAppFunction ] : null;
         if ( class_exists( $AppFunctionFqcn, true ) === false )
             throw new \InvalidArgumentException( sprintf( "AppFunction %s or AppFunction Class %s not found", $RequestedAppFunction, $AppFunctionFqcn ), Interfaces\HttpResponder::EXIT_CODE_BAD_REQUEST );
-        $AppFunction          = new $AppFunctionFqcn();
+        $AppFunction     = new $AppFunctionFqcn();
         $AppFunction->run( $Inputs );
     }
 
