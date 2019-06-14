@@ -31,10 +31,10 @@ class ExclusiveDataFile
         if ( !$this->fp )
             throw new \Exception( "File not opened for writing. Cannot write." );
 
+        rewind( $this->fp );
         ftruncate( $this->fp, 0 );
-        fseek( $this->fp, 0 );
+        rewind( $this->fp );
         fwrite( $this->fp, $data ? serialize( $data ) : null  );
-        fflush( $this->fp ); // leere Ausgabepuffer bevor die Sperre frei gegeben wird        
     }
 
     public function __destruct()
@@ -61,7 +61,7 @@ class ExclusiveDataFile
         if ( $rawData )
             $this->data = unserialize( $rawData );
         if ( !$writeMode )
-            $this->closeDataFile();
+            $this->close();
     }
 
     protected function close()
@@ -69,6 +69,7 @@ class ExclusiveDataFile
 
         if ( $this->fp )
         {
+            fflush( $this->fp ); // leere Ausgabepuffer bevor die Sperre frei gegeben wird        
             flock( $this->fp, LOCK_UN );
             fclose( $this->fp );
             $this->fp = null;
