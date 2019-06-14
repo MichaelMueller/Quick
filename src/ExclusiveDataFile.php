@@ -8,7 +8,7 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class DataFile
+class ExclusiveDataFile
 {
 
     function __construct( $path, $writeMode )
@@ -23,12 +23,12 @@ class DataFile
 
     function clear()
     {
-        $this->setData( null );
+        $this->data = [];
     }
 
     function setData( $data )
     {
-        if (!$this->fp)
+        if ( !$this->fp )
             throw new \Exception( "File not opened for writing. Cannot write." );
 
         ftruncate( $this->fp, 0 );
@@ -44,29 +44,30 @@ class DataFile
 
     protected function load( $path, $writeMode )
     {
-        if (!file_exists( $path ))
+        if ( !file_exists( $path ) )
         {
             $dir = dirname( $path );
-            if (!file_exists( $dir ))
+            if ( !file_exists( $dir ) )
                 mkdir( $dir, 0777, true );
             touch( $path );
         }
-        $this->fp = fopen( $path, "r+" );
-        if ($writeMode)
+        $this->fp   = fopen( $path, "r+" );
+        if ( $writeMode )
             flock( $this->fp, LOCK_EX );
         else
             flock( $this->fp, LOCK_SH );
-        $rawData = fread( $this->fp, filesize( $path ) );
-        if ($rawData)
+        $fsize      = filesize( $path );
+        $rawData    = $fsize > 0 ? fread( $this->fp, $fsize ) : null;
+        if ( $rawData )
             $this->data = unserialize( $rawData );
-        if (!$writeMode)
+        if ( !$writeMode )
             $this->closeDataFile();
     }
 
     protected function close()
     {
 
-        if ($this->fp)
+        if ( $this->fp )
         {
             flock( $this->fp, LOCK_UN );
             fclose( $this->fp );
