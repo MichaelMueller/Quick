@@ -55,7 +55,7 @@ class ErrorHandler
         if ( $this->HttpRequest )
         {
             $code = $Exception->getCode() === 0 ? Interfaces\HttpResponder::EXIT_CODE_INTERNAL_ERROR : $Exception->getCode();
-            http_response_code( $Exception->getCode() );
+            http_response_code( $code );
         }
         throw $Exception;
     }
