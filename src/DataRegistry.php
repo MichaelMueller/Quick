@@ -51,8 +51,7 @@ class DataRegistry implements Interfaces\DataRegistry
     public function find( callable $Matcher = null, $FindFirst = false )
     {
         $Objects   = [];
-        $GlobExt = $this->getCurrentDir() . '/*.' . $this->ArraySerializer->getFileExtension();
-        $FilePaths = glob( $GlobExt );
+        $FilePaths = $this->getAllFiles();
         foreach ( $FilePaths as $FilePath )
         {
             $Object    = $this->loadFromFile( $FilePath );
@@ -62,6 +61,21 @@ class DataRegistry implements Interfaces\DataRegistry
                 return $Objects[ 0 ];
         }
         return $Objects;
+    }
+
+    public function clear()
+    {
+        $FilePaths = $this->getAllFiles();
+        foreach ( $FilePaths as $FilePath )
+            unlink( $FilePath );
+    }
+
+    public function delete( $Id )
+    {
+
+        $FilePath = $this->getFilePath( $Id );
+        if ( file_exists( $FilePath ) )
+            unlink( $FilePath );
     }
 
     protected function getNextId()
@@ -86,6 +100,12 @@ class DataRegistry implements Interfaces\DataRegistry
     protected function getFilePath( $Id )
     {
         return $this->getCurrentDir() . "/" . $Id . "." . $this->ArraySerializer->getFileExtension();
+    }
+
+    protected function getAllFiles()
+    {
+        $GlobExt = $this->getCurrentDir() . '/*.' . $this->ArraySerializer->getFileExtension();
+        return glob( $GlobExt );
     }
 
     /**

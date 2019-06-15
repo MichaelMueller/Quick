@@ -8,35 +8,39 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class SimpleDatabase
+class ObjectDatabase
 {
 
-    function getById( $Fqcn, $Id )
+    function get( $Fqcn, $Id )
     {
-        $FilePath = $this->getFilePathForId( $this->getClassDir( $Fqcn ), $Id );
-        $Object = new $Fqcn();
-        $Object->fromArray( $this->ArraySerializer->unserialize( file_get_contents( $FilePath ) ) );
-        return $Object;
+        $Data = $this->DataRegistry->space( $Fqcn )->get( $Id );
+        return $this->createObject( $Fqcn, $Data );
     }
 
-    function get( $Fqcn, callable $Matcher = null )
+    function find( $Fqcn, callable $Matcher = null, $FindFirst = false )
     {
-        
+        $DataSet   = $this->DataRegistry->space( $Fqcn )->find( $Matcher, $FindFirst );
+        $Objects   = [];
+        foreach ( $DataSet as $Data )
+            $Objects[] = $this->createObject( $Fqcn, $Data );
+        return $Objects;
     }
 
-    function getFirst( $Fqcn, callable $Matcher = null )
+    protected function createObject( $Fqcn, $Data )
     {
-        
+        /* @var $Obj Interfaces\DataObject */
+        $Obj = new $Fqcn();
+        $Obj->fromArray( $Data );
+        return $Obj;
     }
 
-    function getRelated( Interfaces\DataObject $Obj )
+    function getRelated( Interfaces\DataObject $LeftObj, $RightFqcn, $FindFirst = false )
     {
-        
-    }
-
-    function getFirstRelated( Interfaces\DataObject $Obj )
-    {
-        
+        $RelatedIds = $this->DataRegistry->space( "relations" )->space( $LeftObj->getFqcn() )->get( $LeftObj->getId() );
+        $Objects   = [];
+        foreach ( $DataSet as $Data )
+            $Objects[] = $this->createObject( $Fqcn, $Data );
+        return $Objects;
     }
 
     /**
@@ -45,14 +49,14 @@ class SimpleDatabase
      */
     function save( Interfaces\DataObject $Obj )
     {
-        if (!in_array( $Obj, $this->ObjectsToSave, true ))
+        if ( !in_array( $Obj, $this->ObjectsToSave, true ) )
             $this->ObjectsToSave[] = $Obj;
     }
 
     function saveMany( ... $ObjectsOrArrayOfObjects )
     {
-        foreach ($ObjectsOrArrayOfObjects as $Element)
-            is_array( $Element ) ? call_user_func_array( array($this, "saveMany"), $Element ) : $this->save( $Element );
+        foreach ( $ObjectsOrArrayOfObjects as $Element )
+            is_array( $Element ) ? call_user_func_array( array ( $this, "saveMany" ), $Element ) : $this->save( $Element );
     }
 
     function delete( $Fqcn, $Id )
@@ -63,23 +67,23 @@ class SimpleDatabase
     function relateTo( Interfaces\DataObject $LeftObj, Interfaces\DataObject $RightObj )
     {
         $this->saveMany( $LeftObj, $RightObj );
-        $this->addToSubArray( $this->RelationsToSave, spl_object_id( $LeftObj ), $RightObj, [$LeftObj] );
+        $this->addToSubArray( $this->RelationsToSave, spl_object_id( $LeftObj ), $RightObj, [ $LeftObj ] );
     }
 
     function relateToMany( Interfaces\DataObject $LeftObj, array $RightObjects )
     {
-        foreach ($RightObjects as $RightObj)
+        foreach ( $RightObjects as $RightObj )
             $this->relateTo( $LeftObj, $RightObj );
     }
 
     function commit()
     {
         // save objects
-        foreach ($this->ObjectsToSave as $Idx => $Object)
+        foreach ( $this->ObjectsToSave as $Idx => $Object )
         {
             $FilePath = $this->getFilePath( $Object );
             file_put_contents( $FilePath, $this->ArraySerializer->serialize( $Object->toArray() ) );
-            unset( $this->ObjectsToSave[$Idx] );
+            unset( $this->ObjectsToSave[ $Idx ] );
         }
 
         $this->commitDeletions();
@@ -89,18 +93,18 @@ class SimpleDatabase
     protected function commitDeletions()
     {
 
-        foreach ($this->ObjectsToDelete as $Fqcn => $Ids)
+        foreach ( $this->ObjectsToDelete as $Fqcn => $Ids )
         {
             $Dir = $this->getClassDir( $Fqcn );
-            foreach ($Ids as $Id)
+            foreach ( $Ids as $Id )
             {
-                $DataFile = $this->getFilePathForId( $Dir, $Id );
-                if (file_exists( $DataFile ))
+                $DataFile          = $this->getFilePathForId( $Dir, $Id );
+                if ( file_exists( $DataFile ) )
                     unlink( $DataFile );
                 $RelationsDataFile = $this->getFilePathForId( $Dir, $Id, true );
-                if (file_exists( $RelationsDataFile ))
+                if ( file_exists( $RelationsDataFile ) )
                     unlink( $RelationsDataFile );
-                unset( $this->ObjectsToDelete[$Idx] );
+                unset( $this->ObjectsToDelete[ $Idx ] );
             }
         }
     }
@@ -113,28 +117,28 @@ class SimpleDatabase
     protected function commitRelations()
     {
         // save relations
-        foreach ($this->RelationsToSave as $ObjectId => $RightObjects)
+        foreach ( $this->RelationsToSave as $ObjectId => $RightObjects )
         {
-            $LeftObject = array_shift( $RightObjects );
+            $LeftObject        = array_shift( $RightObjects );
             $RelationsFilePath = null;
             $RelatedIdsPerFqcn = $this->getRelations( $LeftObject->getFqcn(), $LeftObject->getId(), $RelationsFilePath );
-            foreach ($RightObjects as $RightObject)
+            foreach ( $RightObjects as $RightObject )
             {
                 $Fqcn = $RightObject->getFqcn();
-                $Id = $RightObject->getId();
+                $Id   = $RightObject->getId();
                 $this->addToSubArray( $RelatedIdsPerFqcn, $Fqcn, $Id );
             }
             file_put_contents( $RelationsFilePath, $this->ArraySerializer->serialize( $RelatedIdsPerFqcn ) );
-            unset( $this->RelationsToSave[$ObjectId] );
+            unset( $this->RelationsToSave[ $ObjectId ] );
         }
     }
 
     protected function addToSubArray( &$Array, $ParentKey, $Val, $InitialArray = [] )
     {
-        if (!isset( $Array[$ParentKey] ))
-            $Array[$ParentKey] = $InitialArray;
-        if (!in_array( $Val, $Array[$ParentKey] ))
-            $Array[$ParentKey][] = $Val;
+        if ( !isset( $Array[ $ParentKey ] ) )
+            $Array[ $ParentKey ]   = $InitialArray;
+        if ( !in_array( $Val, $Array[ $ParentKey ] ) )
+            $Array[ $ParentKey ][] = $Val;
     }
 
     protected function getRelations( $Fqcn, $Id, &$RelationsFilePath )
@@ -158,16 +162,17 @@ class SimpleDatabase
         $Dir = $this->getClassDir( $Object->getFqcn() );
 
         $FilePath = $this->getFilePathForId( $Dir, $Object->getId(), $RelationsFile );
-        if (!file_exists( $FilePath ))
+        if ( !file_exists( $FilePath ) )
         {
             $Id = 0;
             do
             {
                 ++$Id;
                 $FilePath = $this->getFilePathForId( $Dir, $Id, $RelationsFile );
-            } while (file_exists( $FilePath ));
+            }
+            while ( file_exists( $FilePath ) );
             $Object->setId( $Id );
-            if (!is_dir( $Dir ))
+            if ( !is_dir( $Dir ) )
                 mkdir( $Dir, 0777, true );
             touch( $FilePath );
         }
@@ -177,19 +182,13 @@ class SimpleDatabase
 
     /**
      *
-     * @var string
+     * @var DataRegistry
      */
-    protected $DataDir;
+    protected $DataRegistry;
 
-    /**
-     *
-     * @var Interfaces\ArraySerializer 
-     */
-    protected $ArraySerializer;
-
-// -----------
-// state
-// -----------
+    // -----------
+    // state
+    // -----------
 
     /**
      *
