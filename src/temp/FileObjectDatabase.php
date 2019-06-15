@@ -10,24 +10,24 @@ namespace Qck;
 class FileObjectDatabase implements \Qck\Interfaces\FileSerializationHelper, \Qck\Interfaces\ObjectIdProvider
 {
 
-    function __construct( $DataDir, \Qck\Interfaces\FileFactory $FileFactory,
+    function __construct( $DataDir, \Qck\Interfaces\PathFactory $PathFactory,
             \Qck\Interfaces\ArraySerializer $ArraySerializer )
     {
         $this->DataDir = $DataDir;
-        $this->FileFactory = $FileFactory;
+        $this->PathFactory = $PathFactory;
         $this->ArraySerializer = $ArraySerializer;
     }
 
     /**
      * 
      * @param mixed $Id
-     * @return \Qck\Interfaces\File
+     * @return \Qck\Interfaces\Path
      */
     public function getFile( $Id )
     {
         $FileName = is_int( $Id ) ? str_pad( $Id, $this->ZeroFill, '0', STR_PAD_LEFT ) : $Id;
         $Path = $this->DataDir . DIRECTORY_SEPARATOR . $FileName . "." . $this->ArraySerializer->getFileExtension();
-        return $this->FileFactory->createFileObjectFromPath( $Path );
+        return $this->PathFactory->createPathFromPath( $Path );
     }
 
     public function generateNextId()
@@ -56,9 +56,9 @@ class FileObjectDatabase implements \Qck\Interfaces\FileSerializationHelper, \Qc
 
     /**
      *
-     * @var \Qck\Interfaces\FileFactory
+     * @var \Qck\Interfaces\PathFactory
      */
-    protected $FileFactory;
+    protected $PathFactory;
 
     /**
      *

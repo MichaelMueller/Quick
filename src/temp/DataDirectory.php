@@ -10,24 +10,24 @@ namespace Qck;
 class DataDirectory implements \Qck\Interfaces\DataDirectory, Interfaces\ObjectIdGenerator
 {
 
-  function __construct( $DataDir, \Qck\Interfaces\FileFactory $FileFactory, $FileExtension )
+  function __construct( $DataDir, \Qck\Interfaces\PathFactory $PathFactory, $FileExtension )
   {
     $this->DataDir       = $DataDir;
-    $this->FileFactory   = $FileFactory;
+    $this->PathFactory   = $PathFactory;
     $this->FileExtension = $FileExtension;
   }
 
   /**
    * 
    * @param mixed $Id
-   * @return \Qck\Interfaces\File
+   * @return \Qck\Interfaces\Path
    */
   public function getFile( $Id )
   {
     static $Zerofill = 15;
     $FileName        = is_int( $Id ) ? str_pad( $Id, $Zerofill, '0', STR_PAD_LEFT ) : $Id;
     $Path            = $this->DataDir . DIRECTORY_SEPARATOR . $FileName . "." . $this->FileExtension;
-    return $this->FileFactory->createFileObjectFromPath( $Path );
+    return $this->PathFactory->createPathFromPath( $Path );
   }
 
   public function generateNextId()
@@ -52,9 +52,9 @@ class DataDirectory implements \Qck\Interfaces\DataDirectory, Interfaces\ObjectI
 
   /**
    *
-   * @var \Qck\Interfaces\FileFactory
+   * @var \Qck\Interfaces\PathFactory
    */
-  protected $FileFactory;
+  protected $PathFactory;
 
   /**
    *

@@ -10,14 +10,14 @@ namespace Qck;
 class FileSystem implements \Qck\Interfaces\FileSystem
 {
 
-  function __construct( Interfaces\FileFactory $FileFactory )
+  function __construct( Interfaces\PathFactory $PathFactory )
   {
-    $this->FileFactory = $FileFactory;
+    $this->PathFactory = $PathFactory;
   }
 
-  function getFileFactory()
+  function getPathFactory()
   {
-    return $this->FileFactory;
+    return $this->PathFactory;
   }
 
   public function clearFolder( $FilePath )
@@ -42,7 +42,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
       unlink( $FilePath );
     $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
-    return $this->FileFactory->createFileObjectFromPath( $FilePath );
+    return $this->PathFactory->createPathFromPath( $FilePath );
   }
 
   public function createRandomFile( $NamePrefix = null, $Ext = null, $Dir = null )
@@ -59,7 +59,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
 
-    return $this->FileFactory->createFileObjectFromPath( $FilePath );
+    return $this->PathFactory->createPathFromPath( $FilePath );
   }
 
   public function delete( $FilePath )
@@ -87,7 +87,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
         continue;
       if ( $MaxFiles && $NumFiles >= $MaxFiles )
         break;
-      $File = $this->FileFactory->createFileObject( $TheDir, $FileName );
+      $File = $this->PathFactory->createPath( $TheDir, $FileName );
       if ( $File->isDir() )
       {
         if ( $Mode == 0 || $Mode == 2 )
@@ -175,7 +175,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   public function writeToFile( $FilePath, $Data )
   {
-    $File = $this->FileFactory->createFileObjectFromPath( $FilePath );
+    $File = $this->PathFactory->createPathFromPath( $FilePath );
     $this->assureParentDirExists( $File->getParentDir() );
     $File->writeContents( $Data );
   }
@@ -189,8 +189,8 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   /**
    *
-   * @var Interfaces\FileFactory
+   * @var Interfaces\PathFactory
    */
-  protected $FileFactory;
+  protected $PathFactory;
 
 }

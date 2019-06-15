@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Serializer;
+namespace Qck\ArraySerializer;
 
 /**
  *
