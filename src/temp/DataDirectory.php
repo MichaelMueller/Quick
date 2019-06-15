@@ -27,7 +27,7 @@ class DataDirectory implements \Qck\Interfaces\DataDirectory, Interfaces\ObjectI
     static $Zerofill = 15;
     $FileName        = is_int( $Id ) ? str_pad( $Id, $Zerofill, '0', STR_PAD_LEFT ) : $Id;
     $Path            = $this->DataDir . DIRECTORY_SEPARATOR . $FileName . "." . $this->FileExtension;
-    return $this->PathFactory->createPathFromPath( $Path );
+    return $this->PathFactory->createPath( $Path );
   }
 
   public function generateNextId()

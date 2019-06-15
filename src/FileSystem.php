@@ -42,7 +42,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
       unlink( $FilePath );
     $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
-    return $this->PathFactory->createPathFromPath( $FilePath );
+    return $this->PathFactory->createPath( $FilePath );
   }
 
   public function createRandomFile( $NamePrefix = null, $Ext = null, $Dir = null )
@@ -59,7 +59,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
     $this->assureParentDirExists( $FilePath );
     touch( $FilePath );
 
-    return $this->PathFactory->createPathFromPath( $FilePath );
+    return $this->PathFactory->createPath( $FilePath );
   }
 
   public function delete( $FilePath )
@@ -87,7 +87,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
         continue;
       if ( $MaxFiles && $NumFiles >= $MaxFiles )
         break;
-      $File = $this->PathFactory->createPath( $TheDir, $FileName );
+      $File = $this->PathFactory->buildPath( $TheDir, $FileName );
       if ( $File->isDir() )
       {
         if ( $Mode == 0 || $Mode == 2 )
@@ -175,7 +175,7 @@ class FileSystem implements \Qck\Interfaces\FileSystem
 
   public function writeToFile( $FilePath, $Data )
   {
-    $File = $this->PathFactory->createPathFromPath( $FilePath );
+    $File = $this->PathFactory->createPath( $FilePath );
     $this->assureParentDirExists( $File->getParentDir() );
     $File->writeContents( $Data );
   }

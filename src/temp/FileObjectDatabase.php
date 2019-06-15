@@ -27,7 +27,7 @@ class FileObjectDatabase implements \Qck\Interfaces\FileSerializationHelper, \Qc
     {
         $FileName = is_int( $Id ) ? str_pad( $Id, $this->ZeroFill, '0', STR_PAD_LEFT ) : $Id;
         $Path = $this->DataDir . DIRECTORY_SEPARATOR . $FileName . "." . $this->ArraySerializer->getFileExtension();
-        return $this->PathFactory->createPathFromPath( $Path );
+        return $this->PathFactory->createPath( $Path );
     }
 
     public function generateNextId()
