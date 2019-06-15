@@ -13,64 +13,69 @@ class DataRegistry implements Interfaces\DataRegistry
 
     function __construct( $DataDir, Interfaces\ArraySerializer $ArraySerializer, $Space = null )
     {
-        $this->DataDir = $DataDir;
+        $this->DataDir         = $DataDir;
         $this->ArraySerializer = $ArraySerializer;
-        $this->Space = $Space;
+        $this->Space           = $Space;
     }
 
-    public function get( $Key )
+    public function get( $Id )
     {
-        return $this->loadFromFile( $this->getFilePath( $Key ) );
+        return $this->loadFromFile( $this->getFilePath( $Id ) );
     }
 
-    public function getSpace( $SpaceName )
+    public function space( $SpaceName )
     {
-        return new DataRegistry( $this->DataDir, $this->ArraySerializer, $this->Space . $SpaceName );
+        return new DataRegistry( $this->DataDir, $this->ArraySerializer, $this->getCurrentDir() . ($SpaceName ? "/" . $SpaceName : null) );
     }
 
-    public function save( array $Data, $KeyAttrName = "id" )
+    public function save( array $Data, $IdAttrName = "id" )
     {
-        $Key = null;
-        if ($KeyAttrName === null)
-            $Key = $this->getNextKey();
-        else if (!isset( $Data[$KeyAttrName] ))
+        $Id = null;
+        if ( $IdAttrName === null )
+            $Id = $this->getNextId();
+        else if ( !isset( $Data[ $IdAttrName ] ) )
         {
-            $Key = $this->getNextKey();
-            $Data[$KeyAttrName] = $Key;
+            $Id                  = $this->getNextId();
+            $Data[ $IdAttrName ] = $Id;
         }
         else
-            $Key = $Data[$KeyAttrName];
+            $Id = $Data[ $IdAttrName ];
 
-        if (!is_dir( $this->DataDir ))
-            mkdir( $this->DataDir, 0777, true );
-        file_put_contents( $this->getFilePath( $Key ), $this->ArraySerializer->serialize( $Data ) );
+        if ( !is_dir( $this->getCurrentDir() ) )
+            mkdir( $this->getCurrentDir(), 0777, true );
+
+        file_put_contents( $this->getFilePath( $Id ), $this->ArraySerializer->serialize( $Data ) );
+        return $Id;
     }
 
     public function find( callable $Matcher = null, $FindFirst = false )
     {
-        $Objects = [];
-        foreach (glob( $this->DataDir . '/*.' + $this->ArraySerializer->getFileExtension() ) as $FilePath)
+        $Objects   = [];
+        $GlobExt = $this->getCurrentDir() . '/*.' . $this->ArraySerializer->getFileExtension();
+        $FilePaths = glob( $GlobExt );
+        foreach ( $FilePaths as $FilePath )
         {
-            $Object = $this->loadFromFile( $FilePath );
-            if ($Object !== null && ($Matcher === null || $Matcher( $Object ) === true))
+            $Object    = $this->loadFromFile( $FilePath );
+            if ( $Object !== null && ($Matcher === null || $Matcher( $Object ) === true) )
                 $Objects[] = $Object;
-            if ($FindFirst && count( $Objects ) == 1)
-                return $Objects[0];
+            if ( $FindFirst && count( $Objects ) == 1 )
+                return $Objects[ 0 ];
         }
         return $Objects;
     }
 
-    protected function getNextKey()
+    protected function getNextId()
     {
         $i = 0;
         do
-            ++$i; while (file_exists( $this->getFilePath( $i ) ));
+            ++$i;
+        while ( file_exists( $this->getFilePath( $i ) ) );
         return $i;
     }
 
-    protected function get64BitHash( $str )
+    protected function getCurrentDir()
     {
-        return gmp_strval( gmp_init( substr( md5( $str ), 0, 16 ), 16 ), 10 );
+        return $this->DataDir . ( $this->Space ? "/" . $this->Space : null );
     }
 
     protected function loadFromFile( $FilePath )
@@ -78,9 +83,9 @@ class DataRegistry implements Interfaces\DataRegistry
         return file_exists( $FilePath ) ? $this->ArraySerializer->unserialize( file_get_contents( $FilePath ) ) : null;
     }
 
-    protected function getFilePath( $Key )
+    protected function getFilePath( $Id )
     {
-        return $this->DataDir . "/" . $this->get64BitHash( $this->Space . $Key ) . "." . $this->ArraySerializer->getFileExtension();
+        return $this->getCurrentDir() . "/" . $Id . "." . $this->ArraySerializer->getFileExtension();
     }
 
     /**
