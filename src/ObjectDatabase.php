@@ -13,13 +13,13 @@ class ObjectDatabase
 
     function get( $Fqcn, $Id )
     {
-        $Data = $this->DataRegistry->space( $Fqcn )->get( $Id );
+        $Data = $this->Registry->space( $Fqcn )->get( $Id );
         return $this->createObject( $Fqcn, $Data );
     }
 
     function find( $Fqcn, callable $Matcher = null, $FindFirst = false )
     {
-        $DataSet   = $this->DataRegistry->space( $Fqcn )->find( $Matcher, $FindFirst );
+        $DataSet   = $this->Registry->space( $Fqcn )->find( $Matcher, $FindFirst );
         $Objects   = [];
         foreach ( $DataSet as $Data )
             $Objects[] = $this->createObject( $Fqcn, $Data );
@@ -36,7 +36,7 @@ class ObjectDatabase
 
     function getRelated( Interfaces\DataObject $LeftObj, $RightFqcn, $FindFirst = false )
     {
-        $RelatedIds = $this->DataRegistry->space( "relations" )->space( $LeftObj->getFqcn() )->get( $LeftObj->getId() );
+        $RelatedIds = $this->Registry->space( "relations" )->space( $LeftObj->getFqcn() )->get( $LeftObj->getId() );
         $Objects   = [];
         foreach ( $DataSet as $Data )
             $Objects[] = $this->createObject( $Fqcn, $Data );
@@ -182,9 +182,9 @@ class ObjectDatabase
 
     /**
      *
-     * @var DataRegistry
+     * @var PersistentArray
      */
-    protected $DataRegistry;
+    protected $Registry;
 
     // -----------
     // state
