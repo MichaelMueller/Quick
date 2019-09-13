@@ -26,7 +26,7 @@ class Router implements \Qck\Interfaces\Router
     return $Router;
   }
 
-  function __construct( \Qck\Interfaces\Inputs $Inputs = null )
+  function __construct( \Qck\Interfaces\Arguments $Inputs = null )
   {
     $this->Inputs   = $Inputs;
     $this->QueryKey = self::DEFAULT_QUERY_KEY;
@@ -95,7 +95,7 @@ class Router implements \Qck\Interfaces\Router
 
   /**
    *
-   * @var \Qck\Interfaces\Inputs
+   * @var \Qck\Interfaces\Arguments
    */
   protected $Inputs;
 

@@ -88,7 +88,7 @@ abstract class DefaultAppConfig implements Interfaces\AppConfig
 
   /**
    *
-   * @var Interfaces\Inputs
+   * @var Interfaces\Arguments
    */
   protected $Inputs;
 

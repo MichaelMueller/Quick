@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Inputs implements \Qck\Interfaces\Inputs
+class Arguments implements \Qck\Interfaces\Arguments
 {
 
     function __construct( CliDetector $CliDetector, $Data = [] )

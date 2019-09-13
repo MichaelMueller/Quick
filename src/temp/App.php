@@ -12,7 +12,7 @@ abstract class App
 {
 
     /**
-     * @return Interfaces\Inputs
+     * @return Interfaces\Arguments
      */
     abstract function getInputs();
 

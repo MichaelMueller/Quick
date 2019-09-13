@@ -10,7 +10,7 @@ namespace Qck\Interfaces;
 interface App
 {
     /**
-     * @return Inputs
+     * @return Arguments
      */
     function getInputs();
 }

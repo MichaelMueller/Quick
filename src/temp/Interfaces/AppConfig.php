@@ -11,7 +11,7 @@ interface AppConfig
 {
 
     /**
-     * @return Inputs
+     * @return Arguments
      */
     function getInputs();
 

@@ -7,7 +7,7 @@ namespace Qck\Interfaces;
  * variables, env, client and config infos)
  * @author muellerm
  */
-interface Inputs
+interface Arguments
 {
 
   /**
