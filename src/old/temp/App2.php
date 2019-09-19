@@ -8,7 +8,7 @@ namespace Qck;
  * 
  * @author muellerm
  */
-abstract class App
+abstract class App2
 {
 
     /**

@@ -10,24 +10,30 @@ namespace Qck\Interfaces;
 interface Arguments
 {
 
-  /**
-   * Get input parameter either from post, cookie, get or cli
-   * @param string $Name
-   * @param mixed $Default
-   * @return mixed
-   */
-  public function get( $Name, $Default = null );
+    /**
+     * Get input parameter either from post, cookie, get or cli
+     * @param string $Name
+     * @param mixed $Default
+     * @return mixed
+     */
+    public function get( $Name, $Default = null );
 
-  /**
-   * 
-   * @param string $Name
-   * @return bool
-   */
-  public function has( $Name );
+    /**
+     * 
+     * @param string $Name
+     * @return bool
+     */
+    public function has( $Name );
 
-  /**
-   * 
-   * @return array
-   */
-  public function getData();
+    /**
+     * 
+     * @return array
+     */
+    public function getData();
+
+    /**
+     * @return bool
+     */
+    function isHttpRequest();
+     
 }

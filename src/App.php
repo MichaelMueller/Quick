@@ -11,9 +11,11 @@ namespace Qck;
 class App implements Interfaces\App
 {
 
-    function __construct( Interfaces\Route $DefaultRoute )
+    function __construct( Interfaces\Route $DefaultRoute, Interfaces\Arguments $Arguments, $ShowErrors = false )
     {
         $this->Routes[] = $DefaultRoute;
+        $this->Arguments = $Arguments;
+        $this->ShowErrors = $ShowErrors;
     }
 
     function addRoute( Interfaces\Route $Route )
@@ -21,18 +23,23 @@ class App implements Interfaces\App
         $this->Routes[] = $Route;
     }
 
+    function setRouteParamKey( $RouteParamKey )
+    {
+        $this->RouteParamKey = $RouteParamKey;
+    }
+
     function buildUrl( $AppFunctionFqcn, array $QueryData = [] )
     {
-        $CompleteQueryData = array_merge( [$this->AppFunctionFqcn => $AppFunctionFqcn], $QueryData );
+        $CompleteQueryData = array_merge( $QueryData, [$this->RouteParamKey => $AppFunctionFqcn] );
         return "?" . http_build_query( $CompleteQueryData );
     }
 
-    function run( Interfaces\Arguments $Args )
+    function run()
     {
         $this->setupErrorHandling();
-        $RouteName = $Args->get( $this->RouteParamKey );
+        $RouteName = $this->Arguments->get( $this->RouteParamKey );
         $Route = null;
-        if ($RouteName !== null)
+        if ($RouteName === null)
             $Route = $this->Routes[0];
         else
         {
@@ -51,7 +58,7 @@ class App implements Interfaces\App
         $Fqcn = $Route->getAppFunctionFqcn();
         /* @var $AppFunction Qck\Interfaces\AppFunction */
         $AppFunction = new $Fqcn();
-        $AppFunction->run( $this, $Args );
+        $AppFunction->run( $this, $this->Arguments );
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -62,33 +69,21 @@ class App implements Interfaces\App
     function exceptionHandler( $Exception )
     {
         /* @var $Exception \Exception */
-        if (http_response_code !== false)
+        if ($this->Arguments->isHttpRequest())
             http_response_code( $Exception->getCode() );
 
         throw $Exception;
     }
 
-    function setAppFunctionFqcn( $AppFunctionFqcn )
-    {
-        $this->AppFunctionFqcn = $AppFunctionFqcn;
-    }
-
     protected function setupErrorHandling()
     {
         error_reporting( E_ALL );
-        ini_set( 'log_errors', intval( !$this->DevMode ) );
-        ini_set( 'display_errors', intval( $this->DevMode ) );
-        ini_set( 'html_errors', intval( !$this->getCliDetector()->isCli() ) );
+        ini_set( 'log_errors', intval( $this->ShowErrors === false ) );
+        ini_set( 'display_errors', intval( $this->ShowErrors ) );
+        ini_set( 'html_errors', intval( $this->Arguments->isHttpRequest() ) );
 
-        set_error_handler( array($this, "errorHandler") );
-        set_exception_handler( array($this, "exceptionHandler") );
-    }
-
-    protected function getSingleton( $Name, callable $Factory )
-    {
-        if (!isset( $this->Singletons[$Name] ))
-            $this->Singletons[$Name] = call_user_func( $Factory );
-        return $this->Singletons[$Name];
+        set_error_handler( array ($this, "errorHandler") );
+        set_exception_handler( array ($this, "exceptionHandler") );
     }
 
     /**
@@ -99,14 +94,20 @@ class App implements Interfaces\App
 
     /**
      *
-     * @var string
+     * @var Interfaces\Arguments
      */
-    protected $RouteParamKey = "q";
+    protected $Arguments;
 
     /**
      *
-     * @var array[object]
+     * @var bool
      */
-    protected $Singletons;
+    protected $ShowErrors;
+
+    /**
+     *
+     * @var string
+     */
+    protected $RouteParamKey = "q";
 
 }

@@ -6,12 +6,50 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Arguments implements \Qck\Interfaces\Arguments
+class Arguments implements Interfaces\Arguments
 {
 
-    static function fromArgv( $argv )
+    function __construct( array $data = [] )
     {
-        $Data = [];
+        $this->createData( $data );
+    }
+
+    function getData()
+    {
+        return $this->Data;
+    }
+
+    public function get( $Name, $Default = null )
+    {
+        return isset( $this->Data[$Name] ) ? $this->Data[$Name] : $Default;
+    }
+
+    public function has( $Name )
+    {
+        return isset( $this->Data[$Name] );
+    }
+
+    public function isHttpRequest()
+    {
+        static $HttpRequest = null;
+        if (is_null( $HttpRequest ))
+            $HttpRequest = http_response_code() !== null;
+        return $HttpRequest;
+    }
+
+    protected function createData( array $data = [] )
+    {
+        if ($this->isHttpRequest())
+            $this->Data = array_merge( $this->Data, $_REQUEST, $_FILES );
+        else
+            $this->Data = $this->parseArgv( $_SERVER["argv"] );
+
+        $this->Data = array_merge( $this->Data, $data );
+    }
+
+    protected function parseArgv( array $argv )
+    {
+        $argvData = [];
         $currKey = null;
         $currVal = null;
         for ($i = 1; $i < count( $argv ); $i++)
@@ -28,74 +66,29 @@ class Arguments implements \Qck\Interfaces\Arguments
             if ($key)
             {
                 if ($currKey)
-                    $Data[$currKey] = true;
+                    $argvData[$currKey] = true;
                 $currKey = $key;
             }
 
             if ($currKey && $currVal !== null)
             {
-                if (isset( $Data[$currKey] ) && !is_bool( $Data[$currKey] ) && !is_array( $Data[$currKey] ))
-                    $Data[$currKey] = [$Data[$currKey]];
-                if (isset( $Data[$currKey] ) && is_array( $Data[$currKey] ))
-                    $Data[$currKey][] = $currVal;
+                if (isset( $argvData[$currKey] ) && !is_bool( $argvData[$currKey] ) && !is_array( $argvData[$currKey] ))
+                    $argvData[$currKey] = [$argvData[$currKey]];
+                if (isset( $argvData[$currKey] ) && is_array( $argvData[$currKey] ))
+                    $argvData[$currKey][] = $currVal;
                 else
-                    $Data[$currKey] = $currVal;
+                    $argvData[$currKey] = $currVal;
                 $currVal = null;
                 $currKey = null;
             }
         }
-        return $Data;
+        return $argvData;
     }
-
-    function __construct( array $argv = [] )
-    {
-        $this->argv = $argv;
-    }
-
-    function setData( $Data )
-    {
-        $this->Data = $Data;
-    }
-
-    public function get( $Name, $Default = null )
-    {
-        $Data = $this->getData();
-        return isset( $Data[$Name] ) ? $Data[$Name] : $Default;
-    }
-
-    public function has( $Name )
-    {
-        $Data = $this->getData();
-        return isset( $Data[$Name] );
-    }
-
-    public function getData()
-    {
-        if (!$this->Merged)
-        {
-            $InputData = $this->CliDetector->isCli() ? $this->parseArgv() : $_REQUEST;
-            $this->Data = array_merge( $InputData, $this->Data );
-            $this->Merged = true;
-        }
-        return $this->Data;
-    }
-
-    /**
-     *
-     * @var CliDetector
-     */
-    protected $CliDetector;
 
     /**
      *
      * @var array
      */
-    protected $Data;
-
-    /**
-     *
-     * @var bool
-     */
-    protected $Merged = False;
+    protected $Data = [];
 
 }
