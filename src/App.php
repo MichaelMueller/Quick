@@ -72,6 +72,9 @@ class App implements Interfaces\App
         if ($this->Arguments->isHttpRequest())
             http_response_code( $Exception->getCode() );
 
+        if ($this->ShowErrors == false)
+            print "An error occured. If the problem persists, please contact the Administrator.";
+
         throw $Exception;
     }
 
