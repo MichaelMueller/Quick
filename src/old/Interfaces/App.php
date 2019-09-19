@@ -9,9 +9,8 @@ namespace Qck\Interfaces;
  */
 interface App
 {
-
     /**
-     * @return string
+     * @return Arguments
      */
-    function buildUrl( $AppFunctionFqcn, array $QueryData = [] );
+    function getInputs();
 }

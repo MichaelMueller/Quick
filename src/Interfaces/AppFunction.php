@@ -9,6 +9,11 @@ namespace Qck\Interfaces;
  */
 interface AppFunction
 {
-
-    function run( App $App );
+    /**
+     * 
+     * @param \Qck\Interfaces\App $App
+     * @param \Qck\Interfaces\Arguments $Args
+     * @return void
+     */
+    function run( App $App, Arguments $Args );
 }
