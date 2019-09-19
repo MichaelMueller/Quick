@@ -33,7 +33,7 @@ class Arguments implements Interfaces\Arguments
     {
         static $HttpRequest = null;
         if (is_null( $HttpRequest ))
-            $HttpRequest = http_response_code() !== null;
+            $HttpRequest = !isset( $_SERVER["argv"] ) || is_null( $_SERVER["argv"] ) || is_string( $_SERVER["argv"] );
         return $HttpRequest;
     }
 
