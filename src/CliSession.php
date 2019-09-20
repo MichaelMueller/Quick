@@ -6,13 +6,12 @@ namespace Qck;
  *
  * @author muellerm
  */
-class SimpleSession implements \Qck\Interfaces\Session
+class CliSession implements \Qck\Interfaces\Session
 {
 
-    function __construct( $SessionDir, \Qck\Interfaces\HttpHeader $HttpHeader, \Qck\Interfaces\Arguments $Arguments )
+    function __construct( $SessionDir, \Qck\Interfaces\Arguments $Arguments )
     {
         $this->SessionDir = $SessionDir;
-        $this->HttpHeader = $HttpHeader;
         $this->Arguments = $Arguments;
     }
 
@@ -21,22 +20,13 @@ class SimpleSession implements \Qck\Interfaces\Session
         $this->SessionIdKey = $SessionIdKey;
     }
 
-    function setPath( $Path )
-    {
-        $this->Path = $Path;
-    }
-
-    function setDomain( $Domain )
-    {
-        $this->Domain = $Domain;
-    }
-
     public function startSession( $Username, $TimeOutSecs = 900 )
     {
         $SessionId = session_create_id( $Username );
         $Path = $this->getFilePath( $SessionId );
-        file_put_contents( $Path, $Username );
-        $this->HttpHeader->addCookie( $this->SessionIdKey, $SessionId, time() + $TimeOutSecs, $this->Path, $this->Domain, true, true );
+        $TimeOut = time() + $TimeOutSecs;
+        file_put_contents( $Path, serialize( [$Username, $TimeOut] ) );
+        return $SessionId;
     }
 
     public function getUsername()
@@ -46,16 +36,14 @@ class SimpleSession implements \Qck\Interfaces\Session
 
         if (file_exists( $Path ))
         {
-            if (filemtime( $Path ) < time() - $this->TimeOut)
+            $Data = unserialize( file_get_contents( $Path ) );
+            if (time() > $Data[1])
             {
                 unlink( $Path );
                 return null;
             }
             else
-            {
-                touch( $Path );
-                return file_get_contents( $Path );
-            }
+                return $Data[0];
         }
         return null;
     }
@@ -66,7 +54,6 @@ class SimpleSession implements \Qck\Interfaces\Session
         $Path = $this->getFilePath( $SessionId );
         if (file_exists( $Path ))
             unlink( $Path );
-        $this->HttpHeader->addCookie( $this->SessionIdKey, "", time() - 3600 );
     }
 
     protected function getFilePath( $SessionId )
@@ -82,12 +69,6 @@ class SimpleSession implements \Qck\Interfaces\Session
 
     /**
      *
-     * @var \Qck\Interfaces\HttpHeader
-     */
-    protected $HttpHeader;
-
-    /**
-     *
      * @var \Qck\Interfaces\Arguments
      */
     protected $Arguments;
@@ -96,18 +77,6 @@ class SimpleSession implements \Qck\Interfaces\Session
      *
      * @var string 
      */
-    protected $SessionIdKey = "PHPSESSID";
-
-    /**
-     *
-     * @var string 
-     */
-    protected $Path = "";
-
-    /**
-     *
-     * @var string 
-     */
-    protected $Domain = "";
+    protected $SessionIdKey = "SessionId";
 
 }

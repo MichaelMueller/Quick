@@ -36,6 +36,7 @@ class Session implements \Qck\Interfaces\Session
         $this->startOrRestart();
         $_SESSION["Username"] = $Username;
         $_SESSION["TimeOutTime"] = $TimeOutTime;
+        return session_id();
     }
 
     function stopSession()
