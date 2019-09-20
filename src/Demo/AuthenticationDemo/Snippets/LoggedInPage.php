@@ -1,14 +1,19 @@
 <?php
 
-namespace Qck\Demo\UserDirectoryApp\Snippets;
+namespace Qck\Demo\AuthenticationDemo\Snippets;
 
 /**
  * Description of LoginForm
  *
  * @author muellerm
  */
-class LoginForm implements \Qck\Interfaces\HtmlSnippet
+class LoggedInPage implements \Qck\Interfaces\HtmlSnippet
 {
+
+    function __construct( $LogoutUrl )
+    {
+        $this->LogoutUrl = $LogoutUrl;
+    }
 
     public function renderHtml()
     {

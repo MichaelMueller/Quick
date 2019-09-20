@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Demo\UserDirectoryApp;
+namespace Qck\Demo\AuthenticationDemo;
 
 /**
  * 
@@ -35,13 +35,25 @@ class App extends \Qck\App
 
     /**
      * 
+     * @return \Qck\Session
+     */
+    function getSession()
+    {
+        static $Session = null;
+        if (is_null( $Session ))
+            $Session = new \Qck\Session( sys_get_temp_dir() );
+        return $Session;
+    }
+
+    /**
+     * 
      * @return \Qck\Authenticator
      */
     function getUserDb()
     {
         static $UserDb = null;
         if (is_null( $UserDb ))
-            $UserDb = new Qck\Demo\UserDirectoryApp\UserDb( $this->getPasswordHasher() );
+            $UserDb = new \Qck\Demo\AuthenticationDemo\UserDb( $this->getPasswordHasher() );
         return $UserDb;
     }
 
@@ -71,7 +83,7 @@ class App extends \Qck\App
 
     function getName()
     {
-        return "UserDirectoryApp";
+        return "AuthenticationDemo";
     }
 
 }

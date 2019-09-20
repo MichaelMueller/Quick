@@ -1,13 +1,13 @@
 <?php
 
-namespace Qck\Demo\HelloWorldApp;
+namespace Qck\Demo\HelloWorld;
 
 class AppFunctionFactory implements \Qck\Interfaces\AppFunctionFactory
 {
 
     public function createAppFunction( $RouteName )
     {
-        return new \Qck\Demo\HelloWorldApp\HelloWorldAppFunction();
+        return new \Qck\Demo\HelloWorld\HelloWorldFunction();
     }
 
 }

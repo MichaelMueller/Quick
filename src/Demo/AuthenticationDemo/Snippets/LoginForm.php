@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Demo\UserDirectoryApp\Snippets;
+namespace Qck\Demo\AuthenticationDemo\Snippets;
 
 /**
  * Description of LoginForm

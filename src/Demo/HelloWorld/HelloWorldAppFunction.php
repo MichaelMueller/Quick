@@ -1,12 +1,12 @@
 <?php
 
-namespace Qck\Demo\HelloWorldApp;
+namespace Qck\Demo\HelloWorld;
 
 /**
  * 
  * @author muellerm
  */
-class HelloWorldAppFunction implements \Qck\Interfaces\AppFunction
+class HelloWorldFunction implements \Qck\Interfaces\AppFunction
 {
 
     public function run( \Qck\Interfaces\App $App, \Qck\Interfaces\Arguments $Args )

@@ -20,12 +20,7 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
         $this->Headers[] = $HeaderString;
     }
 
-    public function addRedirect( $Url )
-    {
-        $this->Headers[] = "Location: " . $Url;
-    }
-
-    public function send( $ExitCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_OK )
+    public function send( $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_OK )
     {
         http_response_code( $ExitCode );
         foreach ($this->Cookies as $Cookie)
@@ -33,6 +28,12 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
 
         foreach ($this->Headers as $Header)
             header( $Header );
+    }
+
+    public function sendRedirect( $Url, $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_MOVED_PERMANENTLY )
+    {
+        $this->addHeader( "Location: " . $Url );
+        $this->send( $ExitCode );
     }
 
     public function sendContent( Interfaces\HttpContent $HttpContent,

@@ -20,10 +20,10 @@ class Session implements \Qck\Interfaces\Session
         $this->startOrRestart();
 
         // check timeout 
-        if (!isset( $_SESSION["TimeOut"] ) || time() > $_SESSION["TimeOut"])
+        if (isset( $_SESSION["TimeOutTime"] ) && time() > $_SESSION["TimeOutTime"])
         {
             $this->stopSession();
-            throw new \Exception( "Session timeout", Interfaces\HttpResponder::EXIT_CODE_UNAUTHORIZED );
+            throw new \Exception( "Session timeout", Interfaces\HttpHeader::EXIT_CODE_UNAUTHORIZED );
         }
 
         return isset( $_SESSION["Username"] ) ? $_SESSION["Username"] : null;
@@ -31,10 +31,11 @@ class Session implements \Qck\Interfaces\Session
 
     public function startSession( $Username, $TimeOutSecs = 900 )
     {
-        session_set_cookie_params( $TimeOutSecs );
+        $TimeOutTime = time() + $TimeOutSecs;
+        session_set_cookie_params( $TimeOutTime );
         $this->startOrRestart();
         $_SESSION["Username"] = $Username;
-        $_SESSION["TimeOut"] = time() + $TimeOutSecs;
+        $_SESSION["TimeOutTime"] = $TimeOutTime;
     }
 
     function stopSession()

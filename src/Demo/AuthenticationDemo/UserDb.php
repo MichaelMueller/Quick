@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Demo\UserDirectoryApp;
+namespace Qck\Demo\AuthenticationDemo;
 
 class UserDb implements \Qck\Interfaces\UserDb
 {
@@ -12,8 +12,8 @@ class UserDb implements \Qck\Interfaces\UserDb
 
     public function getUser( $Username )
     {
-        if ($Username == "testuser")
-            return new \Qck\User( "testuser", $this->PasswordHasher->createHash( "test" ) );
+        if ($Username == "test")
+            return new \Qck\User( "test", $this->PasswordHasher->createHash( "test" ) );
     }
 
     /**
