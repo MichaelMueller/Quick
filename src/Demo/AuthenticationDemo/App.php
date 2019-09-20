@@ -29,7 +29,7 @@ class App extends \Qck\App
     {
         static $Authenticator = null;
         if (is_null( $Authenticator ))
-            $Authenticator = new \Qck\Authenticator( $this->getUserDb(), $this->getPasswordHasher(), $this->getSession() );
+            $Authenticator = new \Qck\Authenticator( $this->getUserDb(), $this->getPasswordHasher() );
         return $Authenticator;
     }
 

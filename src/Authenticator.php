@@ -9,11 +9,10 @@ namespace Qck;
 class Authenticator implements \Qck\Interfaces\Authenticator
 {
 
-    function __construct( \Qck\Interfaces\UserDb $UserDb, \Qck\Interfaces\PasswordHasher $PasswordHasher, \Qck\Interfaces\Session $Session )
+    function __construct( \Qck\Interfaces\UserDb $UserDb, \Qck\Interfaces\PasswordHasher $PasswordHasher )
     {
         $this->UserDb = $UserDb;
         $this->PasswordHasher = $PasswordHasher;
-        $this->Session = $Session;
     }
 
     function setAuthenticatorFactory( \Qck\Interfaces\AuthenticatorFactory $AuthenticatorFactory )
@@ -38,10 +37,6 @@ class Authenticator implements \Qck\Interfaces\Authenticator
             else
                 $CredentialsOk = $this->PasswordHasher->verify( $PlainTextPassword, $User->getHashedPassword() );
         }
-        if ($CredentialsOk)
-        {
-            $this->Session->startSession( $Username );
-        }
 
         return $CredentialsOk;
     }
@@ -57,12 +52,6 @@ class Authenticator implements \Qck\Interfaces\Authenticator
      * @var \Qck\Interfaces\PasswordHasher
      */
     protected $PasswordHasher;
-
-    /**
-     *
-     * @var \Qck\Interfaces\Session
-     */
-    protected $Session;
 
     /**
      *
