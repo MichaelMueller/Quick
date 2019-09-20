@@ -26,16 +26,6 @@ class HtmlPage implements \Qck\Interfaces\HttpContent
         $this->HeaderSnippet = $HeaderSnippet;
     }
 
-    function setBeforeContentSnippet( \Qck\Interfaces\HtmlSnippet $BeforeContentSnippet )
-    {
-        $this->BeforeContentSnippet = $BeforeContentSnippet;
-    }
-
-    function setAfterContentSnippet( \Qck\Interfaces\HtmlSnippet $AfterContentSnippet )
-    {
-        $this->AfterContentSnippet = $AfterContentSnippet;
-    }
-
     public function getCharset()
     {
         return \Qck\Interfaces\HttpContent::CHARSET_UTF_8;
@@ -58,9 +48,7 @@ class HtmlPage implements \Qck\Interfaces\HttpContent
                 <?= $this->HeaderSnippet ? $this->HeaderSnippet->renderHtml() : "" ?>
             </head>
             <body>                
-                <?= $this->BeforeContentSnippet ? $this->BeforeContentSnippet->renderHtml() : "" ?>
                 <?= $this->ContentSnippet->renderHtml() ?>
-                <?= $this->AfterContentSnippet ? $this->AfterContentSnippet->renderHtml() : "" ?>
             </body>
         </html>
         <?php
@@ -90,18 +78,6 @@ class HtmlPage implements \Qck\Interfaces\HttpContent
      * @var \Qck\Interfaces\HtmlSnippet
      */
     protected $HeaderSnippet;
-
-    /**
-     *
-     * @var \Qck\Interfaces\HtmlSnippet
-     */
-    protected $BeforeContentSnippet;
-
-    /**
-     *
-     * @var \Qck\Interfaces\HtmlSnippet
-     */
-    protected $AfterContentSnippet;
 
     /**
      *

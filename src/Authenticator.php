@@ -6,32 +6,39 @@ namespace Qck;
  *
  * @author muellerm
  */
-class DefaultAuthenticator implements \Qck\Interfaces\Authenticator
+class Authenticator implements \Qck\Interfaces\Authenticator
 {
 
     function __construct( \Qck\Interfaces\UserDb $UserDb, \Qck\Interfaces\PasswordHasher $PasswordHasher, \Qck\Interfaces\Session $Session )
     {
-        $this->UserDb         = $UserDb;
+        $this->UserDb = $UserDb;
         $this->PasswordHasher = $PasswordHasher;
-        $this->Session        = $Session;
+        $this->Session = $Session;
+    }
+
+    function setAuthenticatorFactory( \Qck\Interfaces\AuthenticatorFactory $AuthenticatorFactory )
+    {
+        $this->AuthenticatorFactory = $AuthenticatorFactory;
     }
 
     public function check( $Username, $PlainTextPassword )
     {
         $CredentialsOk = false;
-        $User          = $this->UserDb->getUser( $Username );
+        $User = $this->UserDb->getUser( $Username );
 
-        if ( $User )
+        if ($User)
         {
             // Use a custom Authenticator?
-            $Authenticator = $User->getAuthenticator();
-
-            if ( $Authenticator )
+            if ($this->AuthenticatorFactory)
+            {
+                $AuthenticatorName = $User->getAuthenticatorName();
+                $Authenticator = $this->AuthenticatorFactory->createAuthenticator( $AuthenticatorName );
                 $CredentialsOk = $Authenticator->check( $Username, $PlainTextPassword );
+            }
             else
                 $CredentialsOk = $this->PasswordHasher->verify( $PlainTextPassword, $User->getHashedPassword() );
         }
-        if ( $CredentialsOk )
+        if ($CredentialsOk)
         {
             $this->Session->startSession( $Username );
         }
@@ -56,5 +63,11 @@ class DefaultAuthenticator implements \Qck\Interfaces\Authenticator
      * @var \Qck\Interfaces\Session
      */
     protected $Session;
+
+    /**
+     *
+     * @var \Qck\Interfaces\AuthenticatorFactory
+     */
+    protected $AuthenticatorFactory;
 
 }

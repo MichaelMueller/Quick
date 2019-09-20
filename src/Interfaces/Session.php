@@ -14,7 +14,7 @@ interface Session
      * start session and set a username if set
      * @return string or null if none is set
      */
-    function startSession( $Username, $TimeOutSecs = 900 );
+    function startSession( $Username );
 
     /**
      * @return string or null

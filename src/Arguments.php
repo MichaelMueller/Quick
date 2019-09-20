@@ -40,7 +40,7 @@ class Arguments implements Interfaces\Arguments
     protected function createData( array $data = [] )
     {
         if ($this->isHttpRequest())
-            $this->Data = array_merge( $this->Data, $_REQUEST, $_FILES );
+            $this->Data = array_merge( $this->Data, $_REQUEST );
         else
             $this->Data = $this->parseArgv( $_SERVER["argv"] );
 

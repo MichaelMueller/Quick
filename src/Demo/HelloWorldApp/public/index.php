@@ -1,8 +1,6 @@
 <?php
 
-use Qck\Demo\HelloWorldApp;
-
 require_once "../../../../vendor/autoload.php";
-$Args = new \Qck\Arguments();
-$App = new HelloWorldApp\HelloWorldApp( $Args, false );
+
+$App = new \Qck\App( new \Qck\Demo\HelloWorldApp\AppFunctionFactory(), new \Qck\Arguments(), false );
 $App->run();

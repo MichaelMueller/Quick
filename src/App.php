@@ -11,16 +11,16 @@ namespace Qck;
 class App implements Interfaces\App
 {
 
-    function __construct( Interfaces\Route $DefaultRoute, Interfaces\Arguments $Arguments, $ShowErrors = false )
+    function __construct( Interfaces\AppFunctionFactory $RouteFactory, Interfaces\Arguments $Arguments, $ShowErrors = false )
     {
-        $this->Routes[] = $DefaultRoute;
+        $this->RouteFactory = $RouteFactory;
         $this->Arguments = $Arguments;
         $this->ShowErrors = $ShowErrors;
     }
 
-    function addRoute( Interfaces\Route $Route )
+    function getRouteParamKey()
     {
-        $this->Routes[] = $Route;
+        return $this->RouteParamKey;
     }
 
     function setRouteParamKey( $RouteParamKey )
@@ -38,27 +38,12 @@ class App implements Interfaces\App
     {
         $this->setupErrorHandling();
         $RouteName = $this->Arguments->get( $this->RouteParamKey );
-        $Route = null;
-        if ($RouteName === null)
-            $Route = $this->Routes[0];
-        else
-        {
-            $Filter = function($Route) use($RouteName)
-            {
-                /* @var $Route Qck\Interfaces\Route */
-                return $Route->getRouteName() === $RouteName;
-            };
-            $Routes = array_filter( $this->Routes, $Filter );
-            if (count( $Routes ) > 0)
-                $Route = $Routes[0];
-        }
-        if ($Route === null)
-            throw new \Exception( "Route \"" . $RouteName . "\" not found.",
+        $AppFunction = $this->RouteFactory->createAppFunction( $RouteName );
+
+        if (is_null( $AppFunction ))
+            throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\".",
                     Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
-        $Fqcn = $Route->getAppFunctionFqcn();
-        /* @var $AppFunction Qck\Interfaces\AppFunction */
-        $AppFunction = new $Fqcn();
         $AppFunction->run( $this, $this->Arguments );
     }
 
@@ -92,9 +77,9 @@ class App implements Interfaces\App
 
     /**
      *
-     * @var Interfaces\Route[]
+     * @var Interfaces\AppFunctionFactory
      */
-    protected $Routes;
+    protected $RouteFactory;
 
     /**
      *

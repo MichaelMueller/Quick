@@ -21,12 +21,7 @@ interface User
   function getHashedPassword();
 
   /**
-   * @return Authenticator An Authenticator or null if no custom authenticator is used
+   * @return string An Authenticator Name or null if no custom authenticator is used
    */
-  function getAuthenticator();
-
-  /**
-   * @return bool
-   */
-  function isAdmin();
+  function getAuthenticatorName();
 }

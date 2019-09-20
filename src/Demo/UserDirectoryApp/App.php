@@ -3,29 +3,66 @@
 namespace Qck\Demo\UserDirectoryApp;
 
 /**
- * App class is essentially the class to start.
- * It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
  * 
  * @author muellerm
  */
 class App extends \Qck\App
 {
 
-    function __construct( \Qck\Interfaces\Arguments $Arguments, $ShowErrors = false )
+    /**
+     * 
+     * @return \Qck\HttpHeader
+     */
+    function getHttpHeader()
     {
-        parent::__construct( new \Qck\Route( "loginForm", AppFunctions\LoginForm::class ), $Arguments, $ShowErrors );
+        static $HttpHeader = null;
+        if (is_null( $HttpHeader ))
+            $HttpHeader = new \Qck\HttpHeader();
+        return $HttpHeader;
     }
 
     /**
      * 
-     * @staticvar \Qck\HttpHeader $HttpHeader
-     * @return \Qck\HttpHeader
+     * @return \Qck\Authenticator
      */
-    function createHttpHeader()
+    function getAuthenticator()
     {
-        return new \Qck\HttpHeader ();
+        static $Authenticator = null;
+        if (is_null( $Authenticator ))
+            $Authenticator = new \Qck\Authenticator( $this->getUserDb(), $this->getPasswordHasher(), $this->getSession() );
+        return $Authenticator;
     }
 
+    /**
+     * 
+     * @return \Qck\Authenticator
+     */
+    function getUserDb()
+    {
+        static $UserDb = null;
+        if (is_null( $UserDb ))
+            $UserDb = new Qck\Demo\UserDirectoryApp\UserDb( $this->getPasswordHasher() );
+        return $UserDb;
+    }
+
+    /**
+     * 
+     * @return \Qck\PasswordHasher
+     */
+    function getPasswordHasher()
+    {
+        static $PasswordHasher = null;
+        if (is_null( $PasswordHasher ))
+            $PasswordHasher = new \Qck\PasswordHasher();
+        return $PasswordHasher;
+    }
+
+    /**
+     * 
+     * @param string $SubTitle
+     * @param \Qck\Interfaces\HtmlSnippet $ContentSnippet
+     * @return \Qck\HtmlPage
+     */
     function createHtmlPage( $SubTitle, \Qck\Interfaces\HtmlSnippet $ContentSnippet )
     {
         $Page = new \Qck\HtmlPage( $this->getName() . " - " . $SubTitle, $ContentSnippet );
