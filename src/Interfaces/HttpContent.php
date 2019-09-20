@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface Output extends Template
+interface HttpContent
 {
 
   // CONSTANTS
@@ -20,7 +20,12 @@ interface Output extends Template
   const CHARSET_ISO_8859_1 = "ISO-8859-1";
   const CHARSET_UTF_8 = "utf-8";
   const CHARSET_BINARY = "binary";
-
+  
+  /**
+   * @return string The output text string (could be empty or null if its a header only httpresponse)
+   */
+  public function getContents();
+  
   /**
    * @return string
    */
@@ -30,10 +35,4 @@ interface Output extends Template
    * @return string
    */
   public function getCharset();
-
-  /**
-   * @return array of strings
-   */
-  public function getAdditionalHeaders();
-  
 }

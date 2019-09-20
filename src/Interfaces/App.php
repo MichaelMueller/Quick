@@ -13,5 +13,5 @@ interface App
     /**
      * @return string
      */
-    function buildUrl( $AppFunctionFqcn, array $QueryData = [] );
+    function buildUrl( $RouteName, array $QueryData = [] );
 }

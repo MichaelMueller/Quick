@@ -28,9 +28,9 @@ class App implements Interfaces\App
         $this->RouteParamKey = $RouteParamKey;
     }
 
-    function buildUrl( $AppFunctionFqcn, array $QueryData = [] )
+    function buildUrl( $RouteName, array $QueryData = [] )
     {
-        $CompleteQueryData = array_merge( $QueryData, [$this->RouteParamKey => $AppFunctionFqcn] );
+        $CompleteQueryData = array_merge( $QueryData, [$this->RouteParamKey => $RouteName] );
         return "?" . http_build_query( $CompleteQueryData );
     }
 
@@ -53,7 +53,8 @@ class App implements Interfaces\App
                 $Route = $Routes[0];
         }
         if ($Route === null)
-            throw new \Exception( "Route \"" . $RouteName . "\" not found.", 404 );
+            throw new \Exception( "Route \"" . $RouteName . "\" not found.",
+                    Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
         $Fqcn = $Route->getAppFunctionFqcn();
         /* @var $AppFunction Qck\Interfaces\AppFunction */

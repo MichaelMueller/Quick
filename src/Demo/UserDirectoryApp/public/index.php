@@ -1,8 +1,8 @@
 <?php
 
-use Qck\Demo\UserManagementApp;
+use Qck\Demo\UserDirectoryApp;
 
 require_once "../../../../vendor/autoload.php";
 $Args = new \Qck\Arguments();
-$App = new UserManagementApp\UserManagementApp( $Args, false );
+$App = new UserDirectoryApp\App( $Args, true );
 $App->run();
