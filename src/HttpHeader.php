@@ -30,7 +30,7 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
             header( $Header );
     }
 
-    public function sendRedirect( $Url, $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_MOVED_PERMANENTLY )
+    public function redirect( $Url, $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_MOVED_PERMANENTLY )
     {
         $this->addHeader( "Location: " . $Url );
         $this->send( $ExitCode );

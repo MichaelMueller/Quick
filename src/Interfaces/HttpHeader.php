@@ -51,7 +51,7 @@ interface HttpHeader
      * 
      * @param string $Url
      */
-    function sendRedirect( $Url );
+    function redirect( $Url );
 
     /**
      * sends the http header, then sends the content type and encoding header, then sends the contents 

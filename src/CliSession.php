@@ -61,6 +61,11 @@ class CliSession implements \Qck\Interfaces\Session
         return $this->SessionDir . "/" . $SessionId;
     }
 
+    public function getSessionIdKey()
+    {
+        return $this->SessionIdKey;
+    }
+
     /**
      *
      * @var string

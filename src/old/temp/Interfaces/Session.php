@@ -25,4 +25,10 @@ interface Session
      * completely clear session
      */
     function stopSession();
+    
+    /**
+     * @return string the key of the parameter that holds the SessionId
+     */
+    function getSessionIdKey();
+    
 }

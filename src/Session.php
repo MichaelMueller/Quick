@@ -68,6 +68,11 @@ class Session implements \Qck\Interfaces\Session
         session_start();
     }
 
+    public function getSessionIdKey()
+    {
+        return session_name();
+    }
+
     /**
      *
      * @var string

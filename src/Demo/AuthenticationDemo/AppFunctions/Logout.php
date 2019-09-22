@@ -13,7 +13,7 @@ class Logout implements \Qck\Interfaces\AppFunction
     {
         /* @var $App \Qck\Demo\AuthenticationDemo\App */
         $App->getSession()->stopSession();
-        $App->getHttpHeader()->sendRedirect( $App->buildUrl( "loginForm" ) );
+        $App->getHttpHeader()->redirect( $App->buildUrl( "loginForm" ) );
     }
 
 }
