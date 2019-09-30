@@ -19,6 +19,16 @@ interface Arguments
     public function get( $Name, $Default = null );
 
     /**
+     * @return string
+     */
+    function getPreferredContentType( array $DeliverableContentTypes = [], $Default = HttpContent::CONTENT_TYPE_TEXT_PLAIN );
+
+    /**
+     * @return string
+     */
+    function getPreferredLanguage( array $DeliverableLanguages = [], $Default = "en" );
+
+    /**
      * 
      * @param string $Name
      * @return bool
@@ -35,5 +45,4 @@ interface Arguments
      * @return bool
      */
     function isHttpRequest();
-     
 }
