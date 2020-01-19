@@ -85,13 +85,13 @@ class Arguments implements Interfaces\Arguments
         return $argvData;
     }
 
-    function getBestSupportedMimeType( $mimeTypes = null )
+    function getBestSupportedMimeType( array $Data = null, $mimeTypes = null )
     {
         // Values will be stored in this array
-        $AcceptTypes = Array();
+        $AcceptTypes = Array ();
 
         // Accept header is case insensitive, and whitespace isn’t important
-        $accept = strtolower( str_replace( ' ', '', $_SERVER['HTTP_ACCEPT'] ) );
+        $accept = strtolower( str_replace( ' ', '', $Data ) );
         // divide it into parts in the place of a ","
         $accept = explode( ',', $accept );
         foreach ($accept as $a)
@@ -124,6 +124,16 @@ class Arguments implements Interfaces\Arguments
         }
         // no mime-type found
         return null;
+    }
+
+    public function getPreferredContentType( array $DeliverableContentTypes = array (), $Default = HttpContent::CONTENT_TYPE_TEXT_PLAIN )
+    {
+        $ContentTypes = $_SERVER['HTTP_ACCEPT'];
+    }
+
+    public function getPreferredLanguage( array $DeliverableLanguages = array (), $Default = "en" )
+    {
+        
     }
 
     /**
