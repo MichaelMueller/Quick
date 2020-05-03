@@ -10,18 +10,18 @@ namespace Qck\Interfaces;
 interface User
 {
 
-  /**
-   * @return string
-   */
-  function getUsername();
+    /**
+     * @return string
+     */
+    function getName();
 
-  /**
-   * @return string
-   */
-  function getHashedPassword();
+    /**
+     * @return string
+     */
+    function getHashedPassword();
 
-  /**
-   * @return string An Authenticator Name or null if no custom authenticator is used
-   */
-  function getAuthenticatorName();
+    /**
+     * @return string An Authenticator Name or null if no custom authenticator is used
+     */
+    function getAuthenticatorName();
 }

@@ -14,9 +14,19 @@ interface App
      * @return string
      */
     function buildUrl( $RouteName, array $QueryData = [] );
-    
+
+    /**
+     * @return string
+     */
+    function getCurrentRoute();
+
     /**
      * @return string
      */
     function getRouteParamKey();
+
+    /**
+     * @return Arguments
+     */
+    function getArguments();
 }

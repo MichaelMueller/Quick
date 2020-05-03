@@ -11,40 +11,55 @@ namespace Qck;
 class App implements Interfaces\App
 {
 
-    function __construct( Interfaces\AppFunctionFactory $RouteFactory, Interfaces\Arguments $Arguments, $ShowErrors = false )
+    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\Arguments $Arguments, bool $ShowErrors )
     {
-        $this->RouteFactory = $RouteFactory;
-        $this->Arguments = $Arguments;
+        $this->AppFunctionFactory = $AppFunctionFactory;
+        $this->Arguments          = $Arguments;
+        $this->ShowErrors         = $ShowErrors;
+    }
+
+    function getArguments()
+    {
+        return $this->Arguments;
+    }
+
+    function showErrors()
+    {
+        return $this->ShowErrors;
+    }
+
+    function setShowErrors( $ShowErrors )
+    {
         $this->ShowErrors = $ShowErrors;
+    }
+
+    function getCurrentRoute()
+    {
+        return $this->getArguments()->get( $this->getRouteParamKey() );
     }
 
     function getRouteParamKey()
     {
-        return $this->RouteParamKey;
-    }
-
-    function setRouteParamKey( $RouteParamKey )
-    {
-        $this->RouteParamKey = $RouteParamKey;
+        return "q";
     }
 
     function buildUrl( $RouteName, array $QueryData = [] )
     {
-        $CompleteQueryData = array_merge( $QueryData, [$this->RouteParamKey => $RouteName] );
+        $CompleteQueryData = array_merge( $QueryData, [ $this->getRouteParamKey() => $RouteName ] );
         return "?" . http_build_query( $CompleteQueryData );
     }
 
     function run()
     {
         $this->setupErrorHandling();
-        $RouteName = $this->Arguments->get( $this->RouteParamKey );
-        $AppFunction = $this->RouteFactory->createAppFunction( $RouteName );
 
-        if (is_null( $AppFunction ))
+        $RouteName   = $this->getCurrentRoute();
+        $AppFunction = $this->AppFunctionFactory->createAppFunction( $RouteName );
+        if ( is_null( $AppFunction ) )
             throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\".",
-                    Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
+                                  Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
-        $AppFunction->run( $this, $this->Arguments );
+        $AppFunction->run( $this );
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -55,10 +70,10 @@ class App implements Interfaces\App
     function exceptionHandler( $Exception )
     {
         /* @var $Exception \Exception */
-        if ($this->Arguments->isHttpRequest())
+        if ( $this->getArguments()->isHttpRequest() )
             http_response_code( $Exception->getCode() );
 
-        if ($this->ShowErrors == false)
+        if ( $this->showErrors() == false )
             print "An error occured. If the problem persists, please contact the Administrator.";
 
         throw $Exception;
@@ -71,15 +86,15 @@ class App implements Interfaces\App
         ini_set( 'display_errors', intval( $this->ShowErrors ) );
         ini_set( 'html_errors', intval( $this->Arguments->isHttpRequest() ) );
 
-        set_error_handler( array ($this, "errorHandler") );
-        set_exception_handler( array ($this, "exceptionHandler") );
+        set_error_handler( array ( $this, "errorHandler" ) );
+        set_exception_handler( array ( $this, "exceptionHandler" ) );
     }
 
     /**
      *
      * @var Interfaces\AppFunctionFactory
      */
-    protected $RouteFactory;
+    protected $AppFunctionFactory;
 
     /**
      *
@@ -91,12 +106,6 @@ class App implements Interfaces\App
      *
      * @var bool
      */
-    protected $ShowErrors;
-
-    /**
-     *
-     * @var string
-     */
-    protected $RouteParamKey = "q";
+    protected $ShowErrors = false;
 
 }

@@ -10,7 +10,7 @@ interface ArraySerializer
 {
 
   /**
-   * @param \mbits\DataObject $DataObject
+   * @param \Qck\DataObject $DataObject
    * @return string a string representing the DataObject
    */
   function serialize( array $Array );

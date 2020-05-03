@@ -9,12 +9,11 @@ namespace Qck\Interfaces;
 interface Authenticator
 {
 
-  /**
-   * 
-   * @param string $Username
-   * @param string $PlainTextPassword
-   * @return void
-   */
-  public function check( $Username, $PlainTextPassword );
-
+    /**
+     * 
+     * @param string $Username
+     * @param string $PlainTextPassword
+     * @return void
+     */
+    public function check( $Username, $PlainTextPassword );
 }
