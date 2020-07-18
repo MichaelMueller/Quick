@@ -7,7 +7,7 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface App
+interface Router
 {
 
     /**
@@ -19,9 +19,4 @@ interface App
      * @return string
      */
     function getCurrentRoute();
-
-    /**
-     * @return Arguments
-     */
-    function getArguments();
 }

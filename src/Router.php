@@ -8,28 +8,12 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class App implements Interfaces\App
+class Router implements Interfaces\Router
 {
 
-    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\Arguments $Arguments )
+    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory )
     {
         $this->AppFunctionFactory = $AppFunctionFactory;
-        $this->Arguments          = $Arguments;
-    }
-
-    function getArguments()
-    {
-        return $this->Arguments;
-    }
-
-    function showErrors()
-    {
-        return $this->ShowErrors;
-    }
-
-    function setShowErrors( $ShowErrors )
-    {
-        $this->ShowErrors = $ShowErrors;
     }
 
     function getCurrentRoute()

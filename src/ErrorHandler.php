@@ -3,12 +3,9 @@
 namespace Qck;
 
 /**
- * App class is essentially the class to start.
- * It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
- * 
  * @author muellerm
  */
-class ErrorHandler
+class ErrorHandler implements Interfaces\ErrorHandler
 {
 
     function __construct( bool $ShowErrors, bool $IsHttpRequest )

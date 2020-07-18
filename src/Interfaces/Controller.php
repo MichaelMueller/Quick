@@ -15,5 +15,5 @@ interface Controller
      * @param \Qck\Interfaces\App $App
      * @return void
      */
-    function run( Arguments $Args, Config $Config );
+    function run( Arguments $Args, Context $Config );
 }
