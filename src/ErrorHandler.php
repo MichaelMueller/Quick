@@ -8,9 +8,9 @@ namespace Qck;
 class ErrorHandler implements Interfaces\ErrorHandler
 {
 
-    function __construct( bool $ShowErrors, bool $HttpRequestDetector )
+    function __construct( bool $ShowErrors, Interfaces\HttpRequestDetector $HttpRequestDetector )
     {
-        $this->ShowErrors = $ShowErrors;
+        $this->ShowErrors          = $ShowErrors;
         $this->HttpRequestDetector = $HttpRequestDetector;
     }
 
@@ -25,7 +25,7 @@ class ErrorHandler implements Interfaces\ErrorHandler
         if ( $this->HttpRequestDetector->isHttpRequest() )
             http_response_code( $Exception->getCode() );
 
-        if ( $this->showErrors == false )
+        if ( $this->ShowErrors == false )
             print "An error occured. If the problem persists, please contact the Administrator.";
 
         throw $Exception;
@@ -38,20 +38,20 @@ class ErrorHandler implements Interfaces\ErrorHandler
         ini_set( 'display_errors', intval( $this->ShowErrors ) );
         ini_set( 'html_errors', intval( $this->HttpRequestDetector->isHttpRequest() ) );
 
-        set_error_handler( array( $this, "errorHandler" ) );
-        set_exception_handler( array( $this, "exceptionHandler" ) );
+        set_error_handler( array ( $this, "errorHandler" ) );
+        set_exception_handler( array ( $this, "exceptionHandler" ) );
     }
-
-    /**
-     *
-     * @var Interfaces\HttpRequestDetector
-     */
-    protected $HttpRequestDetector;
 
     /**
      *
      * @var bool
      */
     protected $ShowErrors = false;
+
+    /**
+     *
+     * @var Interfaces\HttpRequestDetector
+     */
+    protected $HttpRequestDetector;
 
 }

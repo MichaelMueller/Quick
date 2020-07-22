@@ -17,7 +17,7 @@ class Router implements Interfaces\Router, Interfaces\Functor
 
     function getCurrentRoute()
     {
-        return $this->getArguments()->get( $this->getRouteParamKey() );
+        return $this->Arguments->get( $this->getRouteParamKey() );
     }
 
     function getRouteParamKey()
