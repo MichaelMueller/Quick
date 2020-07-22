@@ -8,10 +8,10 @@ namespace Qck;
 class ErrorHandler implements Interfaces\ErrorHandler
 {
 
-    function __construct( bool $ShowErrors, bool $IsHttpRequest )
+    function __construct( bool $ShowErrors, bool $HttpRequestDetector )
     {
         $this->ShowErrors = $ShowErrors;
-        $this->IsHttpRequest = $IsHttpRequest;
+        $this->HttpRequestDetector = $HttpRequestDetector;
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -22,10 +22,10 @@ class ErrorHandler implements Interfaces\ErrorHandler
     function exceptionHandler( $Exception )
     {
         /* @var $Exception \Exception */
-        if ( $this->IsHttpRequest )
+        if ( $this->HttpRequestDetector->isHttpRequest() )
             http_response_code( $Exception->getCode() );
 
-        if ( $this->showErrors() == false )
+        if ( $this->showErrors == false )
             print "An error occured. If the problem persists, please contact the Administrator.";
 
         throw $Exception;
@@ -36,7 +36,7 @@ class ErrorHandler implements Interfaces\ErrorHandler
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( $this->ShowErrors === false ) );
         ini_set( 'display_errors', intval( $this->ShowErrors ) );
-        ini_set( 'html_errors', intval( $this->IsHttpRequest ) );
+        ini_set( 'html_errors', intval( $this->HttpRequestDetector->isHttpRequest() ) );
 
         set_error_handler( array( $this, "errorHandler" ) );
         set_exception_handler( array( $this, "exceptionHandler" ) );
@@ -44,9 +44,9 @@ class ErrorHandler implements Interfaces\ErrorHandler
 
     /**
      *
-     * @var bool
+     * @var Interfaces\HttpRequestDetector
      */
-    protected $IsHttpRequest;
+    protected $HttpRequestDetector;
 
     /**
      *

@@ -10,7 +10,7 @@ namespace Qck\Interfaces;
 interface Functor
 {
     /**
-     * @return void
+     * @return mixed
      */
-    function _invoke();
+    function __invoke();
 }

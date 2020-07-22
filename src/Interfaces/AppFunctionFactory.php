@@ -10,7 +10,7 @@ interface AppFunctionFactory
 {
 
     /**
-     * @return AppFunction or null
+     * @return callable|null
      */
     function createAppFunction( $RouteName );
 }

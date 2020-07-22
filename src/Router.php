@@ -3,17 +3,16 @@
 namespace Qck;
 
 /**
- * App class is essentially the class to start.
- * It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
+ * The Router maps an Argument to a certain Function and calls it respectively.
  * 
  * @author muellerm
  */
-class Router implements Interfaces\Router
+class Router implements Interfaces\Router, Interfaces\Functor
 {
-
-    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory )
+    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\Arguments $Arguments )
     {
         $this->AppFunctionFactory = $AppFunctionFactory;
+        $this->Arguments          = $Arguments;
     }
 
     function getCurrentRoute()
@@ -40,9 +39,13 @@ class Router implements Interfaces\Router
             throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\".",
                                   Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
-        $AppFunction->run( $this );
+        $AppFunction();
     }
 
+    public function __invoke()
+    {
+        $this->run();
+    }
 
     /**
      *
@@ -55,11 +58,5 @@ class Router implements Interfaces\Router
      * @var Interfaces\Arguments
      */
     protected $Arguments;
-
-    /**
-     *
-     * @var bool
-     */
-    protected $ShowErrors = false;
 
 }
