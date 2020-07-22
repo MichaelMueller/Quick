@@ -20,37 +20,37 @@ class Comparison implements \Qck\Interfaces\Expressions\BooleanExpression
     const REGEXP         = "regexp";
 
 // TODO
-    static function createEquals( IValueExpression $Left, IValueExpression $Right )
+    static function eq( IValueExpression $Left, IValueExpression $Right )
     {
         return new Comparison( self::EQUALS, $Left, $Right );
     }
 
-    static function createNotEquals( IValueExpression $Left, IValueExpression $Right )
+    static function neq( IValueExpression $Left, IValueExpression $Right )
     {
         return new Comparison( self::NOT_EQUALS, $Left, $Right );
     }
 
-    static function createGreater( IValueExpression $Left, IValueExpression $Right )
+    static function gt( IValueExpression $Left, IValueExpression $Right )
     {
         return new Comparison( self::GREATER, $Left, $Right );
     }
 
-    static function createGreaterEquals( IValueExpression $Left, IValueExpression $Right )
+    static function geq( IValueExpression $Left, IValueExpression $Right )
     {
         return new Comparison( self::GREATER_EQUALS, $Left, $Right );
     }
 
-    static function createLess( Expression $Left, IValueExpression $Right )
+    static function lt( Expression $Left, IValueExpression $Right )
     {
         return new Comparison( self::LESS, $Left, $Right );
     }
 
-    static function createLessEquals( IValueExpression $Left, IValueExpression $Right )
+    static function leq( IValueExpression $Left, IValueExpression $Right )
     {
         return new Comparison( self::LESS_EQUALS, $Left, $Right );
     }
 
-    static function createRegexp( IValueExpression $Left, IValueExpression $Right, $Delimiter = "#" )
+    static function matches( IValueExpression $Left, IValueExpression $Right, $Delimiter = "#" )
     {
         $Cmp = new Comparison( self::REGEXP, $Left, $Right );
         $Cmp->setRegexpDelimiter( $Delimiter );
