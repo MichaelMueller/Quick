@@ -6,7 +6,7 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Arguments implements Interfaces\Arguments
+class Arguments implements Interfaces\ImmutableDict
 {
 
     function __construct( array $data = [] )

@@ -10,20 +10,24 @@ namespace Qck;
 class Psr4Autoloader
 {
 
-    function __construct()
+    function __construct( array $prefixesToPaths=[] )
     {
         $this->add( "Qck\\", __DIR__ );
+        foreach ( $prefixesToPaths as $prefix => $paths )
+            foreach ( $paths as $path )
+                $this->add( $prefix, $path );
+        $this->register();
     }
 
     function add( $prefix, $path )
     {
-        if ( isset( $this->PrefixToPath[ $prefix ] ) )
-            $this->PrefixToPath[ $prefix ][] = $path;
+        if ( isset( $this->prefixesToPaths[ $prefix ] ) )
+            $this->prefixesToPaths[ $prefix ][] = $path;
         else
         {
-            $this->PrefixToPath[ $prefix ] = array ( $path );
+            $this->prefixesToPaths[ $prefix ] = array ( $path );
         }
-        $this->Sort = true;
+        $this->sort = true;
     }
 
     function register()
@@ -33,12 +37,12 @@ class Psr4Autoloader
 
     function autoload( $class )
     {
-        if ( $this->Sort )
+        if ( $this->sort )
         {
-            krSort( $this->PrefixToPath );
-            $this->Sort = false;
+            krSort( $this->prefixesToPaths );
+            $this->sort = false;
         }
-        foreach ( $this->PrefixToPath as $prefix => $paths )
+        foreach ( $this->prefixesToPaths as $prefix => $paths )
         {
             // does the class use the namespace prefix?
             $len = strlen( $prefix );
@@ -76,12 +80,12 @@ class Psr4Autoloader
      *
      * @var array 
      */
-    protected $PrefixToPath = array ();
+    protected $prefixesToPaths = array ();
 
     /**
      *
      * @var bool
      */
-    protected $Sort = false;
+    protected $sort = false;
 
 }

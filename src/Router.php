@@ -9,7 +9,7 @@ namespace Qck;
  */
 class Router implements Interfaces\Router, Interfaces\Functor
 {
-    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\Arguments $Arguments )
+    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\ImmutableDict $Arguments )
     {
         $this->AppFunctionFactory = $AppFunctionFactory;
         $this->Arguments          = $Arguments;
@@ -36,8 +36,7 @@ class Router implements Interfaces\Router, Interfaces\Functor
         $RouteName   = $this->getCurrentRoute();
         $AppFunction = $this->AppFunctionFactory->createAppFunction( $RouteName );
         if ( is_null( $AppFunction ) )
-            throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\".",
-                                  Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
+            throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\"." );
 
         $AppFunction();
     }
@@ -55,7 +54,7 @@ class Router implements Interfaces\Router, Interfaces\Functor
 
     /**
      *
-     * @var Interfaces\Arguments
+     * @var Interfaces\ImmutableDict
      */
     protected $Arguments;
 

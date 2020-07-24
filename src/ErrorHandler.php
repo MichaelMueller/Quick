@@ -5,13 +5,13 @@ namespace Qck;
 /**
  * @author muellerm
  */
-class ErrorHandler implements Interfaces\ErrorHandler
+class ErrorHandler implements Interfaces\HttpRequestDetector
 {
 
-    function __construct( bool $ShowErrors, Interfaces\HttpRequestDetector $HttpRequestDetector )
+    function __construct( bool $showErrors )
     {
-        $this->ShowErrors          = $ShowErrors;
-        $this->HttpRequestDetector = $HttpRequestDetector;
+        $this->showErrors = $showErrors;
+        $this->install();
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -22,11 +22,8 @@ class ErrorHandler implements Interfaces\ErrorHandler
     function exceptionHandler( $Exception )
     {
         /* @var $Exception \Exception */
-        if ( $this->HttpRequestDetector->isHttpRequest() )
-            http_response_code( $Exception->getCode() );
-
-        if ( $this->ShowErrors == false )
-            print "An error occured. If the problem persists, please contact the Administrator.";
+        if ( $this->isHttpRequest() )
+            http_response_code( 500 );
 
         throw $Exception;
     }
@@ -34,24 +31,31 @@ class ErrorHandler implements Interfaces\ErrorHandler
     function install()
     {
         error_reporting( E_ALL );
-        ini_set( 'log_errors', intval( $this->ShowErrors === false ) );
-        ini_set( 'display_errors', intval( $this->ShowErrors ) );
-        ini_set( 'html_errors', intval( $this->HttpRequestDetector->isHttpRequest() ) );
+        ini_set( 'log_errors', intval( $this->showErrors === false ) );
+        ini_set( 'display_errors', intval( $this->showErrors ) );
+        ini_set( 'html_errors', intval( $this->isHttpRequest() ) );
 
         set_error_handler( array ( $this, "errorHandler" ) );
         set_exception_handler( array ( $this, "exceptionHandler" ) );
+    }
+
+    public function isHttpRequest()
+    {
+        if ( is_null( $this->isHttpRequest ) )
+            $this->isHttpRequest = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
+        return $this->isHttpRequest;
     }
 
     /**
      *
      * @var bool
      */
-    protected $ShowErrors = false;
+    protected $showErrors = false;
 
     /**
      *
-     * @var Interfaces\HttpRequestDetector
+     * @var null|bool
      */
-    protected $HttpRequestDetector;
+    protected $isHttpRequest;
 
 }
