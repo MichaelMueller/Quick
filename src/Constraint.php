@@ -49,8 +49,11 @@ class Constraint implements Interfaces\Constraint
                 $currentEval = ctype_alnum( $val );
             else if ( $type == self::MIN_LENGTH )
                 $currentEval = mb_strlen( $val ) > $param;
-
-            $eval = $concatType == self::AND ? $eval && $currentEval : $eval || $currentEval;
+            
+            if( is_null( $eval ) )
+                $eval = $currentEval;
+            else
+                $eval = $concatType == self::AND ? $eval && $currentEval : $eval || $currentEval;
         }
         return $eval;
     }
@@ -69,7 +72,7 @@ class Constraint implements Interfaces\Constraint
 
     public function alphaNumeric()
     {
-        $this->items[] = [ $this->currentConcatenation(), self::ONLY_ALPHANUMERIC, null ];
+        $this->items[] = [ $this->currentConcatenation(), self::ALPHANUMERIC, null ];
         return $this;
     }
 
@@ -123,7 +126,7 @@ class Constraint implements Interfaces\Constraint
      *
      * @var array of strings and Constraints
      */
-    protected $items;
+    protected $items= [];
 
     /**
      *
