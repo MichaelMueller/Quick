@@ -2,32 +2,23 @@
 
 namespace Qck\Expressions;
 
-/**
- *
- * @author muellerm
- */
-class Strlen extends SingleParamFunction
+class Strlen implements \Qck\Interfaces\Expressions\ValueExpression
 {
 
-    function __construct( Interfaces\ValueExpression $Param = null )
+    function __construct( ValueExpression $val )
     {
-        parent::__construct( $Param );
+        $this->val = $val;
     }
 
-    public function toSql( \Qck\Interfaces\SqlDialect $Dictionary,
-                           array &$Params = array () )
+    public function get( array $array )
     {
-        return $Dictionary->getStrlenFunctionName() . " ( " . $this->Param->toSql( $Dictionary, $Params ) . " ) ";
+        return mb_strlen( $this->val->get( $array ) );
     }
 
-    public function runFunction( $Value )
-    {
-        return mb_strlen( $Value );
-    }
-
-    function __toString()
-    {
-        return "strlen ( " . $this->Param->__toString() . " )";
-    }
+    /**
+     *
+     * @var ValueExpression 
+     */
+    protected $val;
 
 }

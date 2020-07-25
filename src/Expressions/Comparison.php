@@ -2,143 +2,69 @@
 
 namespace Qck\Expressions;
 
-use \Qck\Interfaces\Expressions\ValueExpression as IValueExpression;
 
-/**
- *
- * @author muellerm
- */
 class Comparison implements \Qck\Interfaces\Expressions\BooleanExpression
 {
 
-    const EQUALS         = "==";
-    const NOT_EQUALS     = "!=";
-    const GREATER        = ">";
-    const GREATER_EQUALS = ">=";
-    const LESS           = "<";
-    const LESS_EQUALS    = "<=";
-    const REGEXP         = "regexp";
+    const EQUALS_STRICT     = "===";
+    const NOT_EQUALS_STRICT = "!==";
+    const EQUALS            = "==";
+    const NOT_EQUALS        = "!=";
+    const GREATER           = ">";
+    const GREATER_EQUALS    = ">=";
+    const LESS              = "<";
+    const LESS_EQUALS       = "<=";
 
-// TODO
-    static function eq( IValueExpression $Left, IValueExpression $Right )
+    function __construct( ValueExpression $leftVal, string $operator, ValueExpression $rightVal )
     {
-        return new Comparison( self::EQUALS, $Left, $Right );
+        $this->leftVal  = $leftVal;
+        $this->operator = $operator;
+        $this->rightVal = $rightVal;
     }
 
-    static function neq( IValueExpression $Left, IValueExpression $Right )
+    function check( $leftVal, $rightVal )
     {
-        return new Comparison( self::NOT_EQUALS, $Left, $Right );
+        if ( $this->operator == self::EQUALS )
+            return $leftVal == $rightVal;
+        elseif ( $this->operator == self::EQUALS_STRICT )
+            return $leftVal === $rightVal;
+        elseif ( $this->operator == self::NOT_EQUALS )
+            return $leftVal != $rightVal;
+        elseif ( $this->operator == self::NOT_EQUALS_STRICT )
+            return $leftVal !== $rightVal;
+        elseif ( $this->operator == self::GREATER )
+            return $leftVal > $rightVal;
+        elseif ( $this->operator == self::GREATER_EQUALS )
+            return $leftVal >= $rightVal;
+        elseif ( $this->operator == self::LESS )
+            return $leftVal < $rightVal;
+        elseif ( $this->operator == self::LESS_EQUALS )
+            return $leftVal <= $rightVal;
+        else
+            throw new \Exception( "operator '" . $this->operator . "' unknown" );
     }
 
-    static function gt( IValueExpression $Left, IValueExpression $Right )
+    public function eval( array $array )
     {
-        return new Comparison( self::GREATER, $Left, $Right );
+        return $this->check( $this->leftVal->get( $array ), $this->rightVal->get( $array ) );
     }
 
-    static function geq( IValueExpression $Left, IValueExpression $Right )
-    {
-        return new Comparison( self::GREATER_EQUALS, $Left, $Right );
-    }
-
-    static function lt( Expression $Left, IValueExpression $Right )
-    {
-        return new Comparison( self::LESS, $Left, $Right );
-    }
-
-    static function leq( IValueExpression $Left, IValueExpression $Right )
-    {
-        return new Comparison( self::LESS_EQUALS, $Left, $Right );
-    }
-
-    static function matches( IValueExpression $Left, IValueExpression $Right, $Delimiter = "#" )
-    {
-        $Cmp = new Comparison( self::REGEXP, $Left, $Right );
-        $Cmp->setRegexpDelimiter( $Delimiter );
-        return $Cmp;
-    }
-
-    protected function __construct( $Operator, IValueExpression $Left, IValueExpression $Right )
-    {
-        $this->Operator = $Operator;
-        $this->Left     = $Left;
-        $this->Right    = $Right;
-    }
-
-    function setRegexpDelimiter( $RegexpDelimiter )
-    {
-        $this->RegexpDelimiter = $RegexpDelimiter;
-    }
-
-    function getLeft()
-    {
-        return $this->Left;
-    }
-
-    function getRight()
-    {
-        return $this->Right;
-    }
-
-    public function toSql( \Qck\Interfaces\SqlDialect $SqlDbDialect,
-                           array &$Params = array () )
-    {
-        $SqlOperator = $this->Operator;
-        if ( $this->Operator == self::REGEXP )
-            $SqlOperator = $SqlDbDialect->getRegExpOperator();
-        return $this->Left->toSql( $SqlDbDialect, $Params ) . " " . $SqlOperator . " " . $this->Right->toSql( $SqlDbDialect, $Params );
-    }
-
-    function __toString()
-    {
-        return $this->Left->__toString() . " " . $this->Operator . " " . $this->Right->__toString();
-    }
-
-    public function evaluate( array $Data, &$FilteredArray = array (), &$FailedExpressions = array () )
-    {
-        $Eval = false;
-
-        if ( $this->Operator == self::EQUALS )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) == $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::NOT_EQUALS )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) != $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::GREATER )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) > $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::GREATER_EQUALS )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) >= $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::LESS )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) < $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::LESS_EQUALS )
-            $Eval = $this->Left->getValue( $Data, $FilteredArray ) <= $this->Right->getValue( $Data, $FilteredArray );
-        elseif ( $this->Operator == self::REGEXP )
-            $Eval = preg_match( $this->RegexpDelimiter . $this->Right->getValue( $Data, $FilteredArray ) . $this->RegexpDelimiter, $this->Left->getValue( $Data, $FilteredArray ) );
-
-        if ( !$Eval )
-            $FailedExpressions[] = $this;
-        return $Eval;
-    }
+    /**
+     *
+     * @var ValueExpression
+     */
+    protected $leftVal;
 
     /**
      *
      * @var string
      */
-    protected $Operator;
+    protected $operator;
 
     /**
      *
-     * @var IValueExpression
+     * @var ValueExpression
      */
-    protected $Left;
-
-    /**
-     *
-     * @var IValueExpression
-     */
-    protected $Right;
-
-    /**
-     *
-     * @var string
-     */
-    protected $RegexpDelimiter = "#";
+    protected $rightVal;
 
 }
