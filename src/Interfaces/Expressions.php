@@ -13,7 +13,7 @@ interface Expressions extends Expression
      * @param string $varName
      * @return Expressions
      */
-    function var( $varName );
+    function var( $varName, $filter = false );
 
     /**
      * prepares or ends a comparison
@@ -27,7 +27,7 @@ interface Expressions extends Expression
      * @param string $varName
      * @return Expressions
      */
-    function length( $varName );
+    function length( $varName, $filter = false );
 
     /**
      * prepares an equals comparsion
@@ -75,20 +75,20 @@ interface Expressions extends Expression
      * adds a new subgroup (operator precedence) or just return this
      * @return Expressions
      */
-    function and( $evaluateAll = false );
+    function and();
 
     /**
      * closes the and subgroup, return this
      * @return Expressions
      */
     function or();
-    
+
     /**
      * adds a new group and returns it
      * @return Expressions
      */
-    function group();
-    
+    function group( $error = null, $evaluateAll = false );
+
     /**
      * close the group and return the parent
      * @return Expressions

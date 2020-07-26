@@ -3,36 +3,42 @@
 namespace Qck;
 
 // ****************** Abstract Expression Classes
-abstract class Expression implements Interfaces\Expression
+interface ExpressionDataFilter extends Interfaces\Expression
 {
-    
+
+    /**
+     * 
+     * @param array $data
+     * @return array [evalResult, filteredData, errors]
+     */
+    function filterData( array $data );
 }
 
-abstract class ExpressionFunction extends Expression
+abstract class ExpressionFunction implements Interfaces\Expression
 {
 
-    function __construct( Expression $child = null )
+    function __construct( Interfaces\Expression $child = null )
     {
         $this->child = $child;
     }
 
-    function setChild( Expression $child )
+    function setChild( Interfaces\Expression $child )
     {
         $this->child = $child;
     }
 
     /**
      *
-     * @var Expression
+     * @var Interfaces\Expression
      */
     protected $child;
 
 }
 
-abstract class ExpressionGroup extends Expression
+abstract class ExpressionGroup implements Interfaces\Expression
 {
 
-    function add( Expression $child )
+    function add( Interfaces\Expression $child )
     {
         $this->children[] = $child;
     }
@@ -45,7 +51,7 @@ abstract class ExpressionGroup extends Expression
 
 }
 
-abstract class ExpressionComparison extends Expression
+abstract class ExpressionComparison implements Interfaces\Expression
 {
 
     function __construct( Expression $left = null, Expression $right = null )
@@ -54,25 +60,25 @@ abstract class ExpressionComparison extends Expression
         $this->right = $right;
     }
 
-    function setLeft( Expression $left )
+    function setLeft( Interfaces\Expression $left )
     {
         $this->left = $left;
     }
 
-    function setRight( Expression $right )
+    function setRight( Interfaces\Expression $right )
     {
         $this->right = $right;
     }
 
     /**
      *
-     * @var Expression
+     * @var Interfaces\Expression
      */
     protected $left;
 
     /**
      *
-     * @var Expression
+     * @var Interfaces\Expression
      */
     protected $right;
 
@@ -80,17 +86,24 @@ abstract class ExpressionComparison extends Expression
 
 // ****************** End of abstract Expression Classes
 // ****************** Concrete Expression Classes
-class ExpressionVariable extends Expression
+class ExpressionVariable implements Interfaces\Expression
 {
 
-    public function __construct( $varName )
+    public function __construct( $varName, $filter = false )
     {
         $this->varName = $varName;
+        $this->filter  = $filter;
     }
 
-    public function eval( array $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return isset( $data[ $this->varName ] ) ? $data[ $this->varName ] : null;
+        if ( isset( $data[ $this->varName ] ) )
+        {
+            if ( $this->filter )
+                $filteredData[ $this->varName ] = $data[ $this->varName ];
+            return $data[ $this->varName ];
+        }
+        return null;
     }
 
     public function __toString()
@@ -99,10 +112,11 @@ class ExpressionVariable extends Expression
     }
 
     protected $varName;
+    protected $filter;
 
 }
 
-class ExpressionValue extends Expression
+class ExpressionValue implements Interfaces\Expression
 {
 
     public function __construct( $value )
@@ -110,7 +124,7 @@ class ExpressionValue extends Expression
         $this->value = $value;
     }
 
-    public function eval( array $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->value;
     }
@@ -129,14 +143,14 @@ class ExpressionValue extends Expression
 class ExpressionStringLength extends ExpressionFunction
 {
 
-    public function __construct( Expression $child = null )
+    public function __construct( Interfaces\Expression $child = null )
     {
         parent::__construct( $child );
     }
 
-    public function eval( $data )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
-        return mb_strlen( strval( $this->child->eval( $data ) ) );
+        return mb_strlen( strval( $this->child->eval( $data, $filteredData, $errors ) ) );
     }
 
     public function __toString()
@@ -154,9 +168,9 @@ class ExpressionNegate extends ExpressionFunction
         parent::__construct( $child );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return !( boolval( $this->child->eval( $data ) ) );
+        return !( boolval( $this->child->eval( $data, $filteredData, $errors ) ) );
     }
 
     public function __toString()
@@ -167,63 +181,6 @@ class ExpressionNegate extends ExpressionFunction
 }
 
 // ****************** End Concrete ExpressionFunction Classes
-// ****************** Concrete Expressions Classes
-class ExpressionAndGroup extends ExpressionGroup
-{
-
-    public function __construct( $evaluateAll = false )
-    {
-        $this->evaluateAll = $evaluateAll;
-    }
-
-    public function eval( $data )
-    {
-        $eval = null;
-        foreach ( $this->children as $child )
-        {
-            if ( $eval === false && $this->evaluateAll === false ) // early end of eval for and
-                return $eval;
-            $currEval = boolval( $child->eval( $data ) );
-            $eval     = is_null( $eval ) ? $currEval : $eval && $currEval;
-        }
-        return $eval;
-    }
-
-    public function __toString()
-    {
-        return "( " . implode( " && ", $this->children ) . " )";
-    }
-
-    /**
-     *
-     * @var bool 
-     */
-    protected $evaluateAll;
-
-}
-
-class ExpressionOrGroup extends ExpressionGroup
-{
-
-    public function eval( $data )
-    {
-        $eval = null;
-        foreach ( $this->children as $child )
-        {
-            $currEval = boolval( $child->eval( $data ) );
-            $eval     = is_null( $eval ) ? $currEval : $eval || $currEval;
-        }
-        return $eval;
-    }
-
-    public function __toString()
-    {
-        return "( " . implode( " || ", $this->children ) . " )";
-    }
-
-}
-
-// ****************** End Concrete Expressions Classes
 // ****************** Concrete ExpressionComparison Classes
 class ExpressionEquals extends ExpressionComparison
 {
@@ -233,9 +190,9 @@ class ExpressionEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) == $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) == $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -253,9 +210,9 @@ class ExpressionNotEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) != $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) != $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -273,9 +230,9 @@ class ExpressionGreater extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) > $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) > $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -293,9 +250,9 @@ class ExpressionGreaterEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) >= $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) >= $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -313,9 +270,9 @@ class ExpressionLess extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) < $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) < $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -333,9 +290,9 @@ class ExpressionLessEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        return $this->left->eval( $data ) <= $this->right->eval( $data );
+        return $this->left->eval( $data, $filteredData, $errors ) <= $this->right->eval( $data, $filteredData, $errors );
     }
 
     public function __toString()
@@ -353,10 +310,10 @@ class ExpressionMatches extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        $subject = $this->left->eval( $data );
-        $pattern = $this->right->eval( $data );
+        $subject = $this->left->eval( $data, $filteredData, $errors );
+        $pattern = $this->right->eval( $data, $filteredData, $errors );
         return preg_match( $pattern, $subject );
     }
 
@@ -387,9 +344,9 @@ class ExpressionEmail extends ExpressionFunction
         parent::__construct( $child );
     }
 
-    public function eval( $data )
+    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
     {
-        $result = filter_var( $this->child->eval( $data ), FILTER_VALIDATE_EMAIL );
+        $result = filter_var( $this->child->eval( $data, $filteredData, $errors ), FILTER_VALIDATE_EMAIL );
         return $result !== false ? true : false;
     }
 
@@ -401,27 +358,74 @@ class ExpressionEmail extends ExpressionFunction
 }
 
 // ****************** End Prepared Expression Classes
-class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
+class Expressions implements Interfaces\Expressions
 {
 
-    const EQ      = 0;
-    const NE      = 1;
-    const GT      = 2;
-    const GE      = 3;
-    const LT      = 4;
-    const LE      = 5;
-    const MATCHES = 6;
-    const AND     = 7;
-    const OR      = 8;
+    const AND = 1;
+    const OR  = 2;
 
-    function __construct( Expressions $parent = null )
+    function __construct( Expressions $parent = null, $error = null, $evaluateAll = false )
     {
-        $this->parent = $parent;
+        $this->parent      = $parent;
+        $this->error       = $error;
+        $this->evaluateAll = $evaluateAll;
     }
 
-    function var( $varName )
+    public function eval( $data, &$filteredData = array (), &$errors = array () )
     {
-        $this->handleNewExpression( new ExpressionVariable( $varName ) );
+        $cache = [];
+        // first of all the ands
+        for ( $i = 0; $i < count( $this->children ); $i++ )
+        {
+            $exp        = $this->children[ $i ];
+            $concatType = $this->concatTypes[ $i ];
+
+            if ( $concatType === self::AND )
+            {
+                $lastIdx           = count( $cache ) - 1;
+                $lastVal           = is_bool( $cache[ $lastIdx ] ) ? $cache[ $lastIdx ] : $cache[ $lastIdx ]->eval( $data, $filteredData, $errors );
+                if ( $lastVal === false && $this->evaluateAll === false )
+                    $cache[ $lastIdx ] = false;
+                else
+                {
+                    $currEval = boolval( $exp->eval( $data, $filteredData, $errors ) );
+                    $cache[ $lastIdx ] = $lastVal && $currEval;
+                }
+            }
+            else
+                $cache[] = $exp;
+        }
+
+        $eval = null;
+        foreach ( $cache as $cacheItem )
+        {
+            $currEval = is_bool( $cacheItem ) ? $cacheItem : $cacheItem->eval( $data, $filteredData, $errors );
+            $eval     = is_null( $eval ) ? $currEval : $eval || $currEval;
+        }
+
+        if ( $this->error && $eval === false )
+            $errors[] = $this->error;
+        return $eval;
+    }
+
+    public function __toString()
+    {
+        $string = "";
+        for ( $i = 0; $i < count( $this->children ); $i++ )
+        {
+            if ( $this->concatTypes[ $i ] !== null )
+                $string .= $this->concatTypes[ $i ] == self::AND ? " and " : " or ";
+            $string .= $this->children[ $i ];
+        }
+
+        $prefix = $this->parent ? "( " : null;
+        $suffix = $this->parent ? " )" : null;
+        return $prefix . $string . $suffix;
+    }
+
+    function var( $varName, $filter = false )
+    {
+        $this->handleNewExpression( new ExpressionVariable( $varName, $filter ) );
         return $this;
     }
 
@@ -431,9 +435,9 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
         return $this;
     }
 
-    function length( $varName )
+    function length( $varName, $filter = false )
     {
-        $this->handleNewExpression( new ExpressionStringLength( new ExpressionVariable( $varName ) ) );
+        $this->handleNewExpression( new ExpressionStringLength( new ExpressionVariable( $varName, $filter ) ) );
         return $this;
     }
 
@@ -479,7 +483,7 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
         return $this;
     }
 
-    protected function handleNewExpression( Expression $exp )
+    protected function handleNewExpression( Interfaces\Expression $exp )
     {
         if ( is_null( $this->left ) )
             $this->left = $exp;
@@ -488,46 +492,35 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
             $this->comparison->setLeft( $this->left );
             $this->comparison->setRight( $exp );
             $this->add( $this->comparison );
+            // clear cache
             $this->left       = null;
             $this->comparison = null;
         }
     }
 
-    public function add( Expression $child )
+    protected function currentConcatType()
     {
-
-        if ( $this->andSubGroup )
-            $this->andSubGroup->add( $child );
+        if ( $this->currentConcatType === null && count( $this->children ) > 1 )
+            return self::AND;
         else
-            parent::add( $child );
+            return $this->currentConcatType;
     }
 
-    public function and( $evaluateAll = false )
+    public function and()
     {
-        if ( is_null( $this->andSubGroup ) )
-        {
-            $this->andSubGroup = new ExpressionAndGroup( $evaluateAll );
-            if ( count( $this->children ) == 1 )
-            {
-                $this->andSubGroup->add( $this->children[ 0 ] );
-                $this->children = [];
-            }
-
-            $this->children[] = $this->andSubGroup;
-        }
+        $this->currentConcatType = self::AND;
         return $this;
     }
 
     public function or()
     {
-        if ( $this->andSubGroup )
-            $this->andSubGroup = null;
+        $this->currentConcatType = self::OR;
         return $this;
     }
 
-    public function group()
+    public function group( $error = null, $evaluateAll = false )
     {
-        $group = new Expressions( $this );
+        $group = new Expressions( $this, $error, $evaluateAll );
         $this->add( $group );
         return $group;
     }
@@ -537,11 +530,11 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
         return $this->parent;
     }
 
-    public function __toString()
+    protected function add( Interfaces\Expression $Expression )
     {
-        $prefix = $this->parent ? "( " : null;
-        $suffix = $this->parent ? " )" : null;
-        return $prefix . implode( " || ", $this->children ) . $suffix;
+        $this->children[]        = $Expression;
+        $this->concatTypes[]     = $this->currentConcatType();
+        $this->currentConcatType = null;
     }
 
     /**
@@ -550,7 +543,31 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
      */
     protected $parent;
 
-    // STATE
+    /**
+     *
+     * @var mixed
+     */
+    protected $error;
+
+    /**
+     *
+     * @var bool 
+     */
+    protected $evaluateAll;
+
+    /**
+     *
+     * @var Interfaces\Expression[]
+     */
+    protected $children = [];
+
+    /**
+     *
+     * @var int[]
+     */
+    protected $concatTypes = [];
+
+    // CACHE
 
     /**
      *
@@ -565,8 +582,9 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
     protected $comparison;
 
     /**
-     * @var ExpressionAndGroup
+     *
+     * @var int
      */
-    protected $andSubGroup;
+    protected $currentConcatType;
 
 }
