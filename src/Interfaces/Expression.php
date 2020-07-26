@@ -15,4 +15,8 @@ interface Expression
      */
     function eval( array $data );
 
+    /**
+     * @return string
+     */
+    function __toString();
 }
