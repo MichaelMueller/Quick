@@ -2,164 +2,6 @@
 
 namespace Qck;
 
-class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
-{
-
-    const EQ      = 0;
-    const NE      = 1;
-    const GT      = 2;
-    const GE      = 3;
-    const LT      = 4;
-    const LE      = 5;
-    const MATCHES = 6;
-    const AND     = 7;
-    const OR      = 8;
-
-    function __construct( Expressions $parent )
-    {
-        parent::__construct();
-        $this->parent = $parent;
-    }
-
-    function var( $varName )
-    {
-        $this->handleNewExpression( new ExpressionVariable( $varName ) );
-        return $this;
-    }
-
-    function val( $value )
-    {
-        $this->handleNewExpression( new ExpressionValue( $value ) );
-        return $this;
-    }
-
-    function length( $varName )
-    {
-        $this->handleNewExpression( new ExpressionStringLength( new ExpressionVariable( $varName ) ) );
-        return $this;
-    }
-
-    function eq()
-    {
-        $this->comparison = new ExpressionEquals();
-        return $this;
-    }
-
-    function ne()
-    {
-        $this->comparison = new ExpressionNotEquals();
-        return $this;
-    }
-
-    function gt()
-    {
-        $this->comparison = new ExpressionGreater();
-        return $this;
-    }
-
-    function ge()
-    {
-        $this->comparison = new ExpressionGreaterEquals();
-        return $this;
-    }
-
-    function lt()
-    {
-        $this->comparison = new ExpressionLess();
-        return $this;
-    }
-
-    function le()
-    {
-        $this->comparison = new ExpressionLessEquals();
-        return $this;
-    }
-
-    function matches()
-    {
-        $this->comparison = new ExpressionMatches();
-        return $this;
-    }
-
-    protected function handleNewExpression( Expression $exp )
-    {
-        if ( is_null( $this->left ) )
-            $this->left = $exp;
-        else
-        {
-            $this->comparison->setLeft( $this->left );
-            $this->comparison->setRight( $exp );
-            $this->add( $this->comparison );
-            $this->left       = null;
-            $this->comparison = null;
-        }
-    }
-
-    public function add( Expression $child )
-    {
-
-        if ( $this->andSubGroup )
-            $this->andSubGroup->add( $child );
-        else
-            parent::add( $child );
-    }
-
-    public function and( $evaluateAll = false )
-    {
-        if ( is_null( $this->andSubGroup ) )
-            $this->andSubGroup = new ExpressionAndGroup( $evaluateAll );
-        return $this;
-    }
-
-    public function or()
-    {
-        if ( $this->andSubGroup )
-        {
-            $this->children[]  = $this->andSubGroup;
-            $this->andSubGroup = null;
-        }
-        return $this;
-    }
-
-    public function group()
-    {
-        $group = new Expressions( $this );
-        $this->add( $group );
-        return $group;
-    }
-
-    public function closeGroup()
-    {
-        return $parent;
-    }
-
-    /**
-     *
-     * @var Expressions
-     */
-    protected $parent;
-
-    // STATE
-
-    /**
-     *
-     * @var Expression
-     */
-    protected $left;
-
-    /**
-     *
-     * @var ExpressionComparison
-     */
-    protected $comparison;
-
-    /**
-     * @var ExpressionAndGroup
-     */
-    protected $andSubGroup;
-
-}
-
 // ****************** Abstract Expression Classes
 abstract class Expression implements Interfaces\Expression
 {
@@ -171,7 +13,6 @@ abstract class ExpressionFunction extends Expression
 
     function __construct( Expression $child = null )
     {
-        parent::__construct();
         $this->child = $child;
     }
 
@@ -209,7 +50,6 @@ abstract class ExpressionComparison extends Expression
 
     function __construct( Expression $left = null, Expression $right = null )
     {
-        parent::__construct();
         $this->left  = $left;
         $this->right = $right;
     }
@@ -245,7 +85,6 @@ class ExpressionVariable extends Expression
 
     public function __construct( $varName )
     {
-        parent::__construct();
         $this->varName = $varName;
     }
 
@@ -268,7 +107,6 @@ class ExpressionValue extends Expression
 
     public function __construct( $value )
     {
-        parent::__construct();
         $this->value = $value;
     }
 
@@ -335,7 +173,6 @@ class ExpressionAndGroup extends ExpressionGroup
 
     public function __construct( $evaluateAll = false )
     {
-        parent::__construct();
         $this->evaluateAll = $evaluateAll;
     }
 
@@ -354,7 +191,7 @@ class ExpressionAndGroup extends ExpressionGroup
 
     public function __toString()
     {
-        return implode( " && ", $this->children );
+        return "( " . implode( " && ", $this->children ) . " )";
     }
 
     /**
@@ -367,11 +204,6 @@ class ExpressionAndGroup extends ExpressionGroup
 
 class ExpressionOrGroup extends ExpressionGroup
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     public function eval( $data )
     {
@@ -386,7 +218,7 @@ class ExpressionOrGroup extends ExpressionGroup
 
     public function __toString()
     {
-        return implode( " || ", $this->children );
+        return "( " . implode( " || ", $this->children ) . " )";
     }
 
 }
@@ -569,3 +401,166 @@ class ExpressionEmail extends ExpressionFunction
 }
 
 // ****************** End Prepared Expression Classes
+class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
+{
+
+    const EQ      = 0;
+    const NE      = 1;
+    const GT      = 2;
+    const GE      = 3;
+    const LT      = 4;
+    const LE      = 5;
+    const MATCHES = 6;
+    const AND     = 7;
+    const OR      = 8;
+
+    function __construct( Expressions $parent = null )
+    {
+        $this->parent = $parent;
+    }
+
+    function var( $varName )
+    {
+        $this->handleNewExpression( new ExpressionVariable( $varName ) );
+        return $this;
+    }
+
+    function val( $value )
+    {
+        $this->handleNewExpression( new ExpressionValue( $value ) );
+        return $this;
+    }
+
+    function length( $varName )
+    {
+        $this->handleNewExpression( new ExpressionStringLength( new ExpressionVariable( $varName ) ) );
+        return $this;
+    }
+
+    function eq()
+    {
+        $this->comparison = new ExpressionEquals();
+        return $this;
+    }
+
+    function ne()
+    {
+        $this->comparison = new ExpressionNotEquals();
+        return $this;
+    }
+
+    function gt()
+    {
+        $this->comparison = new ExpressionGreater();
+        return $this;
+    }
+
+    function ge()
+    {
+        $this->comparison = new ExpressionGreaterEquals();
+        return $this;
+    }
+
+    function lt()
+    {
+        $this->comparison = new ExpressionLess();
+        return $this;
+    }
+
+    function le()
+    {
+        $this->comparison = new ExpressionLessEquals();
+        return $this;
+    }
+
+    function matches()
+    {
+        $this->comparison = new ExpressionMatches();
+        return $this;
+    }
+
+    protected function handleNewExpression( Expression $exp )
+    {
+        if ( is_null( $this->left ) )
+            $this->left = $exp;
+        else
+        {
+            $this->comparison->setLeft( $this->left );
+            $this->comparison->setRight( $exp );
+            $this->add( $this->comparison );
+            $this->left       = null;
+            $this->comparison = null;
+        }
+    }
+
+    public function add( Expression $child )
+    {
+
+        if ( $this->andSubGroup )
+            $this->andSubGroup->add( $child );
+        else
+            parent::add( $child );
+    }
+
+    public function and( $evaluateAll = false )
+    {
+        if ( is_null( $this->andSubGroup ) )
+        {
+            $this->andSubGroup = new ExpressionAndGroup( $evaluateAll );
+            $this->children[]  = $this->andSubGroup;
+        }
+        return $this;
+    }
+
+    public function or()
+    {
+        if ( $this->andSubGroup )
+            $this->andSubGroup = null;
+        return $this;
+    }
+
+    public function group()
+    {
+        $group = new Expressions( $this );
+        $this->add( $group );
+        return $group;
+    }
+
+    public function closeGroup()
+    {
+        return $this->parent;
+    }
+
+    public function __toString()
+    {
+        $prefix = $this->parent ? "( " : null;
+        $suffix = $this->parent ? " )" : null;
+        return $prefix . implode( " || ", $this->children ) . $suffix;
+    }
+
+    /**
+     *
+     * @var Expressions
+     */
+    protected $parent;
+
+    // STATE
+
+    /**
+     *
+     * @var Expression
+     */
+    protected $left;
+
+    /**
+     *
+     * @var ExpressionComparison
+     */
+    protected $comparison;
+
+    /**
+     * @var ExpressionAndGroup
+     */
+    protected $andSubGroup;
+
+}
