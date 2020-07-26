@@ -11,49 +11,71 @@ interface Constraint
     /**
      * 
      * @param array $array
-     * @return trur
+     * @return array with [result, filteredData, errors)
      */
-    function eval( $array );
+    function eval( array $data );
+
+    // functions
+
+    /**
+     * apply length function
+     * @return Constraint
+     */
+    function length();
+
+    // operators
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint
      */
-    function and();
+    function matches();
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint
      */
-    function or();
+    function eq();
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint
      */
-    function minLength( $minLength );
+    function neq();
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint
      */
-    function alphaNumeric();
+    function val( $value );
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint
      */
-    function equalsVar( $otherVarName );
+    function var( $varName );
 
     /**
      * 
-     * @return BooleanExpression
+     * @return Constraint new constraint sibling
      */
-    function group();
+    function and( $varName = null, $error = null );
 
     /**
      * 
-     * @return BooleanExpression|null the parent or null if we are at the root
+     * @return Constraint new constraint sibling
      */
-    function endGroup();
+    function or( $varName = null, $error = null );
+
+    /**
+     * 
+     * @return Constraint new constraint child
+     */
+    function child( $varName = null, $error = null );
+
+    /**
+     * 
+     * @return Constraint|null the parent or null if we are at the root
+     */
+    function parent();
 }
