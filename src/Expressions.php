@@ -507,7 +507,13 @@ class Expressions extends ExpressionOrGroup implements Interfaces\Expressions
         if ( is_null( $this->andSubGroup ) )
         {
             $this->andSubGroup = new ExpressionAndGroup( $evaluateAll );
-            $this->children[]  = $this->andSubGroup;
+            if ( count( $this->children ) == 1 )
+            {
+                $this->andSubGroup->add( $this->children[ 0 ] );
+                $this->children = [];
+            }
+
+            $this->children[] = $this->andSubGroup;
         }
         return $this;
     }
