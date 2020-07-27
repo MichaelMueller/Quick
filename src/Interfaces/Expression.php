@@ -13,7 +13,7 @@ interface Expression
      * @param array $array
      * @return mixed
      */
-    function eval( array $data, array &$filteredData=[], array &$errors=[] );
+    function eval( $data, array &$filteredData=[], array &$errors=[] );
     
 
     /**

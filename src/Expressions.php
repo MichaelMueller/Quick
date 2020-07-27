@@ -3,17 +3,6 @@
 namespace Qck;
 
 // ****************** Abstract Expression Classes
-interface ExpressionDataFilter extends Interfaces\Expression
-{
-
-    /**
-     * 
-     * @param array $data
-     * @return array [evalResult, filteredData, errors]
-     */
-    function filterData( array $data );
-}
-
 abstract class ExpressionFunction implements Interfaces\Expression
 {
 
@@ -95,8 +84,10 @@ class ExpressionVariable implements Interfaces\Expression
         $this->filter  = $filter;
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
+        if ( is_object( $data ) )
+            $data = get_object_vars( $data );
         if ( isset( $data[ $this->varName ] ) )
         {
             if ( $this->filter )
@@ -124,7 +115,7 @@ class ExpressionValue implements Interfaces\Expression
         $this->value = $value;
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->value;
     }
@@ -135,6 +126,33 @@ class ExpressionValue implements Interfaces\Expression
     }
 
     protected $value;
+
+}
+
+class ExpressionDefault extends ExpressionVariable
+{
+
+    function __construct( $varName, $defaultValue )
+    {
+        parent::__construct( $varName, true );
+        $this->defaultValue = $defaultValue;
+    }
+
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
+    {
+        $value                          = parent::eval( $data, $filteredData, $errors );
+        if ( is_null( $value ) )
+            $filteredData[ $this->varName ] = $this->defaultValue;
+        return true;
+    }
+
+    public function __toString()
+    {
+        return strval( is_bool( $this->$defaultValue ) ? intval( $this->$defaultValue ) : $this->$defaultValue );
+    }
+
+    protected $varName;
+    protected $defaultValue;
 
 }
 
@@ -163,12 +181,12 @@ class ExpressionStringLength extends ExpressionFunction
 class ExpressionNegate extends ExpressionFunction
 {
 
-    public function __construct( Expression $child = null )
+    public function __construct( Interfaces\Expression $child = null )
     {
         parent::__construct( $child );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return !( boolval( $this->child->eval( $data, $filteredData, $errors ) ) );
     }
@@ -177,6 +195,29 @@ class ExpressionNegate extends ExpressionFunction
     {
         return sprintf( "!%s", $this->child );
     }
+
+}
+
+class ExpressionPasswordVerify extends ExpressionFunction
+{
+
+    public function __construct( $plainTextPassword, Interfaces\Expression $child = null )
+    {
+        parent::__construct( $child );
+        $this->plainTextPassword = $plainTextPassword;
+    }
+
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
+    {
+        return password_verify( $this->plainTextPassword, $this->child->eval( $data, $filteredData, $errors ) ) === true;
+    }
+
+    public function __toString()
+    {
+        return sprintf( "password_verify(***, %s)", $this->child );
+    }
+
+    protected $plainTextPassword;
 
 }
 
@@ -190,7 +231,7 @@ class ExpressionEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) == $this->right->eval( $data, $filteredData, $errors );
     }
@@ -210,7 +251,7 @@ class ExpressionNotEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) != $this->right->eval( $data, $filteredData, $errors );
     }
@@ -230,7 +271,7 @@ class ExpressionGreater extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) > $this->right->eval( $data, $filteredData, $errors );
     }
@@ -250,7 +291,7 @@ class ExpressionGreaterEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) >= $this->right->eval( $data, $filteredData, $errors );
     }
@@ -270,7 +311,7 @@ class ExpressionLess extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) < $this->right->eval( $data, $filteredData, $errors );
     }
@@ -290,7 +331,7 @@ class ExpressionLessEquals extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         return $this->left->eval( $data, $filteredData, $errors ) <= $this->right->eval( $data, $filteredData, $errors );
     }
@@ -310,7 +351,7 @@ class ExpressionMatches extends ExpressionComparison
         parent::__construct( $left, $right );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         $subject = $this->left->eval( $data, $filteredData, $errors );
         $pattern = $this->right->eval( $data, $filteredData, $errors );
@@ -344,7 +385,7 @@ class ExpressionEmail extends ExpressionFunction
         parent::__construct( $child );
     }
 
-    public function eval( array $data, array &$filteredData = [], array &$errors = [] )
+    public function eval( $data, array &$filteredData = [], array &$errors = [] )
     {
         $result = filter_var( $this->child->eval( $data, $filteredData, $errors ), FILTER_VALIDATE_EMAIL );
         return $result !== false ? true : false;
@@ -388,7 +429,7 @@ class Expressions implements Interfaces\Expressions
                     $cache[ $lastIdx ] = false;
                 else
                 {
-                    $currEval = boolval( $exp->eval( $data, $filteredData, $errors ) );
+                    $currEval          = boolval( $exp->eval( $data, $filteredData, $errors ) );
                     $cache[ $lastIdx ] = $lastVal && $currEval;
                 }
             }
@@ -429,6 +470,12 @@ class Expressions implements Interfaces\Expressions
         return $this;
     }
 
+    function default( $varName, $defaultValue )
+    {
+        $this->add( new ExpressionDefault( $varName, $defaultValue ) );
+        return $this;
+    }
+
     function val( $value )
     {
         $this->handleNewExpression( new ExpressionValue( $value ) );
@@ -438,6 +485,12 @@ class Expressions implements Interfaces\Expressions
     function length( $varName, $filter = false )
     {
         $this->handleNewExpression( new ExpressionStringLength( new ExpressionVariable( $varName, $filter ) ) );
+        return $this;
+    }
+
+    function passwordVerify( $varName, $plainTextPassword )
+    {
+        $this->add( new ExpressionPasswordVerify( $plainTextPassword, new ExpressionVariable( $varName, false ) ) );
         return $this;
     }
 

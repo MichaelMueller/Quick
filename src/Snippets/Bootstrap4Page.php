@@ -1,16 +1,16 @@
 <?php
 
-namespace Qck;
+namespace Qck\Snippets;
 
 /**
  * Bootstrap4Page
  *
  * @author muellerm
  */
-class Bootstrap4Page implements \Qck\Interfaces\Snippet, \Qck\Interfaces\HttpContent
+class Bootstrap4Page implements \Qck\Interfaces\HttpContent
 {
 
-    function __construct ( $Title, Interfaces\Html\Snippet $Contents )
+    function __construct ( $Title, \Qck\Interfaces\Snippet $Contents )
     {
         $this->Title = $Title;
         $this->Contents = $Contents;
@@ -21,24 +21,24 @@ class Bootstrap4Page implements \Qck\Interfaces\Snippet, \Qck\Interfaces\HttpCon
         $this->Language = $Language;
     }
 
-    function setHeaderContents ( Interfaces\Html\Snippet $HeaderContents )
+    function setHeaderContents ( \Qck\Interfaces\Snippet $HeaderContents )
     {
         $this->HeaderContents = $HeaderContents;
     }
 
-    function setFooterContents ( Interfaces\Html\Snippet $FooterContents )
+    function setFooterContents ( \Qck\Interfaces\Snippet $FooterContents )
     {
         $this->FooterContents = $FooterContents;
     }
 
     public function getCharset ()
     {
-        return Interfaces\Output::CHARSET_UTF_8;
+        return \Qck\Interfaces\HttpContent::CHARSET_UTF_8;
     }
 
     public function getContentType ()
     {
-        return Interfaces\Output::CONTENT_TYPE_TEXT_HTML;
+        return \Qck\Interfaces\HttpContent::CONTENT_TYPE_TEXT_HTML;
     }
 
     function setUseJs ( $UseJs )
@@ -63,7 +63,7 @@ class Bootstrap4Page implements \Qck\Interfaces\Snippet, \Qck\Interfaces\HttpCon
                 <?= $this->HeaderContents ? $this->HeaderContents : "" ?>
                 <title><?= $this->Title ?></title>
             </head>
-            <body>
+            <body style="height: 100vh; overflow-y: scroll">
                 <?= $this->Contents; ?>
 
                 <?php if ($this->UseJs): ?>
@@ -100,19 +100,19 @@ class Bootstrap4Page implements \Qck\Interfaces\Snippet, \Qck\Interfaces\HttpCon
 
     /**
      *
-     * @var Interfaces\Html\Snippet
+     * @var \Qck\Interfaces\Snippet
      */
     protected $HeaderContents;
 
     /**
      *
-     * @var Interfaces\Html\Snippet
+     * @var \Qck\Interfaces\Snippet
      */
     protected $FooterContents;
 
     /**
      *
-     * @var Interfaces\Html\Snippet
+     * @var \Qck\Interfaces\Snippet
      */
     protected $Contents;
 

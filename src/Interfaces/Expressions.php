@@ -14,7 +14,22 @@ interface Expressions extends Expression
      * @return Expressions
      */
     function var( $varName, $filter = false );
-
+    
+    /**
+     * prepares or ends a comparison
+     * @param string $varName
+     * @return Expressions
+     */
+    function default( $varName, $defaultValue );
+    
+    /**
+     * 
+     * @param type $varName
+     * @param type $plainTextPassword
+     * @return Expressions
+     */
+    function passwordVerify( $varName, $plainTextPassword );
+    
     /**
      * prepares or ends a comparison
      * @param string $value
