@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck;
+namespace Mbits\Labeling;
 
 /**
  * Description of Psr4Autoloader
@@ -12,7 +12,6 @@ class Psr4Autoloader
 
     function __construct( array $prefixesToPaths=[] )
     {
-        $this->add( "Qck\\", __DIR__ );
         foreach ( $prefixesToPaths as $prefix => $paths )
             foreach ( $paths as $path )
                 $this->add( $prefix, $path );
