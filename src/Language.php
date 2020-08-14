@@ -39,6 +39,7 @@ class Language implements \Qck\Interfaces\Language
         }
         else
             $CurrentLang = $this->getBrowserLanguageOrDefault();
+        return $CurrentLang;
     }
 
     protected function getBrowserLanguageOrDefault()
