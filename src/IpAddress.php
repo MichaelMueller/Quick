@@ -7,48 +7,48 @@ namespace Qck;
  *
  * @author muellerm
  */
-class IpAddress implements Interfaces\IpAddress
+class IpAddress implements \Qck\Interfaces\IpAddress
 {
 
-    function setValidationFlags( $ValidationFlags )
+    function __construct( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE, $ip = null )
     {
-        $this->ValidationFlags = $ValidationFlags;
+        $this->validationFlags = $validationFlags;
+        $this->ip              = $ip;
     }
 
-    public function get( $Validate = true )
+    public function get( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
     {
-        static $ip = false;
-
-        if ( $ip === false )
+        if (!$this->ip)
         {
-            if ( !empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
+            if (!empty( $_SERVER['HTTP_CLIENT_IP'] ))
             {
                 //ip from share internet
-                $ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
+                $this->ip = $_SERVER['HTTP_CLIENT_IP'];
             }
-            elseif ( !empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
+            elseif (!empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ))
             {
                 //ip pass from proxy
-                $ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
+                $this->ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
             }
-            elseif ( !empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
-                $ip = $_SERVER[ 'REMOTE_ADDR' ];
+            elseif (!empty( $_SERVER['REMOTE_ADDR'] ))
+                $this->ip = $_SERVER['REMOTE_ADDR'];
             else
             {
-                $ip = null;
+                $this->ip = null;
             }
         }
-        if ( $Validate )
+        if ($this->validationFlags)
         {
-            if ( filter_var( $ip, FILTER_VALIDATE_IP, $this->ValidationFlags ) )
-                return $ip;
-            else
-                return null;
+            $this->ip = filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
+            if ($this->ip === false)
+                $this->ip = null;
         }
 
-        return $ip;
+        return $this->ip;
     }
 
-    protected $ValidationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+    protected $validationFlags;
+    // STATE
+    protected $ip;
 
 }

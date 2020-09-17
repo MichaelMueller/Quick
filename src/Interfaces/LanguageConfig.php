@@ -11,14 +11,14 @@ interface LanguageConfig
 
     /**
      * 
-     * @param string $Lang, see Language
+     * @param string $langCode, see Language
      * @return bool
      */
-    function isSupported( $Lang );
+    function supports( $langCode );
 
     /**
      *      
      * @return string
      */
-    function getDefaultLanguage();
+    function defaultLanguage();
 }

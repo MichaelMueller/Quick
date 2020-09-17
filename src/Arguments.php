@@ -6,69 +6,84 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Arguments implements Interfaces\ImmutableDict
+class Arguments implements \Qck\Interfaces\Arguments
 {
 
-    function __construct( array $data = [] )
+    function __construct( array $userArgs = [] )
     {
-        $this->createData( $data );
+        $this->createArgs( $userArgs );
     }
-    
-    function set($Key, $Value)
-    {
-        $this->Data[$Key] = $Value;
-     }
 
-    function getData()
+    function set( $Key, $Value )
     {
-        return $this->Data;
+        $this->args[ $Key ] = $Value;
+    }
+
+    function toArray()
+    {
+        return $this->args;
     }
 
     public function keys()
     {
-        return array_keys( $this->Data );
+        return array_keys( $this->args );
     }
 
     public function get( $Name, $Default = null )
     {
-        return isset( $this->Data[ $Name ] ) ? $this->Data[ $Name ] : $Default;
+        return isset( $this->args[ $Name ] ) ? $this->args[ $Name ] : $Default;
     }
 
     public function has( $Name )
     {
-        return isset( $this->Data[ $Name ] );
+        return isset( $this->args[ $Name ] );
     }
 
-    public function isHttpRequest()
+    public function valid()
     {
-        static $HttpRequest = null;
-        if ( is_null( $HttpRequest ) )
-            $HttpRequest        = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
-        return $HttpRequest;
+        if ( is_null( $this->httpRequest ) )
+            $this->httpRequest = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
+        return $this->httpRequest;
     }
 
-    protected function createData( array $data = [] )
+    protected function createArgs( array $userArgs = [] )
     {
-        if ( $this->isHttpRequest() )
-            $this->Data = $_REQUEST;
+        if ( $this->httpRequest() )
+            $this->args = array_merge( $_COOKIE, $_GET, $_POST );
         else
-            $this->Data = $this->parseArgv( $_SERVER[ "argv" ] );
+            $this->args = $this->parseArgv( $_SERVER[ "argv" ] );
 
-        $this->Data = array_merge( $this->Data, $data );
+        $this->args = array_merge( $this->args, $userArgs );
     }
 
     protected function parseArgv( array $argv )
     {
-        $Data = [];
-        if ( count( $argv ) > 1 )
-            return parse_str( $argv[ 1 ], $Data );
-        return $Data;
+        if ( $this->cliParser )
+            return $this->cliParser->parse( $argv );
+        else if ( count( $argv ) > 1 )
+            return parse_str( $argv[ 1 ], $args );
+        else
+            return [];
     }
 
     /**
      *
      * @var array
      */
-    protected $Data = [];
+    protected $args = [];
+
+    /**
+     *
+     * @var \Qck\Interfaces\CliParser
+     */
+    protected $cliParser;
+
+    // STATE
+
+    /**
+     *
+     * @var bool
+     */
+    protected $httpRequest;
 
 }

@@ -24,5 +24,5 @@ interface ImmutableDict
     /**
      * @return array
      */
-    function getData();
+    function toArray();
 }

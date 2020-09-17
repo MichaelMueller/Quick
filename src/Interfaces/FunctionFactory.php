@@ -5,11 +5,12 @@ namespace Qck\Interfaces;
 /**
  * @author muellerm
  */
-interface Functor
+interface FunctionFactory
 {
     
     /**
      * 
+     * @return callable or null
      */
-    function __invoke();
+    function create($route);
 }

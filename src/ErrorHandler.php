@@ -5,12 +5,14 @@ namespace Qck;
 /**
  * @author muellerm
  */
-class ErrorHandler implements Interfaces\HttpRequestDetector
+class ErrorHandler
 {
 
-    function __construct( bool $showErrors )
+    function __construct( $showErrors = true, \Qck\Interfaces\HttpRequest $httpDetector = null, \Qck\Interfaces\AdminMailer $adminMailer = null )
     {
-        $this->showErrors = $showErrors;
+        $this->showErrors   = $showErrors;
+        $this->httpDetector = $httpDetector;
+        $this->adminMailer  = $adminMailer;
         $this->install();
     }
 
@@ -19,43 +21,67 @@ class ErrorHandler implements Interfaces\HttpRequestDetector
         throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
     }
 
-    function exceptionHandler( $Exception )
+    function exceptionHandler( $exception )
     {
-        /* @var $Exception \Exception */
-        if ( $this->isHttpRequest() )
-            http_response_code( 500 );
+        /* @var $exception \Exception */
+        if ( $this->httpDetector && $this->httpDetector->valid() )
+            http_response_code( $exception->getCode() );
 
-        throw $Exception;
+        if ( $this->adminMailer )
+            $this->adminMailer->sendToAdmin( "Exception", sprintf( "Exception occured: %s, trace: %s", strval( $exception ), $exception->getTraceAsString() ) );
+        throw $exception;
     }
 
     function install()
     {
+        if ( $this->previousErrorHandler && $this->previousExceptionHandler )
+            return;
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( $this->showErrors === false ) );
         ini_set( 'display_errors', intval( $this->showErrors ) );
-        ini_set( 'html_errors', intval( $this->isHttpRequest() ) );
+        ini_set( 'html_errors', intval( $this->httpDetector ? $this->httpDetector->valid() : false  ) );
 
-        set_error_handler( array ( $this, "errorHandler" ) );
-        set_exception_handler( array ( $this, "exceptionHandler" ) );
+        $this->previousErrorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
+        $this->previousExceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
+        $this->installed                = true;
     }
 
-    public function isHttpRequest()
+    function __destruct()
     {
-        if ( is_null( $this->isHttpRequest ) )
-            $this->isHttpRequest = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
-        return $this->isHttpRequest;
+        $this->uninstall();
+    }
+
+    function uninstall()
+    {
+
+        if ( $this->previousErrorHandler && $this->previousExceptionHandler )
+        {
+            set_error_handler( $this->previousErrorHandler );
+            set_exception_handler( $this->previousExceptionHandler );
+            $this->previousErrorHandler     = null;
+            $this->previousExceptionHandler = null;
+        }
     }
 
     /**
      *
      * @var bool
      */
-    protected $showErrors = false;
+    protected $showErrors;
 
     /**
      *
-     * @var null|bool
+     * @var \Qck\Interfaces\HttpRequest
      */
-    protected $isHttpRequest;
+    protected $httpDetector;
+
+    /**
+     *
+     * @var \Qck\Interfaces\AdminMailer
+     */
+    protected $adminMailer;
+    // state
+    protected $previousErrorHandler;
+    protected $previousExceptionHandler;
 
 }

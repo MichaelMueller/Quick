@@ -6,25 +6,25 @@ namespace Qck;
  *
  * @author muellerm
  */
-class Hostname implements Interfaces\Hostname
+class Hostname implements \Qck\Interfaces\Hostname
 {
 
-    function __construct( string $Value = null )
+    function __construct( string $val = null )
     {
-        $this->Value = $Value;
+        $this->val = $val;
     }
 
     function get()
     {
-        if ( is_null( $this->Value ) )
-            $this->Value = gethostname();
-        return $this->Value;
+        if ( is_null( $this->val ) )
+            $this->val = gethostname();
+        return $this->val;
     }
 
     /**
      *
      * @var string
      */
-    protected $Value;
+    protected $val;
 
 }

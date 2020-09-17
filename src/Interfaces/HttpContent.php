@@ -24,10 +24,10 @@ interface HttpContent extends Snippet
     /**
      * @return string
      */
-    public function getContentType();
+    public function contentType();
 
     /**
      * @return string
      */
-    public function getCharset();
+    public function charset();
 }

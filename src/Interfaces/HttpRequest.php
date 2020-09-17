@@ -6,11 +6,11 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface HttpRequestDetector
+interface HttpRequest
 {
 
     /**
      * @return bool
      */
-    function isHttpRequest();
+    function valid();
 }

@@ -3,20 +3,29 @@
 namespace Qck\Interfaces;
 
 /**
- * Interface for an App Config. In its basic form it only provides an Inputs interface
  * 
  * @author muellerm
  */
-interface Router
+interface Router extends Functor
 {
 
     /**
      * @return string
      */
-    function buildUrl( $RouteName, array $QueryData = [] );
+    function buildUrl( $route, array $params = [] );
 
     /**
      * @return string
      */
-    function getCurrentRoute();
+    function currentRoute();
+
+    /**
+     * @return string
+     */
+    function routeParamName();
+    
+    /**
+     * @return Arguments
+     */
+    function arguments();
 }

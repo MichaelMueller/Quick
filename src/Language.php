@@ -11,7 +11,7 @@ class Language implements \Qck\Interfaces\Language
 
     const COOKIE_EXPIRE = 2147483647;
 
-    function __construct( Interfaces\LanguageConfig $LanguageConfig, Interfaces\ImmutableDict $Args, string $LangKey = "lang", Interfaces\HttpHeader $HttpHeader = null )
+    function __construct( \Qck\Interfaces\LanguageConfig $LanguageConfig, \Qck\Interfaces\Arguments $Args, string $LangKey = "lang", \Qck\Interfaces\HttpHeader $HttpHeader = null )
     {
         $this->LanguageConfig = $LanguageConfig;
         $this->Args           = $Args;
@@ -39,6 +39,7 @@ class Language implements \Qck\Interfaces\Language
         }
         else
             $CurrentLang = $this->getBrowserLanguageOrDefault();
+        return $CurrentLang;
     }
 
     protected function getBrowserLanguageOrDefault()
@@ -58,13 +59,13 @@ class Language implements \Qck\Interfaces\Language
 
     /**
      *
-     * @var Interfaces\LanguageConfig
+     * @var \Qck\Interfaces\LanguageConfig
      */
     protected $LanguageConfig;
 
     /**
      *
-     * @var Interfaces\ImmutableDict
+     * @var \Qck\Interfaces\Arguments
      */
     protected $Args;
 
@@ -76,7 +77,7 @@ class Language implements \Qck\Interfaces\Language
 
     /**
      *
-     * @var Interfaces\HttpHeader
+     * @var \Qck\Interfaces\HttpHeader
      */
     protected $HttpHeader;
 

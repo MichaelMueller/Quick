@@ -13,5 +13,5 @@ interface AdminMailer
      * 
      * @param string $message
      */
-    public function sendToAdmin( $message );
+    public function sendToAdmin( $subject, $message );
 }

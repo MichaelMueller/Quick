@@ -3,24 +3,44 @@
 namespace Qck;
 
 /**
- * The Router maps an Argument to a certain Function and calls it respectively.
+ * Router class is essentially the class to start.
+ * It is the basic error handler. No code besides the require statement and initialization should be called in any app before.
  * 
  * @author muellerm
  */
-class Router implements Interfaces\Router, Interfaces\Functor
+class Router implements \Qck\Interfaces\Router
 {
-    function __construct( Interfaces\AppFunctionFactory $AppFunctionFactory, Interfaces\ImmutableDict $Arguments )
+
+    static function createWithArguments( Interfaces\FunctionFactory $functionFactory, Interfaces\Arguments $arguments )
     {
-        $this->AppFunctionFactory = $AppFunctionFactory;
-        $this->Arguments          = $Arguments;
+        return new Router( $functionFactory, $arguments, null );
     }
 
-    function getCurrentRoute()
+    static function createWithRoute( Interfaces\FunctionFactory $functionFactory, $route = null )
     {
-        return $this->Arguments->get( $this->getRouteParamKey() );
+        return new Router( $functionFactory, null, $route );
     }
 
-    function getRouteParamKey()
+    protected function __construct( \Qck\Interfaces\FunctionFactory $functionFactory, \Qck\Interfaces\Arguments $arguments = null, $route = null )
+    {
+        $this->functionFactory = $functionFactory;
+        $this->arguments       = $arguments;
+        $this->currentRoute    = $route;
+    }
+
+    function arguments()
+    {
+        return $this->arguments;
+    }
+
+    function currentRoute()
+    {
+        if ( is_null( $this->currentRoute ) )
+            $this->currentRoute = $this->getArguments()->get( $this->routeParamName() );
+        return $this->currentRoute;
+    }
+
+    function routeParamName()
     {
         return "q";
     }
@@ -31,31 +51,35 @@ class Router implements Interfaces\Router, Interfaces\Functor
         return "?" . http_build_query( $CompleteQueryData );
     }
 
-    function run()
+    function __invoke()
     {
-        $RouteName   = $this->getCurrentRoute();
-        $AppFunction = $this->AppFunctionFactory->createAppFunction( $RouteName );
-        if ( is_null( $AppFunction ) )
-            throw new \Exception( "No AppFunction found for Route \"" . $RouteName . "\"." );
+        $route    = $this->getCurrentRoute();
+        $function = $this->functionFactory->create( $route );
+        if ( is_null( $function ) )
+            throw new \Exception( "No function found for route \"" . $route . "\".",
+                                  \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
-        $AppFunction();
-    }
-
-    public function __invoke()
-    {
-        $this->run();
+        $function();
     }
 
     /**
      *
-     * @var Interfaces\AppFunctionFactory
+     * @var \Qck\Interfaces\FunctionFactory
      */
-    protected $AppFunctionFactory;
+    protected $functionFactory;
 
     /**
      *
-     * @var Interfaces\ImmutableDict
+     * @var \Qck\Interfaces\Arguments
      */
-    protected $Arguments;
+    protected $arguments;
+
+    // state
+
+    /**
+     *
+     * @var string 
+     */
+    protected $currentRoute;
 
 }
