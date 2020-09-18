@@ -6,12 +6,13 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class ClassTools
+class ClassTools implements Interfaces\ClassTools
 {
 
-    function __construct( $namespace="\\" )
+    function __construct( $namespace = "\\", $namespaceDir = "." )
     {
-        $this->namespace = $namespace;
+        $this->namespace    = $namespace;
+        $this->namespaceDir = $namespaceDir;
     }
 
     function setFileExtensions( $fileExtensions )
@@ -24,10 +25,16 @@ class ClassTools
         return str_replace( $separator, '', ucwords( $input, $separator ) );
     }
 
-    function classExists( $className )
+    function className( $fqcn )
     {
-        $fqcn = $this->fqcn( $className );
-        return class_exists( $fqcn, true );
+        $path = explode( '\\', $fqcn );
+        return array_pop( $path );
+    }
+
+    function classExists( $className, $checkClassName = true )
+    {
+        $fqcn = $this->fqcn( $className, $checkClassName );
+        return $fqcn ? class_exists( $fqcn, true ) : false;
     }
 
     function instance( $className, array $args = [] )
@@ -47,11 +54,10 @@ class ClassTools
 
     function fqcns()
     {
-        $dir     = str_replace( "\\", "/", $this->namespace );
-        $paths   = glob( sprintf( "%s/*.{%s}", $dir, implode( ",", $this->fileExtensions ) ), GLOB_BRACE );
+        $paths   = glob( sprintf( "%s/*.{%s}", $this->namespaceDir, implode( ",", $this->fileExtensions ) ), GLOB_BRACE );
         $fqcns   = [];
         foreach ($paths as $path)
-            $fqcns[] = pathinfo( $path, PATHINFO_FILENAME );
+            $fqcns[] = $this->namespace . "\\" . pathinfo( $path, PATHINFO_FILENAME );
         return $fqcns;
     }
 
@@ -63,14 +69,15 @@ class ClassTools
         return $instance;
     }
 
-    protected function fqcn( $className )
+    function fqcn( $className, $checkClassName = true )
     {
-        if (!preg_match( '/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $className ))
-            throw new \InvalidArgumentException( "Invalid classname $className", Interfaces\HttpHeader::EXIT_CODE_BAD_REQUEST );
+        if ($checkClassName && !preg_match( '/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $className ))
+            return null;
         return $this->namespace . "\\" . $className;
     }
 
     protected $namespace;
+    protected $namespaceDir;
     protected $fileExtensions = ["php"];
 
 }
