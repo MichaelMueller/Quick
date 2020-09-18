@@ -11,9 +11,9 @@ namespace Qck;
 class App implements \Qck\Interfaces\App
 {
 
-    function __construct( \Qck\Interfaces\FunctionFactory $functionFactory, \Qck\Interfaces\Arguments $arguments, $showErrors )
+    function __construct( \Qck\Interfaces\AppFunctionFactory $appFunctionFactory, \Qck\Interfaces\Arguments $arguments, $showErrors )
     {
-        $this->functionFactory = $functionFactory;
+        $this->appFunctionFactory = $appFunctionFactory;
         $this->arguments       = $arguments;
         $this->setupErrorHandling( $showErrors );
     }
@@ -54,7 +54,7 @@ class App implements \Qck\Interfaces\App
     function __invoke()
     {
         $route    = $this->currentRoute();
-        $function = $this->functionFactory->create( $route );
+        $function = $this->appFunctionFactory->createAppFunction( $route );
         if ( is_null( $function ) )
             throw new \Exception( "No function found for route \"" . $route . "\".",
                                   \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
@@ -91,9 +91,9 @@ class App implements \Qck\Interfaces\App
 
     /**
      *
-     * @var \Qck\Interfaces\FunctionFactory
+     * @var \Qck\Interfaces\AppFunctionFactory
      */
-    protected $functionFactory;
+    protected $appFunctionFactory;
 
     /**
      *
