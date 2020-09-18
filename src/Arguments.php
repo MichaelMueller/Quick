@@ -39,7 +39,7 @@ class Arguments implements \Qck\Interfaces\Arguments
         return isset( $this->args[ $Name ] );
     }
 
-    public function valid()
+    public function isHttpRequest()
     {
         if ( is_null( $this->httpRequest ) )
             $this->httpRequest = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
@@ -48,7 +48,7 @@ class Arguments implements \Qck\Interfaces\Arguments
 
     protected function createArgs( array $userArgs = [] )
     {
-        if ( $this->httpRequest() )
+        if ( $this->isHttpRequest() )
             $this->args = array_merge( $_COOKIE, $_GET, $_POST );
         else
             $this->args = $this->parseArgv( $_SERVER[ "argv" ] );

@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface Router extends Functor
+interface App extends Functor
 {
 
     /**

@@ -50,7 +50,7 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
         $this->send( $exitCode );
 
         header( sprintf( "Content-Type: %s; charset=%s", $HttpContent->contentType(), $HttpContent->charset() ) );
-        echo $HttpContent;
+        echo $HttpContent();
     }
 
     /**
