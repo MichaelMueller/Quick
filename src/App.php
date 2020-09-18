@@ -8,15 +8,13 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class App implements \Qck\Interfaces\App
+abstract class App implements \Qck\Interfaces\App
 {
 
-    function __construct( \Qck\Interfaces\AppFunctionFactory $appFunctionFactory, \Qck\Interfaces\Arguments $arguments, $showErrors )
-    {
-        $this->appFunctionFactory = $appFunctionFactory;
-        $this->arguments       = $arguments;
-        $this->setupErrorHandling( $showErrors );
-    }
+    /**
+     * @return callable|null
+     */
+    abstract function createAppFunction( $route );
 
     function setRouteParamName( $routeParamName )
     {
@@ -35,7 +33,7 @@ class App implements \Qck\Interfaces\App
 
     function currentRoute()
     {
-        if ( is_null( $this->currentRoute ) )
+        if (is_null( $this->currentRoute ))
             $this->currentRoute = $this->arguments()->get( $this->routeParamName() );
         return $this->currentRoute;
     }
@@ -47,15 +45,17 @@ class App implements \Qck\Interfaces\App
 
     function buildUrl( $RouteName, array $QueryData = [] )
     {
-        $CompleteQueryData = array_merge( $QueryData, [ $this->routeParamName() => $RouteName ] );
+        $CompleteQueryData = array_merge( $QueryData, [$this->routeParamName() => $RouteName] );
         return "?" . http_build_query( $CompleteQueryData );
     }
 
-    function __invoke()
+    function run( \Qck\Interfaces\Arguments $arguments, $showErrors = false )
     {
-        $route    = $this->currentRoute();
-        $function = $this->appFunctionFactory->createAppFunction( $route );
-        if ( is_null( $function ) )
+        $this->arguments = $arguments;
+        $this->setupErrorHandling( $showErrors );
+        $route           = $this->currentRoute();
+        $function        = $this->createAppFunction( $route );
+        if (is_null( $function ))
             throw new \Exception( "No function found for route \"" . $route . "\".",
                                   \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
@@ -70,10 +70,10 @@ class App implements \Qck\Interfaces\App
     function exceptionHandler( $exception )
     {
         /* @var $exception \Exception */
-        if ( $this->arguments->isHttpRequest() )
+        if ($this->arguments->isHttpRequest())
             http_response_code( $exception->getCode() );
 
-        if ( $this->adminMailer )
+        if ($this->adminMailer)
             $this->adminMailer->sendToAdmin( "Exception", sprintf( "Exception occured: %s, trace: %s", strval( $exception ), $exception->getTraceAsString() ) );
 
         throw $exception;
@@ -85,15 +85,9 @@ class App implements \Qck\Interfaces\App
         ini_set( 'log_errors', intval( $showErrors === false ) );
         ini_set( 'display_errors', intval( $showErrors ) );
         ini_set( 'html_errors', intval( $this->arguments->isHttpRequest() ) );
-        set_error_handler( array ( $this, "errorHandler" ) );
-        set_exception_handler( array ( $this, "exceptionHandler" ) );
+        set_error_handler( array ($this, "errorHandler") );
+        set_exception_handler( array ($this, "exceptionHandler") );
     }
-
-    /**
-     *
-     * @var \Qck\Interfaces\AppFunctionFactory
-     */
-    protected $appFunctionFactory;
 
     /**
      *

@@ -54,7 +54,12 @@ interface HttpHeader
     function redirect( $Url );
 
     /**
+     * 
      * sends the http header, then sends the content type and encoding header, then sends the contents 
+     * 
+     * @param HttpContent $contents
+     * @param int $ExitCode
+     * @return void
      */
-    function sendContent( HttpContent $HttpContent, $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_OK );
+    function sendContent( HttpContent $content, $ExitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_OK );
 }

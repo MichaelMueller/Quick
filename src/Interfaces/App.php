@@ -6,9 +6,9 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface App extends Functor
+interface App 
 {
-
+    
     /**
      * @return string
      */
@@ -28,4 +28,5 @@ interface App extends Functor
      * @return Arguments
      */
     function arguments();
+    
 }
