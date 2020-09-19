@@ -9,10 +9,10 @@ namespace Qck;
 class ClassTools implements Interfaces\ClassTools
 {
 
-    function __construct( $namespace = "\\", $namespaceDir = "." )
+    function __construct( $namespace = "\\", $namespaceDir = ".", $subNamespace = null )
     {
-        $this->namespace    = $namespace;
-        $this->namespaceDir = $namespaceDir;
+        $this->namespace = $subNamespace ? $namespace . "\\" . $subNamespace : $namespace;
+        $this->namespaceDir = $subNamespace ? $namespaceDir . "/" . str_replace( "\\", "/", $subNamespace ) : $namespaceDir;
     }
 
     function setFileExtensions( $fileExtensions )
@@ -37,47 +37,46 @@ class ClassTools implements Interfaces\ClassTools
         return $fqcn ? class_exists( $fqcn, true ) : false;
     }
 
-    function instance( $className, array $args = [] )
+    function instance( $className, array $args = [], $checkClassName = true )
     {
-        $fqcn = $this->fqcn( $className );
+        $fqcn = $this->fqcn( $className,$checkClassName );
         return class_exists( $fqcn, true ) ? $this->instanceFromFqcn( $fqcn, $args ) : null;
     }
 
     function instances( array $args = [] )
     {
-        $fqcns       = $this->fqcns();
-        $instances   = [];
-        foreach ($fqcns as $fqcn)
+        $fqcns = $this->fqcns();
+        $instances = [];
+        foreach ( $fqcns as $fqcn )
             $instances[] = $this->instanceFromFqcn( $fqcn, $args );
         return $instances;
     }
 
     function fqcns()
     {
-        $paths   = glob( sprintf( "%s/*.{%s}", $this->namespaceDir, implode( ",", $this->fileExtensions ) ), GLOB_BRACE );
-        $fqcns   = [];
-        foreach ($paths as $path)
+        $paths = glob( sprintf( "%s/*.{%s}", $this->namespaceDir, implode( ",", $this->fileExtensions ) ), GLOB_BRACE );
+        $fqcns = [];
+        foreach ( $paths as $path )
             $fqcns[] = $this->namespace . "\\" . pathinfo( $path, PATHINFO_FILENAME );
         return $fqcns;
     }
 
     function instanceFromFqcn( $fqcn, array $args = [] )
     {
-
         $reflector = new \ReflectionClass( $fqcn );
-        $instance  = $reflector->newInstanceArgs( $args );
+        $instance = $reflector->newInstanceArgs( $args );
         return $instance;
     }
 
     function fqcn( $className, $checkClassName = true )
     {
-        if ($checkClassName && !preg_match( '/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $className ))
+        if ( $checkClassName && ! preg_match( '/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/', $className ) )
             return null;
         return $this->namespace . "\\" . $className;
     }
 
     protected $namespace;
     protected $namespaceDir;
-    protected $fileExtensions = ["php"];
+    protected $fileExtensions = [ "php" ];
 
 }

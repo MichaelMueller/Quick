@@ -31,7 +31,7 @@ interface ClassTools
      * @param array $args
      * @return object
      */
-    function instance( $className, array $args = [] );
+    function instance( $className, array $args = [], $checkClassName = true );
 
     /**
      * 
