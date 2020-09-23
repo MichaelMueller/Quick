@@ -21,7 +21,7 @@ abstract class App implements \Qck\Interfaces\App
         $this->routeParamName = $routeParamName;
     }
 
-    function setAdminMailer( \Qck\Interfaces\AdminMailer $adminMailer ): void
+    function setAdminMailer( \Qck\Interfaces\AdminMailer $adminMailer )
     {
         $this->adminMailer = $adminMailer;
     }
@@ -53,11 +53,11 @@ abstract class App implements \Qck\Interfaces\App
     {
         $this->arguments = $arguments;
         $this->setupErrorHandling( $showErrors );
-        $route = $this->currentRoute();
-        $function = $this->createAppFunction( $route );
+        $route           = $this->currentRoute();
+        $function        = $this->createAppFunction( $route );
         if ( is_null( $function ) )
             throw new \Exception( "No function found for route \"" . $route . "\".",
-                    \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
+                                  \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
 
         $function();
     }
@@ -84,12 +84,29 @@ abstract class App implements \Qck\Interfaces\App
 
     protected function setupErrorHandling( $showErrors )
     {
+        if ( $this->errorHandler && $this->exceptionHandler )
+            return;
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( $showErrors === false ) );
         ini_set( 'display_errors', intval( $showErrors ) );
         ini_set( 'html_errors', intval( $this->arguments->isHttpRequest() ) );
-        set_error_handler( array( $this, "errorHandler" ) );
-        set_exception_handler( array( $this, "exceptionHandler" ) );
+        $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
+        $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
+    }
+
+    protected function revokeHandlers()
+    {
+        if ( !$this->errorHandler || !$this->exceptionHandler )
+            return;
+        set_error_handler( $this->errorHandler );
+        set_exception_handler( $this->exceptionHandler );
+        $this->errorHandler     = null;
+        $this->exceptionHandler = null;
+    }
+
+    public function __destruct()
+    {
+        $this->revokeHandlers();
     }
 
     /**
@@ -103,6 +120,18 @@ abstract class App implements \Qck\Interfaces\App
      * @var \Qck\Interfaces\AdminMailer
      */
     protected $adminMailer;
+
+    /**
+     *
+     * @var callable
+     */
+    protected $errorHandler;
+
+    /**
+     *
+     * @var callable
+     */
+    protected $exceptionHandler;
 
     /**
      *

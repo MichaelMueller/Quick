@@ -118,6 +118,47 @@ class Arguments implements \Qck\Interfaces\Arguments
         return $this;
     }
 
+    public function clear()
+    {
+        $this->args = [];
+        return $this;
+    }
+
+    public function set( $Key, $Value )
+    {
+        $this->args[ $Key ] = $Value;
+        return $this;
+    }
+
+    function remove( $Key )
+    {
+        unset( $this->args[ $Key ] );
+        return $this;
+    }
+
+    public function reduceTo( ...$keys )
+    {
+        foreach ( array_keys( $this->args ) as $key )
+            if ( !in_array( $key, $keys ) )
+                unset( $this->args[ $key ] );
+        return $this;
+    }
+
+    public function implodeWithKeys( $glueKeyValue = ": ", $glueRecord = ", " )
+    {
+        $text    = "";
+        $numArgs = count( $this->args );
+        $i       = 0;
+        foreach ( $this->args as $key => $value )
+        {
+            ++$i;
+            $text .= $key . $glueKeyValue . $value;
+            if ( $i < $numArgs )
+                $text .= $glueRecord;
+        }
+        return $text;
+    }
+
     /**
      *
      * @var array

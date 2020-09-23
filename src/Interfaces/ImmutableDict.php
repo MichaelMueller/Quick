@@ -22,6 +22,11 @@ interface ImmutableDict
     function has( $Key );
     
     /**
+     * @return string
+     */
+    function implodeWithKeys($glueKeyValue=": ", $glueRecord=", ");
+    
+    /**
      * @return array
      */
     function toArray();
