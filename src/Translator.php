@@ -31,7 +31,7 @@ abstract class Translator implements Interfaces\Translator
         if ( is_null( $this->trs ) )
         {
             $this->trs          = [];
-            foreach ( $this->supportedLanguages() as $lang )
+            foreach ( $this->languageConfig->supportedLanguages() as $lang )
                 $this->trs[ $lang ] = [];
             $this->createTrs();
         }
