@@ -9,8 +9,11 @@ namespace Qck\Interfaces;
 interface Translator
 {
     /**
+     * translates a word!
      * @return string
      */
-    function get($label);
+    function tr( $defaultWord, $ucFirst = false, ... $args );
+    
+    
     
 }

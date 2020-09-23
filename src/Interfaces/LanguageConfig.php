@@ -7,14 +7,11 @@ namespace Qck\Interfaces;
  * @author donni
  */
 interface LanguageConfig
-{
-
+{    
     /**
-     * 
-     * @param string $langCode, see Language
-     * @return bool
+     * @return string[] language shortcuts array
      */
-    function supports( $langCode );
+    function supportedLanguages();
 
     /**
      *      

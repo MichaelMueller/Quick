@@ -29,7 +29,7 @@ class Language implements \Qck\Interfaces\Language
 
         // prio: GET/POST -> COOKIE -> BROWSER -> DEFAULT
         $SelectedLang          = $this->Args->get( $this->LangKey );
-        $SelectedLangSupported = $SelectedLang !== null && $this->LanguageConfig->supports( $SelectedLang );
+        $SelectedLangSupported = $SelectedLang !== null && in_array( $SelectedLang, $this->LanguageConfig->supportedLanguages() );
         if ( $SelectedLangSupported )
         {
             $CurrentLang = $SelectedLang;
@@ -50,7 +50,7 @@ class Language implements \Qck\Interfaces\Language
             foreach ( $langs as $lang )
             {
                 $BrowserLang = mb_strtolower( mb_substr( $lang, 0, 2 ) );
-                if ( $this->LanguageConfig->supports( $BrowserLang ) )
+                if ( in_array( $BrowserLang, $this->LanguageConfig->supportedLanguages() ) )
                     return $BrowserLang;
             }
         }
