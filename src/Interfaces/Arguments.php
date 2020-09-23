@@ -9,5 +9,24 @@ namespace Qck\Interfaces;
  */
 interface Arguments extends ImmutableDict, HttpRequestDetector
 {
-    
+
+    /**
+     * @return Arguments
+     */
+    function checkNotNull( $field, $error=null );
+
+    /**
+     * @return Arguments
+     */
+    function checkMinLength( $field, $numChars, $error=null );
+
+    /**
+     * @return Arguments
+     */
+    function checkEmail( $field, $error=null );
+
+    /**
+     * @return string[]
+     */
+    function validate();
 }

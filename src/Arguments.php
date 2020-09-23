@@ -14,11 +14,6 @@ class Arguments implements \Qck\Interfaces\Arguments
         $this->createArgs( $userArgs );
     }
 
-    function set( $Key, $Value )
-    {
-        $this->args[ $Key ] = $Value;
-    }
-
     function toArray()
     {
         return $this->args;
@@ -66,6 +61,63 @@ class Arguments implements \Qck\Interfaces\Arguments
             return [];
     }
 
+    public function checkEmail( $field, $error = null )
+    {
+        $error     = $error ?? $field . " must be a valid E-Mail address";
+        $validator = function() use( $field, $error )
+        {
+            return (filter_var( $this->get( $field ), FILTER_VALIDATE_EMAIL ) === false) ? $error : null;
+        };
+        return $this->addValidator( $field, $validator );
+    }
+
+    public function checkMinLength( $field, $numChars, $error = null )
+    {
+        $error     = $error ?? $field . " must contain at least $numChars";
+        $validator = function() use( $field, $numChars, $error )
+        {
+            return mb_strlen( $this->get( $field ) ) < $numChars ? $error : null;
+        };
+        return $this->addValidator( $field, $validator );
+    }
+
+    public function checkNotNull( $field, $error = null )
+    {
+        $error     = $error ?? $field . " must not be null";
+        $validator = function() use( $field, $error )
+        {
+            return !$this->has( $field ) ? $error : null;
+        };
+        return $this->addValidator( $field, $validator );
+    }
+
+    public function validate()
+    {
+        $errors = [];
+        foreach ( $this->validators as $field => $validators )
+        {
+            foreach ( $validators as $validator )
+            {
+                $error = $validator();
+                if ( $error !== null )
+                {
+                    if ( !isset( $errors[ $field ] ) )
+                        $errors[ $field ]   = [];
+                    $errors[ $field ][] = $error;
+                }
+            }
+        }
+        return $errors;
+    }
+
+    protected function addValidator( $field, callable $validator )
+    {
+        if ( !isset( $this->validators[ $field ] ) )
+            $this->validators[ $field ]   = [];
+        $this->validators[ $field ][] = $validator;
+        return $this;
+    }
+
     /**
      *
      * @var array
@@ -85,5 +137,11 @@ class Arguments implements \Qck\Interfaces\Arguments
      * @var bool
      */
     protected $httpRequest;
+
+    /**
+     *
+     * @var callable[]
+     */
+    protected $validators = [];
 
 }
