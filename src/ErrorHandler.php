@@ -10,9 +10,10 @@ namespace Qck;
 class ErrorHandler
 {
 
-    function __construct( \Qck\Interfaces\App $app, $showErrors = false )
+    function __construct( \Qck\Interfaces\Request $request, $showErrors = false, Interfaces\AdminMailer $adminMailer = null )
     {
-        $this->app = $app;
+        $this->request = $request;
+        $this->adminMailer = $adminMailer;
         $this->setupErrorHandling( $showErrors );
     }
 
@@ -24,14 +25,14 @@ class ErrorHandler
     function exceptionHandler( $exception )
     {
         /* @var $exception \Exception */
-        if ( $this->app->request()->isHttp() )
+        if ( $this->request->request()->isHttp() )
         {
             $code = $exception->getCode() != 0 ? $exception->getCode() : Interfaces\HttpHeader::EXIT_CODE_INTERNAL_ERROR;
             http_response_code( $code );
         }
 
-        if ( $this->app->adminMailer() )
-            $this->app->adminMailer()->sendToAdmin( "Exception", sprintf( "Exception occured: %s, trace: %s", strval( $exception ), $exception->getTraceAsString() ) );
+        if ( $this->adminMailer )
+            $this->adminMailer->sendToAdmin( "Exception", sprintf( "Exception occured: %s, trace: %s", strval( $exception ), $exception->getTraceAsString() ) );
 
         throw $exception;
     }
@@ -43,7 +44,7 @@ class ErrorHandler
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( $showErrors === false ) );
         ini_set( 'display_errors', intval( $showErrors ) );
-        ini_set( 'html_errors', intval( $this->app->request()->isHttp() ) );
+        ini_set( 'html_errors', intval( $this->request->request()->isHttp() ) );
         $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
         $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
     }
@@ -65,9 +66,9 @@ class ErrorHandler
 
     /**
      *
-     * @var \Qck\Interfaces\App
+     * @var \Qck\Interfaces\Request
      */
-    protected $app;
+    protected $request;
 
     /**
      *

@@ -11,10 +11,11 @@ class Language implements \Qck\Interfaces\Language
 
     const COOKIE_EXPIRE = 2147483647;
 
-    function __construct( \Qck\Interfaces\App $app, string $langKey = "lang" )
+    function __construct( \Qck\Interfaces\LanguageConfig $languageconfig, \Qck\Interfaces\HttpHeader $httpHeader, $langKey = "lang" )
     {
-        $this->app     = $app;
-        $this->langKey = $langKey;
+        $this->languageconfig = $languageconfig;
+        $this->httpHeader     = $httpHeader;
+        $this->langKey        = $langKey;
     }
 
     function get()
@@ -22,17 +23,17 @@ class Language implements \Qck\Interfaces\Language
         if ( $this->lang )
             return $this->lang;
 
-        $this->lang = $this->app->languageConfig()->defaultLanguage();
+        $this->lang = $this->languageconfig->defaultLanguage();
 
         // prio: GET/POST -> COOKIE -> BROWSER -> DEFAULT
-        $lang          = $this->app->request()->args()->get( $this->langKey );
-        $langSupported = $lang !== null && in_array( $lang, $this->app->languageConfig()->supportedLanguages() );
+        $lang          = $this->languageconfig->request()->args()->get( $this->langKey );
+        $langSupported = $lang !== null && in_array( $lang, $this->languageconfig->languageConfig()->supportedLanguages() );
         if ( $langSupported )
         {
             $this->lang = $lang;
-            if ( $this->app->httpHeader() )
+            if ( $this->httpHeader )
                 if ( !isset( $_COOKIE[ $this->langKey ] ) || $_COOKIE[ $this->langKey ] != $lang )
-                    $$this->app->httpHeader()->addCookie( $this->langKey, $lang, self::COOKIE_EXPIRE );
+                    $this->httpHeader->addCookie( $this->langKey, $lang, self::COOKIE_EXPIRE );
         }
         else
             $this->lang = $this->getBrowserLanguageOrDefault();
@@ -47,18 +48,24 @@ class Language implements \Qck\Interfaces\Language
             foreach ( $langs as $lang )
             {
                 $browserLang = mb_strtolower( mb_substr( $lang, 0, 2 ) );
-                if ( in_array( $browserLang, $this->app->languageConfig()->supportedLanguages() ) )
+                if ( in_array( $browserLang, $this->languageconfig->supportedLanguages() ) )
                     return $browserLang;
             }
         }
-        return $this->app->languageConfig()->defaultLanguage();
+        return $this->languageconfig->defaultLanguage();
     }
 
     /**
      *
-     * @var \Qck\Interfaces\App
+     * @var \Qck\Interfaces\LanguageConfig
      */
-    protected $app;
+    protected $languageconfig;
+
+    /**
+     *
+     * @var \Qck\Interfaces\HttpHeader
+     */
+    protected $httpHeader;
 
     /**
      *

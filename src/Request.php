@@ -9,9 +9,9 @@ namespace Qck;
 class Request implements \Qck\Interfaces\Request
 {
 
-    function __construct( Interfaces\App $app )
+    function __construct( array $args )
     {
-        $this->app = $app;
+        $this->args = $args;
     }
 
     public function isHttp()
@@ -21,27 +21,36 @@ class Request implements \Qck\Interfaces\Request
         return $this->http;
     }
 
-    public function args()
+    public function get( $key, $default = null )
+    {
+        $this->mergeArgs();
+        return isset( $this->args[ $key ] ) ? $this->args[ $key ] : $default;
+    }
+
+    protected function mergeArgs()
     {
         if ( !$this->argsMerged )
         {
             if ( $this->isHttp() )
-                $this->app->args()->merge( $_COOKIE, $_GET, $_POST, $this->app->args()->toArray() );
+                $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->args );
             else
-                $this->app->args()->merge( $this->app->cliParser()->parse( $_SERVER[ "argv" ] ), $this->app->args()->toArray() );
+                $this->args = array_merge( $this->cliParser->parse( $_SERVER[ "argv" ] ), $this->args );
 
             $this->argsMerged = true;
         }
-
-        return $this->app->args();
     }
 
     /**
      *
-     * @var Interfaces\App
+     * @var array
      */
-    protected $app;
+    protected $args;
 
+    /**
+     *
+     * @var Interfaces\CliParser
+     */
+    protected $cliParser;
 
     // STATE
 

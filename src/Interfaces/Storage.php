@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface Storage extends Dict
+interface Storage extends 
 {
 
     /**

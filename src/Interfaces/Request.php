@@ -15,7 +15,7 @@ interface Request
     function isHttp();
 
     /**
-     * @return Dict arguments
+     * @return
      */
-    function args();
+    function get( $key, $default = null );
 }

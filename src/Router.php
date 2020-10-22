@@ -10,16 +10,17 @@ namespace Qck;
 class Router implements \Qck\Interfaces\Router, Interfaces\Functor
 {
 
-    function __construct( \Qck\Interfaces\App $app, string $routeParamName = "q" )
+    function __construct( \Qck\Interfaces\Request $request, \Qck\Interfaces\FunctorFactory $functorFactory, string $routeParamName = "q" )
     {
-        $this->app            = $app;
+        $this->request        = $request;
+        $this->functorFactory = $functorFactory;
         $this->routeParamName = $routeParamName;
     }
 
     function currentRoute()
     {
         if ( is_null( $this->currentRoute ) )
-            $this->currentRoute = $this->app->request()->args()->get( $this->routeParamName() );
+            $this->currentRoute = $this->request->get( $this->routeParamName() );
         return $this->currentRoute;
     }
 
@@ -37,7 +38,7 @@ class Router implements \Qck\Interfaces\Router, Interfaces\Functor
     function __invoke()
     {
         $route    = $this->currentRoute();
-        $function = $this->app->functorFactory()->createFunctor( $route );
+        $function = $this->functorFactory->createFunctor( $route );
         if ( is_null( $function ) )
             throw new \Exception( "No function found for route \"" . $route . "\".",
                                   \Qck\Interfaces\HttpHeader::EXIT_CODE_NOT_FOUND );
@@ -47,9 +48,15 @@ class Router implements \Qck\Interfaces\Router, Interfaces\Functor
 
     /**
      *
-     * @var \Qck\Interfaces\App
+     * @var \Qck\Interfaces\Request
      */
-    protected $app;
+    protected $request;
+
+    /**
+     *
+     * @var \Qck\Interfaces\FunctorFactory
+     */
+    protected $functorFactory;
 
     /**
      *
