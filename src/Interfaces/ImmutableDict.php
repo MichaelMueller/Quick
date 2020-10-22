@@ -11,23 +11,23 @@ interface ImmutableDict
 
     /**
      * 
-     * @param mixed $Key
+     * @param mixed $key
      * @return mixed A value or null
      */
-    function get( $Key );
+    function get( $key );
 
     /**
      * @return bool
      */
-    function has( $Key );
-    
+    function has( $key );
+
     /**
      * @return string
      */
-    function implodeWithKeys($glueKeyValue=": ", $glueRecord=", ");
-    
+    function implode( $glueKeyValue = ": ", $glueRecord = ", " );
+
     /**
      * @return array
      */
-    function toArray();
+    function toArray( $ignoreKeys = [] );
 }

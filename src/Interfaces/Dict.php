@@ -8,42 +8,36 @@ namespace Qck\Interfaces;
  */
 interface Dict extends ImmutableDict
 {
+
     /**
      * 
      * @param array $data
      * @return Dict
      */
-    function fromArray(array $data);
-    
+    function fromArray( array $data );
+
     /**
      * 
      * @param array $data
      * @return Dict
      */
-    function merge(...$arrays);
-    
+    function merge( ...$arrays );
+
     /**
      * 
-     * @param mixed $Key
-     * @param mixed $Value
+     * @param mixed $key
+     * @param mixed $value
      * @return Dict
      */
-    function set( $Key, $Value );
-    
+    function set( $key, $value );
+
     /**
      * 
-     * @param string $Key
+     * @param string $key
      * @return Dict
      */
-    function remove($Key);
-    
-    /**
-     * 
-     * @param string[] $keys
-     * @return Dict
-     */
-    function reduceTo(...$keys);
-    
+    function remove( ...$keys );
+
     /**
      * @return Dict
      */

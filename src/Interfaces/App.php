@@ -10,6 +10,11 @@ interface App
 {
 
     /**
+     * @return string
+     */
+    function dataDir();
+
+    /**
      * @return Dict
      */
     function args();

@@ -3,17 +3,16 @@
 namespace Qck;
 
 /**
- * Description of Web
  *
  * @author mueller
  */
 class Translator implements Interfaces\Translator
 {
 
-    function __construct( Interfaces\App $app, array $translations, $throwExceptionOnMissingTr = false, $cutLength = 16 )
+    function __construct( Interfaces\App $app, Storage $storage, $throwExceptionOnMissingTr = false, $cutLength = 16 )
     {
         $this->app                       = $app;
-        $this->translations              = $translations;
+        $this->storage                   = $storage;
         $this->throwExceptionOnMissingTr = $throwExceptionOnMissingTr;
         $this->cutLength                 = $cutLength;
     }
@@ -27,19 +26,19 @@ class Translator implements Interfaces\Translator
     {
         $lang = $this->app->language()->get();
 
-        if ( $lang == $this->app->languageConfig()->defaultLanguage() )
+        if ($lang == $this->app->languageConfig()->defaultLanguage())
             $tr = $defaultWord;
         else
         {
-            if ( !isset( $this->trs[ $lang ][ $defaultWord ] ) )
+            if (!isset( $this->trs[$lang][$defaultWord] ))
             {
-                if ( $this->throwExceptionOnMissingTr )
+                if ($this->throwExceptionOnMissingTr)
                     throw new \Exception( "Missing translation for \"" . $defaultWord . "\"", \Qck\Interfaces\HttpHeader::EXIT_CODE_INTERNAL_ERROR );
                 else
                     $tr = "no-tr:\"" . (strlen( $defaultWord ) > $this->cutLength ? substr( $defaultWord, 0, $this->cutLength ) . "..." : $defaultWord) . "\"";
             }
             else
-                $tr = $this->trs[ $lang ][ $defaultWord ];
+                $tr = $this->trs[$lang][$defaultWord];
         }
         return $this->convertString( $tr, $ucFirst, $args );
     }

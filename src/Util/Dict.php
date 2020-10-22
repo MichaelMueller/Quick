@@ -19,7 +19,7 @@ class Dict implements \Qck\Interfaces\Dict
         $this->fromArray( $data );
     }
 
-    function toArray()
+    function toArray($ignoreKeys = [])
     {
         return $this->data;
     }
@@ -51,9 +51,11 @@ class Dict implements \Qck\Interfaces\Dict
         return $this;
     }
 
-    function remove( $Key )
+    function remove( ...$keys )
     {
-        unset( $this->data[ $Key ] );
+        foreach ( array_keys( $this->data ) as $key )
+            if ( !in_array( $key, $keys ) )
+                unset( $this->data[ $key ] );
         return $this;
     }
 
@@ -65,7 +67,7 @@ class Dict implements \Qck\Interfaces\Dict
         return $this;
     }
 
-    public function implodeWithKeys( $glueKeyValue = ": ", $glueRecord = ", " )
+    public function implode( $glueKeyValue = ": ", $glueRecord = ", " )
     {
         $text    = "";
         $numArgs = count( $this->data );
