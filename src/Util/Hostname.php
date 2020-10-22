@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck;
+namespace Qck\Util;
 
 /**
  *

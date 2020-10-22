@@ -7,7 +7,11 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface Snippet extends Functor
+interface Snippet
 {
 
+    /**
+     * @return string
+     */
+    function text();
 }

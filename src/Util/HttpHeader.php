@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck;
+namespace Qck\Util;
 
 /**
  *
@@ -20,7 +20,7 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
             'httponly' => $httpOnly, // or false
             'samesite' => $sameSite // None || Lax  || Strict
         );
-        $this->cookies[] = [$name, $value, $options];
+        $this->cookies[] = [ $name, $value, $options ];
     }
 
     public function addHeader( $headerString )
@@ -31,10 +31,10 @@ class HttpHeader implements \Qck\Interfaces\HttpHeader
     public function send( $exitCode = \Qck\Interfaces\HttpHeader::EXIT_CODE_OK )
     {
         http_response_code( $exitCode );
-        foreach ($this->cookies as $Cookie)
-            setcookie( $Cookie[0], $Cookie[1], $Cookie[2] );
+        foreach ( $this->cookies as $Cookie )
+            setcookie( $Cookie[ 0 ], $Cookie[ 1 ], $Cookie[ 2 ] );
 
-        foreach ($this->headers as $Header)
+        foreach ( $this->headers as $Header )
             header( $Header );
     }
 

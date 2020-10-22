@@ -8,7 +8,20 @@ namespace Qck\Interfaces;
  */
 interface Dict extends ImmutableDict
 {
-
+    /**
+     * 
+     * @param array $data
+     * @return Dict
+     */
+    function fromArray(array $data);
+    
+    /**
+     * 
+     * @param array $data
+     * @return Dict
+     */
+    function merge(...$arrays);
+    
     /**
      * 
      * @param mixed $Key

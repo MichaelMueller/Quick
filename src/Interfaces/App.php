@@ -6,27 +6,46 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface App 
+interface App
 {
-    
-    /**
-     * @return string
-     */
-    function buildUrl( $route, array $params = [] );
 
     /**
-     * @return string
+     * @return Dict
      */
-    function currentRoute();
+    function args();
 
     /**
-     * @return string
+     * @return Request
      */
-    function routeParamName();
-    
+    function request();
+
     /**
-     * @return Arguments
+     * @return AdminMailer
      */
-    function arguments();
-    
+    function adminMailer();
+
+    /**
+     * @return LanguageConfig
+     */
+    function languageConfig();
+
+    /**
+     * @return Language
+     */
+    function language();
+
+    /**
+     * @return HttpHeader|null if request is http, otherwise null
+     */
+    function httpHeader();
+
+    /**
+     * @return CliParser
+     */
+    function cliParser();
+
+    /**
+     * @return FunctorFactory
+     */
+    function functorFactory();
 }

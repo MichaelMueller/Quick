@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck;
+namespace Qck\Util;
 
 /**
  * IpAddress from https://raw.githubusercontent.com/zendframework/zend-http/master/src/PhpEnvironment/RemoteAddress.php
@@ -16,31 +16,31 @@ class IpAddress implements \Qck\Interfaces\IpAddress
         $this->ip              = $ip;
     }
 
-    public function get( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+    public function get()
     {
-        if (!$this->ip)
+        if ( !$this->ip )
         {
-            if (!empty( $_SERVER['HTTP_CLIENT_IP'] ))
+            if ( !empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
             {
                 //ip from share internet
-                $this->ip = $_SERVER['HTTP_CLIENT_IP'];
+                $this->ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
             }
-            elseif (!empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ))
+            elseif ( !empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
             {
                 //ip pass from proxy
-                $this->ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+                $this->ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
             }
-            elseif (!empty( $_SERVER['REMOTE_ADDR'] ))
-                $this->ip = $_SERVER['REMOTE_ADDR'];
+            elseif ( !empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
+                $this->ip = $_SERVER[ 'REMOTE_ADDR' ];
             else
             {
                 $this->ip = null;
             }
         }
-        if ($this->validationFlags)
+        if ( $this->validationFlags )
         {
             $this->ip = filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
-            if ($this->ip === false)
+            if ( $this->ip === false )
                 $this->ip = null;
         }
 

@@ -11,35 +11,32 @@ class Language implements \Qck\Interfaces\Language
 
     const COOKIE_EXPIRE = 2147483647;
 
-    function __construct( \Qck\Interfaces\LanguageConfig $LanguageConfig, \Qck\Interfaces\Arguments $Args, string $LangKey = "lang", \Qck\Interfaces\HttpHeader $HttpHeader = null )
+    function __construct( \Qck\Interfaces\App $app, string $langKey = "lang" )
     {
-        $this->LanguageConfig = $LanguageConfig;
-        $this->Args           = $Args;
-        $this->LangKey        = $LangKey;
-        $this->HttpHeader     = $HttpHeader;
+        $this->app     = $app;
+        $this->langKey = $langKey;
     }
 
     function get()
     {
-        static $CurrentLang = null;
-        if ( $CurrentLang )
-            return $CurrentLang;
+        if ( $this->lang )
+            return $this->lang;
 
-        $CurrentLang = $this->LanguageConfig->defaultLanguage();
+        $this->lang = $this->app->languageConfig()->defaultLanguage();
 
         // prio: GET/POST -> COOKIE -> BROWSER -> DEFAULT
-        $SelectedLang          = $this->Args->get( $this->LangKey );
-        $SelectedLangSupported = $SelectedLang !== null && in_array( $SelectedLang, $this->LanguageConfig->supportedLanguages() );
-        if ( $SelectedLangSupported )
+        $lang          = $this->app->request()->args()->get( $this->langKey );
+        $langSupported = $lang !== null && in_array( $lang, $this->app->languageConfig()->supportedLanguages() );
+        if ( $langSupported )
         {
-            $CurrentLang = $SelectedLang;
-            if ( $this->HttpHeader )
-                if ( !isset( $_COOKIE[ $this->LangKey ] ) || $_COOKIE[ $this->LangKey ] != $SelectedLang )
-                    $this->HttpHeader->addCookie( $this->LangKey, $SelectedLang, self::COOKIE_EXPIRE );
+            $this->lang = $lang;
+            if ( $this->app->httpHeader() )
+                if ( !isset( $_COOKIE[ $this->langKey ] ) || $_COOKIE[ $this->langKey ] != $lang )
+                    $$this->app->httpHeader()->addCookie( $this->langKey, $lang, self::COOKIE_EXPIRE );
         }
         else
-            $CurrentLang = $this->getBrowserLanguageOrDefault();
-        return $CurrentLang;
+            $this->lang = $this->getBrowserLanguageOrDefault();
+        return $this->lang;
     }
 
     protected function getBrowserLanguageOrDefault()
@@ -49,36 +46,32 @@ class Language implements \Qck\Interfaces\Language
             $langs = explode( ',', $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] );
             foreach ( $langs as $lang )
             {
-                $BrowserLang = mb_strtolower( mb_substr( $lang, 0, 2 ) );
-                if ( in_array( $BrowserLang, $this->LanguageConfig->supportedLanguages() ) )
-                    return $BrowserLang;
+                $browserLang = mb_strtolower( mb_substr( $lang, 0, 2 ) );
+                if ( in_array( $browserLang, $this->app->languageConfig()->supportedLanguages() ) )
+                    return $browserLang;
             }
         }
-        return $this->LanguageConfig->defaultLanguage();
+        return $this->app->languageConfig()->defaultLanguage();
     }
 
     /**
      *
-     * @var \Qck\Interfaces\LanguageConfig
+     * @var \Qck\Interfaces\App
      */
-    protected $LanguageConfig;
-
-    /**
-     *
-     * @var \Qck\Interfaces\Arguments
-     */
-    protected $Args;
+    protected $app;
 
     /**
      *
      * @var string
      */
-    protected $LangKey;
+    protected $langKey;
+
+    // state
 
     /**
      *
-     * @var \Qck\Interfaces\HttpHeader
+     * @var string
      */
-    protected $HttpHeader;
+    protected $lang;
 
 }
