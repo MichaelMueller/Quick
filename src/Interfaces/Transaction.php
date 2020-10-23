@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface Storage extends Transaction
+interface Transaction 
 {
 
     /**
@@ -19,13 +19,7 @@ interface Storage extends Transaction
      * @param mixed $id
      * @return array
      */
-    function get( $id );
+    function rollback();
 
-    /**
-     * 
-     * @param mixed $id
-     * @return scalar an id
-     */
-    function set( array $record, $id=null );
     
 }

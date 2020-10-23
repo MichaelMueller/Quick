@@ -6,13 +6,12 @@ namespace Qck;
  * 
  * @author muellerm
  */
-class Storage implements Interfaces\Storage
+class CsvStorage implements Interfaces\Storage
 {
 
-    function __construct( $dir, \Qck\Interfaces\ArraySerializer $arraySerializer )
+    function __construct( $path )
     {
-        $this->dir             = $dir;
-        $this->arraySerializer = $arraySerializer;
+        $this->path             = $path;
     }
 
     /**
@@ -59,29 +58,24 @@ class Storage implements Interfaces\Storage
         }
         while (file_exists( $path ));
 
-        $parentDir = dirname( $path );
-        if (!is_dir( $parentDir ))
-            mkdir( $parentDir, 0777, true );
+        $parentDir = pathname( $path );
+        if (!is_path( $parentDir ))
+            mkpath( $parentDir, 0777, true );
         touch( $path );
         return $id;
     }
 
     protected function path( $id )
     {
-        return $this->dir . "/" . $id . $this->arraySerializer->fileExtension();
+        return $this->path . "/" . $id . $this->arraySerializer->fileExtension();
     }
 
-    /**
-     *
-     * @var \Qck\Interfaces\ArraySerializer
-     */
-    protected $arraySerializer;
 
     /**
      *
-     * @var string
+     * @var Interfaces\LockFile
      */
-    protected $subDir;
+    protected $lockFile;
 
     // STATE 
 
