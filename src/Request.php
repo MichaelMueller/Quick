@@ -9,7 +9,7 @@ namespace Qck;
 class Request implements \Qck\Interfaces\Request
 {
 
-    function __construct( array $args )
+    function __construct( array $args = [] )
     {
         $this->args = $args;
     }

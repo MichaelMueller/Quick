@@ -9,6 +9,15 @@ namespace Qck;
 class Translator implements Interfaces\Translator
 {
 
+    function __construct( Interfaces\Language $language, Interfaces\LanguageConfig $languageConfig, Interfaces\Storage $storage, bool $throwExceptionOnMissingTr = false, int $cutLength = 16 )
+    {
+        $this->language                  = $language;
+        $this->languageConfig            = $languageConfig;
+        $this->storage                   = $storage;
+        $this->throwExceptionOnMissingTr = $throwExceptionOnMissingTr;
+        $this->cutLength                 = $cutLength;
+    }
+
     function tr( $textDefaultLanguage, $ucFirst = false, ... $args )
     {
         $id     = sprintf( "%u", crc32( $textDefaultLanguage ) );
@@ -20,8 +29,9 @@ class Translator implements Interfaces\Translator
         if ( !$translation )
         {
             $record                                             = array_fill_keys( $this->languageConfig->supportedLanguages(), null );
+            $record[ "id" ]                                       = $id;
             $record[ $this->languageConfig->defaultLanguage() ] = $textDefaultLanguage;
-            $this->storage->write( $record, $id );
+            $this->storage->write( $record );
         }
         else
             $record = $translations[ $id ];

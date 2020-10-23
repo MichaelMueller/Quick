@@ -11,7 +11,7 @@ class Language implements \Qck\Interfaces\Language
 
     const COOKIE_EXPIRE = 2147483647;
 
-    function __construct( \Qck\Interfaces\LanguageConfig $languageconfig, \Qck\Interfaces\HttpHeader $httpHeader, $langKey = "lang" )
+    function __construct( \Qck\Interfaces\LanguageConfig $languageconfig, \Qck\Interfaces\HttpHeader $httpHeader = null, $langKey = "lang" )
     {
         $this->languageconfig = $languageconfig;
         $this->httpHeader     = $httpHeader;
@@ -27,7 +27,7 @@ class Language implements \Qck\Interfaces\Language
 
         // prio: GET/POST -> COOKIE -> BROWSER -> DEFAULT
         $lang          = $this->languageconfig->request()->args()->get( $this->langKey );
-        $langSupported = $lang !== null && in_array( $lang, $this->languageconfig->languageConfig()->supportedLanguages() );
+        $langSupported = $lang !== null && in_array( $lang, $this->languageconfig->supportedLanguages() );
         if ( $langSupported )
         {
             $this->lang = $lang;

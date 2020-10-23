@@ -12,9 +12,10 @@ class ErrorHandler
 
     function __construct( \Qck\Interfaces\Request $request, $showErrors = false, Interfaces\AdminMailer $adminMailer = null )
     {
-        $this->request = $request;
+        $this->request     = $request;
+        $this->showErrors  = $showErrors;
         $this->adminMailer = $adminMailer;
-        $this->setupErrorHandling( $showErrors );
+        $this->install();
     }
 
     function errorHandler( $errno, $errstr, $errfile, $errline )
@@ -25,7 +26,7 @@ class ErrorHandler
     function exceptionHandler( $exception )
     {
         /* @var $exception \Exception */
-        if ( $this->request->request()->isHttp() )
+        if ( $this->request->isHttp() )
         {
             $code = $exception->getCode() != 0 ? $exception->getCode() : Interfaces\HttpHeader::EXIT_CODE_INTERNAL_ERROR;
             http_response_code( $code );
@@ -37,19 +38,20 @@ class ErrorHandler
         throw $exception;
     }
 
-    protected function setupErrorHandling( $showErrors )
+    function install()
     {
         if ( $this->errorHandler && $this->exceptionHandler )
             return;
+        $showErrors             = $this->showErrors;
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( $showErrors === false ) );
         ini_set( 'display_errors', intval( $showErrors ) );
-        ini_set( 'html_errors', intval( $this->request->request()->isHttp() ) );
+        ini_set( 'html_errors', intval( $this->request->isHttp() ) );
         $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
         $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
     }
 
-    protected function revokeHandlers()
+    protected function uninstall()
     {
         if ( !$this->errorHandler || !$this->exceptionHandler )
             return;
@@ -75,6 +77,12 @@ class ErrorHandler
      * @var \Qck\Interfaces\AdminMailer
      */
     protected $adminMailer;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $showErrors;
 
     // state
 

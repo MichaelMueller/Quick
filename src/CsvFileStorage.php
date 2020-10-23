@@ -19,15 +19,16 @@ class CsvFileStorage implements Interfaces\Storage
 
     function record( $idx )
     {
-        if ( !isset( $this->records[ $idx ] ) )
+        if ( !isset( $this->records[ $idx ] ) && $this->file )
         {
             $this->assertFile();
             $this->file->flock( LOCK_SH );
             $this->file->seek( $idx );
-            $this->records[ $idx ] = $this->file->fgetcsv( $this->delimiter, $this->enclosure, $this->escape );
+            if ( $this->file->valid() )
+                $this->records[ $idx ] = $this->file->fgetcsv( $this->delimiter, $this->enclosure, $this->escape );
             $this->file->flock( LOCK_UN );
         }
-        return $this->records[ $idx ];
+        return isset( $this->records[ $idx ] ) ? $this->records[ $idx ] : null;
     }
 
     function records( callable $filter = null, $findFirst = false )
@@ -58,9 +59,10 @@ class CsvFileStorage implements Interfaces\Storage
      */
     function write( array $data, $idx = null )
     {
-        $this->assertFile();
+        $this->assertFile( true );
         $this->file->flock( LOCK_EX );
-        $lineCount = iterator_count( $this->file );
+        $this->file->seek( $this->file->getSize() );
+        $lineCount = $this->file->key();
         if ( $lineCount == 0 )
         {
             $this->file->fputcsv( array_keys( $data ), $this->delimiter, $this->enclosure, $this->escape );
@@ -73,16 +75,17 @@ class CsvFileStorage implements Interfaces\Storage
         $this->file->flock( LOCK_UN );
     }
 
-    protected function assertFile()
+    protected function assertFile( $createFileIfNecessary = false )
     {
         if ( !$this->file )
         {
             $parentDir  = dirname( $this->path );
             if ( !is_dir( $parentDir ) )
                 mkdir( $parentDir, 0777, true );
-            if ( !file_exists( $this->path ) )
-                touch( $this->path );
-            $this->file = new \SplFileObject( $this->path, "r+" );
+            $mode       = "r+";
+            if ( !file_exists( $this->path ) && $createFileIfNecessary )
+                $mode       = "w+";
+            $this->file = new \SplFileObject( $this->path, $mode );
         }
     }
 
