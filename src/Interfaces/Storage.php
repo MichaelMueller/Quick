@@ -6,26 +6,25 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface Storage extends Transaction
+interface Storage
 {
 
     /**
-     * Persist changes
-     */
-    function commit();
-
-    /**
      * 
-     * @param mixed $id
      * @return array
      */
-    function get( $id );
+    function records( callable $filter = null, $findFirst = false );
 
     /**
      * 
-     * @param mixed $id
-     * @return scalar an id
+     * @param int $idx (zero based indexes)
+     * @return array
      */
-    function set( array $record, $id=null );
-    
+    function record( $idx );
+
+    /**
+     * 
+     * @return int the new
+     */
+    function write( array $record, $idx = null );
 }

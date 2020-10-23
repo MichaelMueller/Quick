@@ -8,10 +8,14 @@ namespace Qck\Interfaces;
  */
 interface Translator
 {
-
+    /**
+     * @return Language
+     */
+    function language();
+    
     /**
      * translates
      * @return string
      */
-    function tr( $defaultWord, $ucFirst = false, ... $args );
+    function tr( $textDefaultLanguage, $ucFirst = false, ... $args );
 }

@@ -8,12 +8,6 @@ namespace Qck\Interfaces;
  */
 interface Transaction 
 {
-
-    /**
-     * Persist changes
-     */
-    function commit();
-
     /**
      * 
      * @param mixed $id
