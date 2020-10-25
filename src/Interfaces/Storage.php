@@ -21,6 +21,13 @@ interface Storage
      * @return array
      */
     function record( $idx );
+    
+    /**
+     * 
+     * @param int $idx (zero based indexes)
+     * @return array
+     */
+    function delete( $idx );
 
     /**
      * 

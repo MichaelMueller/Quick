@@ -17,6 +17,13 @@ class CsvFileStorage implements Interfaces\Storage
         $this->escape    = $escape;
     }
 
+    public function delete( $idx )
+    {
+        $this->assertFile();
+        $this->file->seek( $idx );
+        $this->file->write( null );
+    }
+
     function record( $idx )
     {
         if ( !isset( $this->records[ $idx ] ) && $this->file )
