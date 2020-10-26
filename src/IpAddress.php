@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Util;
+namespace Qck;
 
 /**
  * IpAddress from https://raw.githubusercontent.com/zendframework/zend-http/master/src/PhpEnvironment/RemoteAddress.php
