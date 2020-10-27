@@ -1,3 +1,4 @@
+.phpunit.result.cache
 src/sandbox.php
 var
 tmp

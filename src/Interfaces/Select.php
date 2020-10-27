@@ -9,9 +9,6 @@ namespace Qck\Interfaces;
 interface Select
 {
 
-    const ORDER_ASC  = 0;
-    const ORDER_DESC = 1;
-
     /**
      * 
      * @return Select
@@ -22,7 +19,7 @@ interface Select
      * 
      * @return Select
      */
-    function where( Conditions $conditions );
+    function where( BooleanExpression $booleanExpression );
 
     /**
      * 

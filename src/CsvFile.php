@@ -25,9 +25,9 @@ class CsvFile implements Interfaces\Table
         return null;
     }
 
-    public function delete( Interfaces\Conditions $conditions )
+    public function delete( Interfaces\BooleanExpression $booleanExpression )
     {
-        $indexes = $this->indexes( $conditions );
+        $indexes = $this->indexes( $booleanExpression );
         if ( $indexes )
         {
             foreach ( $indexes as $idx )
@@ -41,7 +41,7 @@ class CsvFile implements Interfaces\Table
     public function execSelect( CsvFile\Select $select )
     {
         $matchingRecords = [];
-        $indexes         = $this->indexes( $select->conditions );
+        $indexes         = $this->indexes( $select->booleanExpression );
 
         if ( $indexes )
         {
@@ -73,9 +73,9 @@ class CsvFile implements Interfaces\Table
             return $matchingRecords;
     }
 
-    public function update( Interfaces\Conditions $conditions, array $record )
+    public function update( Interfaces\BooleanExpression $booleanExpression, array $record )
     {
-        $indexes = $this->indexes( $conditions );
+        $indexes = $this->indexes( $booleanExpression );
         if ( $indexes )
         {
             foreach ( $indexes as $idx )
@@ -87,13 +87,13 @@ class CsvFile implements Interfaces\Table
         return count( $indexes );
     }
 
-    protected function indexes( Interfaces\Conditions $conditions = null )
+    protected function indexes( Interfaces\BooleanExpression $booleanExpression = null )
     {
         $indexes = [];
         $this->assertLoaded();
 
         foreach ( $this->records as $idx => $record )
-            if ( is_null( $conditions ) || $conditions->areMetBy( $record ) )
+            if ( is_null( $booleanExpression ) || $booleanExpression->eval( $record ) )
                 $indexes[] = $idx;
 
         return $indexes;
@@ -228,9 +228,9 @@ class Select implements \Qck\Interfaces\Select
         return $this;
     }
 
-    public function where( \Qck\Interfaces\Conditions $conditions ): \Qck\Interfaces\Select
+    public function where( \Qck\Interfaces\BooleanExpression $booleanExpression ): \Qck\Interfaces\Select
     {
-        $this->conditions = $conditions;
+        $this->booleanExpression = $booleanExpression;
         return $this;
     }
 
@@ -253,9 +253,9 @@ class Select implements \Qck\Interfaces\Select
 
     /**
      *
-     * @var \Qck\Interfaces\Conditions
+     * @var \Qck\Interfaces\BooleanExpression
      */
-    public $conditions;
+    public $booleanExpression;
 
     /**
      *

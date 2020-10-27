@@ -52,10 +52,15 @@ final class CsvFileTest extends TestCase
 
         $allSortedByAge = $csvFile->select()->orderBy( "age" )->exec();
         $this->assertTrue( $allSortedByAge[ 2 ] == $biden && $allSortedByAge[ 0 ] == $clinton && $allSortedByAge[ 1 ][ "age" ] == 76, "check if descending sorting works after setting age on trump" );
-                
-        $trumpsPw = $csvFile->select()->columns("pw")->where($trumpSelector)->fetchColumn()->exec();
+
+        $trumpsPw = $csvFile->select()->columns( "pw" )->where( $trumpSelector )->fetchColumn()->exec();
         $this->assertEquals( "nsa", $trumpsPw, "check if fetching columns work" );
-        
+
+        /* @var $exp \Qck\Interfaces\BooleanExpression */
+        $exp;
+        $exp->variable("age")->greater()->variable("test")->and()->parantheses()->variable($keys);
+        $exp->compare()->variable( "age" )->gt()->val( 76 )->and()->variable( "name" )->eq()->val( "trump" )->andGroup()->variable( "sex" )->eq()->val( "m" )->or()->variable( "sex" )->eq()->val( "f" );
+        $left = $exp->compare()->var( "age" )->equals()->val( 76 )->and()->var( "name" )->equals()->val( "trump" )->andGroup()->var( "sex" )->equals()->val( "m" )->or()->var( "sex" )->equals()->val( "f" );
     }
 
     protected $tmpFile;

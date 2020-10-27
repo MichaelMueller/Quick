@@ -9,12 +9,9 @@ namespace Qck\Interfaces;
 interface Table
 {
 
-    const ORDER_ASC  = 0;
-    const ORDER_DESC = 1;
-
     /**
      * 
-     * @return mixed an auto generated id or null
+     * @return mixed an auto generated id or null or false if $record contains invalid values
      */
     function create( array $record );
 
@@ -26,16 +23,16 @@ interface Table
 
     /**
      * 
-     * @param Conditions $constraints (could be null though)
+     * @param BooleanExpression $booleanExpression (could be null though)
      * @param array $record
-     * @return int number of affected rows
+     * @return mixed number of affected rows or false if $record contains invalid values
      */
-    function update( Conditions $constraints, array $record );
+    function update( BooleanExpression $booleanExpression, array $record );
 
     /**
      * 
      * @param Conditions $constraints (could be null though)
      * @return int number of affected rows
      */
-    function delete( Conditions $constraints );
+    function delete( BooleanExpression $booleanExpression );
 }
