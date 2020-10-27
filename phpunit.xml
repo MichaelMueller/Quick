@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<phpunit colors="true" cacheResult="true">
+<phpunit colors="true" bootstrap="vendor/autoload.php" cacheResult="true">
     <testsuites>
         <testsuite name="main">
             <!--<directory suffix="Test.php">.</directory>-->
