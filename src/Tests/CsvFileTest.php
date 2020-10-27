@@ -29,11 +29,9 @@ final class CsvFileTest extends TestCase
         $csvFile->create( $biden );
         $csvFile->create( $trump );
         $csvFile->create( $clinton );
-        $maleSelector = \Qck\ClosureConditions::create( function ( $record )
-                {
-                    return $record[ "sex" ] == "m";
-                } );
-
+        /* @var $comparison \Qck\Interfaces\Comparison\Start */
+        $comparison = new \Qck\Comparison();
+        $maleSelector = $comparison->variable("sex")->equals()->val("m");
         $allMales = $csvFile->select()->where( $maleSelector )->exec();
         $this->assertEquals( 2, count( $allMales ), "check if closure conditions work" );
 
@@ -43,10 +41,9 @@ final class CsvFileTest extends TestCase
         $allSortedByAgeDesc = $csvFile->select()->orderBy( "age", true )->exec();
         $this->assertTrue( $allSortedByAgeDesc[ 0 ] == $biden && $allSortedByAgeDesc[ 1 ] == $clinton && $allSortedByAgeDesc[ 2 ] == $trump, "check if descending sorting works" );
 
-        $trumpSelector = \Qck\ClosureConditions::create( function ( $record )
-                {
-                    return $record[ "name" ] == "trump";
-                } );
+        /* @var $comparison \Qck\Interfaces\Comparison\Start */
+        $comparison = new \Qck\Comparison();
+        $trumpSelector = $comparison->variable("name")->equals()->val("trump");
         $affectedRows = $csvFile->update( $trumpSelector, [ "age" => 76, "pw" => "nsa" ] );
         $this->assertEquals( 1, $affectedRows, "check if update works" );
 
@@ -55,12 +52,6 @@ final class CsvFileTest extends TestCase
 
         $trumpsPw = $csvFile->select()->columns( "pw" )->where( $trumpSelector )->fetchColumn()->exec();
         $this->assertEquals( "nsa", $trumpsPw, "check if fetching columns work" );
-
-        /* @var $exp \Qck\Interfaces\BooleanExpression */
-        $exp;
-        $exp->variable("age")->greater()->variable("test")->and()->parantheses()->variable($keys);
-        $exp->compare()->variable( "age" )->gt()->val( 76 )->and()->variable( "name" )->eq()->val( "trump" )->andGroup()->variable( "sex" )->eq()->val( "m" )->or()->variable( "sex" )->eq()->val( "f" );
-        $left = $exp->compare()->var( "age" )->equals()->val( 76 )->and()->var( "name" )->equals()->val( "trump" )->andGroup()->var( "sex" )->equals()->val( "m" )->or()->var( "sex" )->equals()->val( "f" );
     }
 
     protected $tmpFile;

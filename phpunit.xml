@@ -4,6 +4,7 @@
         <testsuite name="main">
             <!--<directory suffix="Test.php">.</directory>-->
             <file>src/Tests/ComparisonTest.php</file>
+            <file>src/Tests/CsvFileTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>

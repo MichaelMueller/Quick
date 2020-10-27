@@ -16,7 +16,6 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
     const LESS           = "<";
     const LESS_EQUALS    = "<=";
     const MATCHES        = "=~";
-    
     const AND            = 1;
     const OR             = 2;
     const LENGTH         = "length";
@@ -36,23 +35,28 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
     public function val( $val )
     {
         if ( is_null( $this->left ) )
-            $this->left     = $val;
-        else
-            $this->right     = $val;
+        {
+            $this->left = $val;
+        }
+        else if ( is_null( $this->right ) )
+        {
+            $this->right = $val;
+        }
         return $this;
     }
 
     public function variable( ...$keys )
     {
+        $keys = is_array( $keys ) ? $keys : [ $keys ];
 
         if ( is_null( $this->left ) )
         {
-            $this->left     = $keys;
+            $this->left      = $keys;
             $this->leftIsVar = true;
         }
-        else
+        else if ( is_null( $this->right ) )
         {
-            $this->right     = $keys;
+            $this->right      = $keys;
             $this->rightIsVar = true;
         }
         return $this;
@@ -120,7 +124,7 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
         return $this;
     }
 
-    public function and(): Interfaces\BooleanExpression
+    public function and()
     {
         $this->next           = new Comparison( $this->parent );
         $this->concatOperator = self::AND;
@@ -182,7 +186,7 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
 
     protected function value( $array, $value, $isVar, $function )
     {
-        if ($isVar )
+        if ( $isVar )
             $value = $this->arrayValue( $array, $value );
 
         if ( $function == self::LENGTH )
@@ -240,7 +244,7 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
      *
      * @var bool
      */
-    protected $leftIsVar=false;
+    protected $leftIsVar = false;
 
     /**
      *
@@ -260,12 +264,11 @@ class Comparison implements Interfaces\Comparison\Start, Interfaces\Comparison\L
      */
     protected $right;
 
-
     /**
      *
      * @var bool
      */
-    protected $rightIsVar=false;
+    protected $rightIsVar = false;
 
     /**
      *
