@@ -12,5 +12,4 @@ jobs:
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v9
         with:
-          configuration: src/Tests/phpunit.xml
           args: --coverage-text

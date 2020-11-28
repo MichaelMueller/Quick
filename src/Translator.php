@@ -9,7 +9,7 @@ namespace Qck;
 class Translator implements Interfaces\Translator
 {
 
-    function __construct( Interfaces\Language $language, Interfaces\LanguageConfig $languageConfig, Interfaces\Storage $storage, bool $throwExceptionOnMissingTr = false, int $cutLength = 16 )
+    function __construct( Interfaces\Language $language, Interfaces\LanguageConfig $languageConfig, Interfaces\Table $storage, bool $throwExceptionOnMissingTr = false, int $cutLength = 16 )
     {
         $this->language                  = $language;
         $this->languageConfig            = $languageConfig;
@@ -75,7 +75,7 @@ class Translator implements Interfaces\Translator
 
     /**
      *
-     * @var Interfaces\Storage
+     * @var Interfaces\Table
      */
     protected $storage;
 
