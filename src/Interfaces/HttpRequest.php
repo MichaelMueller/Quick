@@ -3,14 +3,14 @@
 namespace Qck\Interfaces;
 
 /**
- * 
+ *
  * @author muellerm
  */
-interface Hostname
+interface HttpRequest
 {
 
     /**
      * @return string
      */
-    function get();
+    function ipAddress();
 }

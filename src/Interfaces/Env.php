@@ -3,15 +3,15 @@
 namespace Qck\Interfaces;
 
 /**
- * An interface for an object that can be rendered to HTML
- * 
+ *
  * @author muellerm
  */
-interface Snippet
+interface Env
 {
 
     /**
+     * 
      * @return string
      */
-    function text();
+    function hostname();
 }

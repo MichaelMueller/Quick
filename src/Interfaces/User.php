@@ -3,20 +3,27 @@
 namespace Qck\Interfaces;
 
 /**
- * 
+ *
  * @author muellerm
  */
-interface Router
+interface User
 {
 
     /**
+     * 
      * @return string
      */
-    function buildUrl( $route, array $params = [] );
+    function id();
 
     /**
+     * 
      * @return string
      */
-    function currentRoute();
+    function email();
 
+    /**
+     * 
+     * @return string
+     */
+    function name();
 }

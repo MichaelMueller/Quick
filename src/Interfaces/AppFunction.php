@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface App
+interface AppFunction
 {
 
     /**

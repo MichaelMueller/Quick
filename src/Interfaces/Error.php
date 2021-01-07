@@ -6,17 +6,21 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface Router
+interface Error
 {
 
     /**
      * @return string
      */
-    function buildUrl( $route, array $params = [] );
+    function text();
 
     /**
      * @return string
      */
-    function currentRoute();
-
+    function relatedKey();
+        
+    /**
+     * @return string
+     */
+    function __toString();
 }
