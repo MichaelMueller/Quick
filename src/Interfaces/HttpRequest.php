@@ -10,7 +10,12 @@ interface HttpRequest
 {
 
     /**
-     * @return string
+     * @return IpAddress
      */
     function ipAddress();
+
+    /**
+     * @return App
+     */
+    function app();
 }

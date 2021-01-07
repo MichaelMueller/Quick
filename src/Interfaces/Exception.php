@@ -10,14 +10,24 @@ interface Exception extends \Throwable
 {
 
     /**
-     * @return ErrorSource[]
+     * @return Exception
      */
-    function errorSources();
+    function error($text, ...$args);
 
     /**
-     * @return ErrorSource
+     * @return Exception
      */
-    function errorSource($name);
+    function argError($text, $relatedKey, ...$args);
+    
+    /**
+     * @return Exception $this
+     */
+    function setHttpReturnCode($returnCode = HttpResponse::EXIT_CODE_INTERNAL_ERROR);
+
+    /**
+     * @return ErrorSet
+     */
+    function errorSet($name = null);
 
     /**
      * @return void

@@ -10,6 +10,11 @@ interface Router
 {
 
     /**
+     * @return App
+     */
+    function app();
+    
+    /**
      * @return string
      */
     function buildUrl( $route, array $params = [] );
