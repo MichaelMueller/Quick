@@ -42,11 +42,11 @@ class App implements Interfaces\App
         {
             // create args
             if ($this->httpRequest())
-                $this->args = array_merge($_COOKIE, $_GET, $_POST, $this->args);
+                $this->args = array_merge($_COOKIE, $_GET, $_POST, $this->config->userArgs());
             else
             {
                 $cmdArgs = count($_SERVER["argv"]) > 1 ? parse_str($_SERVER["argv"][1]) : [];
-                $this->args = array_merge($cmdArgs, $argv);
+                $this->args = array_merge($cmdArgs, $this->config->userArgs());
             }
         }
         return $this->args;
@@ -55,7 +55,7 @@ class App implements Interfaces\App
     public function httpRequest()
     {
         if ($this->isHttpRequest() && is_null($this->httpRequest))
-            $this->httpRequest = new \App\HttpRequest($this);
+            $this->httpRequest = new \App\HttpResponse($this);
         return $this->httpRequest;
     }
 
@@ -73,12 +73,15 @@ class App implements Interfaces\App
 
     public function httpResponse()
     {
-        
+
+        if (is_null($this->httpResponse))
+            $this->httpResponse = new \App\HttpResponse($this);
+        return $this->httpResponse;
     }
 
     public function createException()
     {
-        // TODO
+        return new \App\Exception();
     }
 
     protected function isHttpRequest()
@@ -171,16 +174,19 @@ class Config implements \Qck\Interfaces\AppConfig
     public function setDefaultRoute($defaultRoute = "Start")
     {
         $this->defaultRoute = $defaultRoute;
+        return $this;
     }
 
     public function setShowErrors($showErrors = false)
     {
         $this->showErrors = $showErrors;
+        return $this;
     }
 
     public function setUserArgs(array $args = array())
     {
         $this->userArgs = $args;
+        return $this;
     }
 
     /**
@@ -205,13 +211,13 @@ class Config implements \Qck\Interfaces\AppConfig
      *
      * @var bool
      */
-    protected $showErrors;
+    protected $showErrors=false;
 
     /**
      *
      * @var array
      */
-    protected $userArgs;
+    protected $userArgs=[];
 
     /**
      *
@@ -224,7 +230,7 @@ class Config implements \Qck\Interfaces\AppConfig
 /**
  * 
  */
-class HttpRequest implements Qck\Interfaces\HttpRequest
+class HttpRequest implements \Qck\Interfaces\HttpRequest
 {
 
     function __construct(\Qck\Interfaces\App $app)
@@ -292,7 +298,7 @@ class IpAddress implements \Qck\Interfaces\IpAddress
         {
             $this->ip = filter_var($this->ip, FILTER_VALIDATE_IP, $this->validationFlags);
             if ($this->ip === false)
-                $this->httpRequest->app()->createException()->errorSet()->error("Invalid ip %s", $this->ip)->exception()->throw();
+                $this->httpRequest->app()->createException()->error("Invalid ip %s", $this->ip)->exception()->throw();
         }
 
         return $this->ip;
@@ -308,7 +314,7 @@ class IpAddress implements \Qck\Interfaces\IpAddress
         return $this->httpRequest;
     }
 
-    public function setValidationFlags($validationFlags)
+    public function setValidationFlags($validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
     {
         $this->validationFlags = $validationFlags;
         $this->ip = null;
@@ -380,16 +386,16 @@ class Router implements \Qck\Interfaces\Router
 
         $exception = $this->app->createException();
         if (!preg_match("/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route))
-            $exception->argError("Invalid route '%s'", $this->routeParamName, $route)->exception()->throw();
+            $exception->argError("Invalid route '%s'", $this->routeParamName, $route)->throw();
 
         $fqcn = $this->appFunctionNamespace . "\\" . $route;
         $appFunction = null;
         if (!class_exists($fqcn, true))
-            $exception->argError("Class '%s' does not exist", $this->routeParamName, $fqcn)->exception()->throw();
+            $exception->argError("Class '%s' does not exist", $this->routeParamName, $fqcn)->throw();
 
         $appFunction = new $fqcn();
         if (!$appFunction instanceof \Qck\Interfaces\AppFunction)
-            $exception->argError("Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\Interfaces\AppFunction::class)->exception()->throw();
+            $exception->argError("Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\Interfaces\AppFunction::class)->throw();
         $appFunction->run($this->app);
     }
 
@@ -457,7 +463,7 @@ class ErrorHandler
         /* @var $exception \Exception */
         if ($this->isHttpRequest)
         {
-            $code = $exception instanceof Exception ? $exception->httpReturnCode() : Interfaces\HttpHeader::EXIT_CODE_INTERNAL_ERROR;
+            $code = $exception instanceof Exception ? $exception->httpReturnCode() : \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
             http_response_code($code);
         }
 
@@ -484,7 +490,7 @@ class ErrorHandler
 
     public function __destruct()
     {
-        $this->revokeHandlers();
+        $this->uninstall();
     }
 
     /**
@@ -515,12 +521,241 @@ class ErrorHandler
 
 }
 
-class Exception // TODO
+class Exception extends \Exception implements \Qck\Interfaces\Exception
 {
+
+    public function __construct(string $message = "", int $code = 0, \Throwable $previous = NULL)
+    {
+        parent::__construct($message, $code, $previous);
+        $this->code = $this->returnCode;
+    }
 
     function httpReturnCode()
     {
-        
+        return $this->httpReturnCode;
     }
+
+    function returnCode()
+    {
+        return $this->returnCode;
+    }
+
+    protected function generateMessage()
+    {
+        $this->message = implode(", ", array_map('strval', $this->errors));
+    }
+
+    public function argError($text, $relatedKey, ...$args)
+    {
+        $this->errors[] = new Error(vsprintf($text, $args), $relatedKey);
+        $this->generateMessage();
+        return $this;
+    }
+
+    public function error($text, ...$args)
+    {
+        $this->errors[] = new Error(vsprintf($text, $args));
+        $this->generateMessage();
+        return $this;
+    }
+
+    function errors()
+    {
+        return $this->errors;
+    }
+
+    public function setHttpReturnCode($returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR)
+    {
+        $this->httpReturnCode = $returnCode;
+        return $this;
+    }
+
+    public function throw()
+    {
+        throw $this;
+    }
+
+    public function setReturnCode($returnCode = -1)
+    {
+        $this->returnCode = $returnCode;
+        $this->code = $this->returnCode;
+        return $this;
+    }
+
+    /**
+     *
+     * @var int
+     */
+    protected $httpReturnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
+
+    /**
+     *
+     * @var int
+     */
+    protected $returnCode = -1;
+
+    /**
+     *
+     * @var Error[]
+     */
+    protected $errors = [];
+
+}
+
+class Error implements \Qck\Interfaces\Error
+{
+
+    function __construct(string $text, string $relatedKey = null)
+    {
+        $this->text = $text;
+        $this->relatedKey = $relatedKey;
+    }
+
+    public function __toString()
+    {
+        return ($this->relatedKey ? $this->relatedKey . ": " : null) . $this->text;
+    }
+
+    public function relatedKey()
+    {
+        return $this->relatedKey;
+    }
+
+    public function text()
+    {
+        return $this->text;
+    }
+
+    /**
+     *
+     * @var string
+     */
+    protected $text;
+
+    /**
+     *
+     * @var string
+     */
+    protected $relatedKey;
+
+}
+
+class HttpResponse implements \Qck\Interfaces\HttpResponse
+{
+
+    function __construct(\Qck\Interfaces\App $app)
+    {
+        $this->app = $app;
+    }
+
+    public function createContent($text)
+    {
+        $this->content = new HttpContent($this, $text);
+        return $this->content;
+    }
+
+    public function send()
+    {
+        http_response_code($this->returnCode);
+
+        header(sprintf("Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet()));
+        echo $this->content->text();
+    }
+
+    public function setReturnCode($returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_OK)
+    {
+        $this->returnCode = $returnCode;
+        return $this;
+    }
+
+    public function app()
+    {
+        return $this->app();
+    }
+
+    /**
+     *
+     * @var \Qck\Interfaces\App
+     */
+    protected $app;
+
+    /**
+     *
+     * @var HttpContent
+     */
+    protected $content;
+
+    /**
+     *
+     * @var string
+     */
+    protected $returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
+
+}
+
+class HttpContent implements \Qck\Interfaces\HttpContent
+{
+
+    function __construct(\Qck\Interfaces\HttpResponse $response, $text)
+    {
+        $this->response = $response;
+        $this->text = $text;
+    }
+
+    public function response()
+    {
+        return $this->response;
+    }
+
+    public function setCharset($charSet = \Qck\Interfaces\HttpContent::CHARSET_UTF_8)
+    {
+        $this->charSet = $charSet;
+        return $this;
+    }
+
+    public function setContentType($contentType = \Qck\Interfaces\HttpContent::CONTENT_TYPE_TEXT_HTML)
+    {
+        $this->contentType = $contentType;
+        return $this;
+    }
+
+    function text()
+    {
+        return strval($this->text);
+    }
+
+    function contentType()
+    {
+        return $this->contentType;
+    }
+
+    function charSet()
+    {
+        return $this->charSet;
+    }
+
+    /**
+     *
+     * @var \Qck\Interfaces\HttpResponse
+     */
+    protected $response;
+
+    /**
+     *
+     * @var object|string
+     */
+    protected $text;
+
+    /**
+     *
+     * @var string
+     */
+    protected $contentType = \Qck\Interfaces\HttpContent::CONTENT_TYPE_TEXT_HTML;
+
+    /**
+     *
+     * @var string
+     */
+    protected $charSet = \Qck\Interfaces\HttpContent::CHARSET_UTF_8;
 
 }

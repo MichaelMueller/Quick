@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  * 
  * @author muellerm
  */
-interface Exception extends \Throwable
+interface Exception
 {
 
     /**
@@ -18,16 +18,23 @@ interface Exception extends \Throwable
      * @return Exception
      */
     function argError($text, $relatedKey, ...$args);
-    
-    /**
-     * @return Exception $this
-     */
-    function setHttpReturnCode($returnCode = HttpResponse::EXIT_CODE_INTERNAL_ERROR);
 
     /**
-     * @return ErrorSet
+     * @return Error[]
      */
-    function errorSet($name = null);
+    function errors();
+
+    /**
+     * @param int $httpReturnCode
+     * @return Exception $this
+     */
+    function setHttpReturnCode($httpReturnCode = HttpResponse::EXIT_CODE_INTERNAL_ERROR);
+
+    /**
+     * 
+     * @param int $returnCode
+     */
+    function setReturnCode($returnCode = -1);
 
     /**
      * @return void

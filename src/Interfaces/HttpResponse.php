@@ -6,7 +6,7 @@ namespace Qck\Interfaces;
  *
  * @author muellerm
  */
-interface HttpResponse extends Snippet
+interface HttpResponse
 {
 
     const EXIT_CODE_OK = 200;
@@ -34,4 +34,9 @@ interface HttpResponse extends Snippet
      * @return void
      */
     public function send();
+
+    /**
+     * @return App
+     */
+    function app();
 }
