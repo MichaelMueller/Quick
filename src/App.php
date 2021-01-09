@@ -14,6 +14,9 @@ class App implements Interfaces\App
 
     static function createConfig( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
+        error_reporting( E_ALL );
+        ini_set( 'log_errors', intval( 0 ) );
+        ini_set( 'display_errors', intval( 1 ) );
         return new \App\Config( $name, $defaultAppFunctionFqcn, $defaultRouteName );
     }
 
@@ -276,6 +279,10 @@ class Config implements \Qck\Interfaces\AppConfig
     public function setShowErrors( $showErrors = false )
     {
         $this->showErrors = $showErrors;
+
+        ini_set( 'log_errors', intval( $showErrors ) );
+        ini_set( 'display_errors', intval( $showErrors ) );
+
         return $this;
     }
 
