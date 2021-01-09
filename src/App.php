@@ -1,6 +1,7 @@
 <?php
 
 namespace Qck;
+
 /**
  * 
  * @author muellerm
@@ -35,6 +36,14 @@ class App implements Interfaces\App
         return $this->config->name();
     }
 
+    function cmd( ...$args )
+    {
+        $outputArray = [];
+        $returnCode  = -1;
+        exec( implode( " ", $args ), $outputArray, $returnCode );
+        return new \App\CmdOutput( implode( "\n", $outputArray ), $returnCode );
+    }
+
     public function args()
     {
         if ( is_null( $this->args ) )
@@ -44,7 +53,7 @@ class App implements Interfaces\App
                 $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->config->userArgs() );
             else
             {
-                $cmdArgs = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
+                $cmdArgs    = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
                 $this->args = array_merge( $cmdArgs, $this->config->userArgs() );
             }
         }
@@ -86,7 +95,7 @@ class App implements Interfaces\App
     protected function isHttpRequest()
     {
         if ( is_null( $this->isHttpRequest ) )
-            $this->isHttpRequest = ! isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
+            $this->isHttpRequest = !isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
 
         return $this->isHttpRequest;
     }
@@ -131,6 +140,44 @@ class App implements Interfaces\App
 
 namespace App;
 
+class CmdOutput implements \Qck\Interfaces\CmdOutput
+{
+
+    function __construct( string $output, int $returnCode )
+    {
+        $this->output     = $output;
+        $this->returnCode = $returnCode;
+    }
+
+    function output()
+    {
+        return $this->output;
+    }
+
+    function returnCode()
+    {
+        return $this->returnCode;
+    }
+
+    public function successful()
+    {
+        return $this->returnCode == 0;
+    }
+
+    /**
+     *
+     * @var string
+     */
+    protected $output;
+
+    /**
+     *
+     * @var int
+     */
+    protected $returnCode;
+
+}
+
 class Config implements \Qck\Interfaces\AppConfig
 {
 
@@ -158,8 +205,8 @@ class Config implements \Qck\Interfaces\AppConfig
 
     function addRoute( $fqcn, $routeName = null )
     {
-        $fqcnParts = explode( "\\", $fqcn );
-        $routeName = $routeName ? $routeName : array_pop( $fqcnParts );
+        $fqcnParts                  = explode( "\\", $fqcn );
+        $routeName                  = $routeName ? $routeName : array_pop( $fqcnParts );
         $this->routes[ $routeName ] = $fqcn;
         return $this;
     }
@@ -190,7 +237,7 @@ class Config implements \Qck\Interfaces\AppConfig
         return $this;
     }
 
-    public function setUserArgs( array $args = array() )
+    public function setUserArgs( array $args = array () )
     {
         $this->userArgs = $args;
         return $this;
@@ -284,19 +331,19 @@ class IpAddress implements \Qck\Interfaces\IpAddress
 
     public function value()
     {
-        if ( ! $this->ip )
+        if ( !$this->ip )
         {
-            if ( ! empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
+            if ( !empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
             {
                 //ip from share internet
                 $this->ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
             }
-            elseif ( ! empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
+            elseif ( !empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
             {
                 //ip pass from proxy
                 $this->ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
             }
-            elseif ( ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
+            elseif ( !empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
                 $this->ip = $_SERVER[ 'REMOTE_ADDR' ];
             else
             {
@@ -326,7 +373,7 @@ class IpAddress implements \Qck\Interfaces\IpAddress
     public function setValidationFlags( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
     {
         $this->validationFlags = $validationFlags;
-        $this->ip = null;
+        $this->ip              = null;
         return $this;
     }
 
@@ -360,17 +407,17 @@ class Router implements \Qck\Interfaces\Router
 
     function __construct( \Qck\Interfaces\App $app, array $routes, $appFunctionNamespace = null, $routeParamName = "q" )
     {
-        $this->app = $app;
-        $this->routes = $routes;
+        $this->app                  = $app;
+        $this->routes               = $routes;
         $this->appFunctionNamespace = $appFunctionNamespace;
-        $this->routeParamName = $routeParamName;
+        $this->routeParamName       = $routeParamName;
     }
 
     function currentRoute()
     {
         if ( is_null( $this->currentRoute ) )
         {
-            $args = $this->app->args();
+            $args               = $this->app->args();
             $this->currentRoute = $args[ $this->routeParamName ] ?? null;
         }
         return $this->currentRoute;
@@ -394,7 +441,7 @@ class Router implements \Qck\Interfaces\Router
             $route = array_keys( $this->routes )[ 0 ];
 
         $exception = $this->app->createException()->setHttpReturnCode( HttpResponse::EXIT_CODE_NOT_FOUND );
-        if ( ! preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
+        if ( !preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
             $exception->argError( "Invalid route '%s'", $this->routeParamName, $route )->throw();
 
         $fqcn = $this->routes[ $route ] ?? null;
@@ -402,11 +449,11 @@ class Router implements \Qck\Interfaces\Router
             $fqcn = $this->appFunctionNamespace . "\\" . $route;
 
         $appFunction = null;
-        if ( ! class_exists( $fqcn, true ) )
+        if ( !class_exists( $fqcn, true ) )
             $exception->argError( "Class '%s' does not exist", $this->routeParamName, $fqcn )->throw();
 
         $appFunction = new $fqcn();
-        if ( ! $appFunction instanceof \Qck\Interfaces\AppFunction )
+        if ( !$appFunction instanceof \Qck\Interfaces\AppFunction )
             $exception->argError( "Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\Interfaces\AppFunction::class )->throw();
         $appFunction->run( $this->app );
     }
@@ -461,7 +508,7 @@ class ErrorHandler
     function __construct( $isHttpRequest, $showErrors = false )
     {
         $this->isHttpRequest = $isHttpRequest;
-        $this->showErrors = $showErrors;
+        $this->showErrors    = $showErrors;
         $this->install();
     }
 
@@ -486,17 +533,17 @@ class ErrorHandler
     {
         if ( $this->errorHandler && $this->exceptionHandler )
             return;
-        $this->errorHandler = set_error_handler( array( $this, "errorHandler" ) );
-        $this->exceptionHandler = set_exception_handler( array( $this, "exceptionHandler" ) );
+        $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
+        $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
     }
 
     protected function uninstall()
     {
-        if ( ! $this->errorHandler || ! $this->exceptionHandler )
+        if ( !$this->errorHandler || !$this->exceptionHandler )
             return;
         set_error_handler( $this->errorHandler );
         set_exception_handler( $this->exceptionHandler );
-        $this->errorHandler = null;
+        $this->errorHandler     = null;
         $this->exceptionHandler = null;
     }
 
@@ -590,8 +637,17 @@ class Exception extends \Exception implements \Qck\Interfaces\Exception
     public function setReturnCode( $returnCode = -1 )
     {
         $this->returnCode = $returnCode;
-        $this->code = $this->returnCode;
+        $this->code       = $this->returnCode;
         return $this;
+    }
+
+    public function assert( $condition, $error )
+    {
+        if ( $condition == false )
+        {
+            $this->error( $error );
+            $this->throw();
+        }
     }
 
     /**
@@ -619,7 +675,7 @@ class Error implements \Qck\Interfaces\Error
 
     function __construct( string $text, string $relatedKey = null )
     {
-        $this->text = $text;
+        $this->text       = $text;
         $this->relatedKey = $relatedKey;
     }
 
@@ -711,7 +767,7 @@ class HttpContent implements \Qck\Interfaces\HttpContent
     function __construct( \Qck\Interfaces\HttpResponse $response, $text )
     {
         $this->response = $response;
-        $this->text = $text;
+        $this->text     = $text;
     }
 
     public function response()

@@ -10,6 +10,11 @@ interface Exception
 {
 
     /**
+     * assertion
+     */    
+    function assert($condition, $error);
+    
+    /**
      * @return Exception
      */
     function error($text, ...$args);

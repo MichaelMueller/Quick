@@ -19,7 +19,6 @@ interface App
      */
     function args();
 
-
     /**
      * @return HttpRequest|null or null if run from the command line
      */
@@ -39,4 +38,11 @@ interface App
      * @return Exception
      */
     function createException();
+    
+    /**
+     * runs a command 
+     * @param mixed $args
+     * @return CmdOutput
+     */
+    function cmd(...$args);
 }
