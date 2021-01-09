@@ -1,7 +1,7 @@
 <?php
 
-namespace Qck;
 
+namespace Qck;
 /**
  * 
  * @author muellerm
@@ -55,7 +55,7 @@ class App implements Interfaces\App
     public function httpRequest()
     {
         if ( $this->isHttpRequest() && is_null( $this->httpRequest ) )
-            $this->httpRequest = new \App\HttpResponse( $this );
+            $this->httpRequest = new \App\HttpRequest( $this );
         return $this->httpRequest;
     }
 
@@ -398,7 +398,7 @@ class Router implements \Qck\Interfaces\Router
         if ( ! preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
             $exception->argError( "Invalid route '%s'", $this->routeParamName, $route )->throw();
 
-        $fqcn = isset( $this->routes[ $route ] ) ?? null;
+        $fqcn = $this->routes[ $route ] ?? null;
         if ( is_null( $fqcn ) && $this->appFunctionNamespace !== null )
             $fqcn = $this->appFunctionNamespace . "\\" . $route;
 
