@@ -163,6 +163,7 @@ class Cmd implements \Qck\Interfaces\Cmd
         $args        = array_merge( $args, $this->args );
         $outputArray = [];
         $returnCode  = -1;
+        flush();
         exec( implode( " ", $args ), $outputArray, $returnCode );
         return new \App\CmdOutput( implode( "\n", $outputArray ), $returnCode );
     }
