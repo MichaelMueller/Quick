@@ -12,31 +12,45 @@ class App implements Interfaces\App
      * @return Interfaces\AppConfig
      */
 
-    static function createConfig( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
+    static function create( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
-        error_reporting( E_ALL );
-        ini_set( 'log_errors', intval( 0 ) );
-        ini_set( 'display_errors', intval( 1 ) );
-        return new App\Config( $name, $defaultAppFunctionFqcn, $defaultRouteName );
+        return new App( $name, $defaultAppFunctionFqcn, $defaultRouteName );
     }
 
-    function __construct( App\Config $config )
+    function __construct( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
-        $this->config = $config;
         // setup error handling
-        error_reporting( E_ALL );
-        ini_set( 'log_errors', intval( $config->showErrors() ) );
-        ini_set( 'display_errors', intval( $config->showErrors() ) );
-        ini_set( 'html_errors', intval( $this->isHttpRequest() ) );
-        new App\ErrorHandler( $this->isHttpRequest(), $this->config->showErrors() );
+        $this->errorHandler = new App\ErrorHandler( $this->isHttpRequest() );
 
-        // run the router
-        $this->router()->run();
+        // setup member
+        $this->name   = $name;
+        $this->router = new App\Router( $this, $defaultAppFunctionFqcn, $defaultRouteName );
+    }
+
+    function run()
+    {
+        $this->router->run();
+    }
+
+    /**
+     * @return AppConfig
+     */
+    function addRoute( $fqcn, $routeName = null )
+    {
+        $this->router->addRoute( $fqcn, $routeName );
+    }
+
+    /**
+     * @return AppConfig
+     */
+    function setAppFunctionNamespace( $appFunctionNamespace )
+    {
+        $this->router->setAppFunctionNamespace( $appFunctionNamespace );
     }
 
     public function name()
     {
-        return $this->config->name();
+        return $this->name;
     }
 
     function createCmd( $executable )
@@ -50,11 +64,11 @@ class App implements Interfaces\App
         {
             // create args
             if ( $this->httpRequest() )
-                $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->config->userArgs() );
+                $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->userArgs );
             else
             {
                 $cmdArgs    = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
-                $this->args = array_merge( $cmdArgs, $this->config->userArgs() );
+                $this->args = array_merge( $cmdArgs, $this->userArgs );
             }
         }
         return $this->args;
@@ -67,15 +81,29 @@ class App implements Interfaces\App
         return $this->httpRequest;
     }
 
+    function showErrors()
+    {
+        return $this->showErrors;
+    }
+
+    public function setShowErrors( $showErrors = false )
+    {
+        $this->errorHandler->setShowErrors( $showErrors );
+        return $this;
+    }
+
+    public function setUserArgs( array $args = array () )
+    {
+        $this->userArgs = $args;
+        return $this;
+    }
+
     /**
      * 
      * @return App\Router
      */
     public function router()
     {
-        if ( is_null( $this->router ) )
-            $this->router = new App\Router( $this, $this->config->routes(), $this->config->appFunctionNamespace() );
-
         return $this->router;
     }
 
@@ -102,9 +130,27 @@ class App implements Interfaces\App
 
     /**
      *
-     * @var App\Config
+     * @var string
      */
-    protected $config;
+    protected $name;
+
+    /**
+     *
+     * @var App\ErrorHandler
+     */
+    protected $errorHandler;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $showErrors = false;
+
+    /**
+     *
+     * @var array
+     */
+    protected $userArgs = [];
 
     /**
      *
@@ -220,113 +266,6 @@ class CmdOutput implements \Qck\Interfaces\CmdOutput
      * @var int
      */
     protected $returnCode;
-
-}
-
-class Config implements \Qck\Interfaces\AppConfig
-{
-
-    function __construct( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
-    {
-        $this->name = $name;
-        $this->addRoute( $defaultAppFunctionFqcn, $defaultRouteName );
-    }
-
-    function name()
-    {
-        return $this->name;
-    }
-
-    function appFunctionNamespace()
-    {
-        return $this->appFunctionNamespace;
-    }
-
-    function setAppFunctionNamespace( $appFunctionNamespace )
-    {
-        $this->appFunctionNamespace = $appFunctionNamespace;
-        return $this;
-    }
-
-    function addRoute( $fqcn, $routeName = null )
-    {
-        $fqcnParts                  = explode( "\\", $fqcn );
-        $routeName                  = $routeName ? $routeName : array_pop( $fqcnParts );
-        $this->routes[ $routeName ] = $fqcn;
-        return $this;
-    }
-
-    function routes()
-    {
-        return $this->routes;
-    }
-
-    function showErrors()
-    {
-        return $this->showErrors;
-    }
-
-    function userArgs()
-    {
-        return $this->userArgs;
-    }
-
-    public function runApp()
-    {
-        new \Qck\App( $this );
-    }
-
-    public function setShowErrors( $showErrors = false )
-    {
-        $this->showErrors = $showErrors;
-
-        ini_set( 'log_errors', intval( $showErrors ) );
-        ini_set( 'display_errors', intval( $showErrors ) );
-
-        return $this;
-    }
-
-    public function setUserArgs( array $args = array () )
-    {
-        $this->userArgs = $args;
-        return $this;
-    }
-
-    /**
-     *
-     * @var string
-     */
-    protected $name;
-
-    /**
-     *
-     * @var string
-     */
-    protected $appFunctionNamespace;
-
-    /**
-     *
-     * @var string[]
-     */
-    protected $routes = [];
-
-    /**
-     *
-     * @var bool
-     */
-    protected $showErrors = false;
-
-    /**
-     *
-     * @var array
-     */
-    protected $userArgs = [];
-
-    /**
-     *
-     * @var \Qck\Interfaces\App
-     */
-    protected $app;
 
 }
 
@@ -454,12 +393,34 @@ class IpAddress implements \Qck\Interfaces\IpAddress
 class Router implements \Qck\Interfaces\Router
 {
 
-    function __construct( \Qck\Interfaces\App $app, array $routes, $appFunctionNamespace = null, $routeParamName = "q" )
+    function __construct( \Qck\Interfaces\App $app, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
-        $this->app                  = $app;
-        $this->routes               = $routes;
+        $this->app = $app;
+        $this->addRoute( $defaultAppFunctionFqcn, $defaultRouteName );
+    }
+
+    function appFunctionNamespace()
+    {
+        return $this->appFunctionNamespace;
+    }
+
+    function setAppFunctionNamespace( $appFunctionNamespace )
+    {
         $this->appFunctionNamespace = $appFunctionNamespace;
-        $this->routeParamName       = $routeParamName;
+        return $this;
+    }
+
+    function addRoute( $fqcn, $routeName = null )
+    {
+        $fqcnParts                  = explode( "\\", $fqcn );
+        $routeName                  = $routeName ? $routeName : array_pop( $fqcnParts );
+        $this->routes[ $routeName ] = $fqcn;
+        return $this;
+    }
+
+    function routes()
+    {
+        return $this->routes;
     }
 
     function currentRoute()
@@ -554,8 +515,12 @@ class Router implements \Qck\Interfaces\Router
 class ErrorHandler
 {
 
-    function __construct( $isHttpRequest, $showErrors = false )
+    function __construct( $isHttpRequest, $showErrors = true )
     {
+        error_reporting( E_ALL );
+        ini_set( 'log_errors', intval( $showErrors ) );
+        ini_set( 'display_errors', intval( $showErrors ) );
+        ini_set( 'html_errors', intval( $isHttpRequest ) );
         $this->isHttpRequest = $isHttpRequest;
         $this->showErrors    = $showErrors;
         $this->install();
@@ -576,6 +541,15 @@ class ErrorHandler
         }
 
         throw $exception;
+    }
+
+    function setShowErrors( bool $showErrors )
+    {
+        $this->showErrors = $showErrors;
+
+        ini_set( 'log_errors', intval( $showErrors ) );
+        ini_set( 'display_errors', intval( $showErrors ) );
+        return $this;
     }
 
     function install()

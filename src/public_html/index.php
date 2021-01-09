@@ -11,10 +11,11 @@ class HelloWorld implements \Qck\Interfaces\AppFunction
 
     public function run( \Qck\Interfaces\App $app )
     {
-        $app->httpResponse()->createContent( "Hello World. Your IP: " . $app->httpRequest()->ipAddress()->value() )->response()->send();
+        $content = sprintf( "Hello World. My name is %s. Your IP: %s", $app->name(), $app->httpRequest()->ipAddress()->value() );
+        $app->httpResponse()->createContent( $content )->response()->send();
     }
 
 }
 
-Qck\App::createConfig( "Demo App", HelloWorld::class )->setShowErrors( true )->runApp();
+(new \Qck\App( "Demo App", HelloWorld::class ) )->setShowErrors( true )->run();
 

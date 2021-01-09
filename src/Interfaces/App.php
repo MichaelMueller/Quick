@@ -18,7 +18,7 @@ interface App
      * @return array
      */
     function args();
-
+    
     /**
      * @return HttpRequest|null or null if run from the command line
      */
