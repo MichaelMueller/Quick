@@ -12,20 +12,20 @@ class App implements Interfaces\App
      * @return Interfaces\AppConfig
      */
 
-    static function createConfig($name, $appFunctionNamespace)
+    static function createConfig( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
-        return new \App\Config($name, $appFunctionNamespace);
+        return new \App\Config( $name, $defaultAppFunctionFqcn, $defaultRouteName );
     }
 
-    function __construct(\App\Config $config)
+    function __construct( \App\Config $config )
     {
         $this->config = $config;
         // setup error handling
-        error_reporting(E_ALL);
-        ini_set('log_errors', intval($config->showErrors()));
-        ini_set('display_errors', intval($config->showErrors()));
-        ini_set('html_errors', intval($this->isHttpRequest()));
-        new \App\ErrorHandler($this->isHttpRequest(), $this->config->showErrors());
+        error_reporting( E_ALL );
+        ini_set( 'log_errors', intval( $config->showErrors() ) );
+        ini_set( 'display_errors', intval( $config->showErrors() ) );
+        ini_set( 'html_errors', intval( $this->isHttpRequest() ) );
+        new \App\ErrorHandler( $this->isHttpRequest(), $this->config->showErrors() );
 
         // run the router
         $this->router()->run();
@@ -38,15 +38,15 @@ class App implements Interfaces\App
 
     public function args()
     {
-        if (is_null($this->args))
+        if ( is_null( $this->args ) )
         {
             // create args
-            if ($this->httpRequest())
-                $this->args = array_merge($_COOKIE, $_GET, $_POST, $this->config->userArgs());
+            if ( $this->httpRequest() )
+                $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->config->userArgs() );
             else
             {
-                $cmdArgs = count($_SERVER["argv"]) > 1 ? parse_str($_SERVER["argv"][1]) : [];
-                $this->args = array_merge($cmdArgs, $this->config->userArgs());
+                $cmdArgs = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
+                $this->args = array_merge( $cmdArgs, $this->config->userArgs() );
             }
         }
         return $this->args;
@@ -54,8 +54,8 @@ class App implements Interfaces\App
 
     public function httpRequest()
     {
-        if ($this->isHttpRequest() && is_null($this->httpRequest))
-            $this->httpRequest = new \App\HttpResponse($this);
+        if ( $this->isHttpRequest() && is_null( $this->httpRequest ) )
+            $this->httpRequest = new \App\HttpResponse( $this );
         return $this->httpRequest;
     }
 
@@ -65,8 +65,8 @@ class App implements Interfaces\App
      */
     public function router()
     {
-        if (is_null($this->router))
-            $this->router = new \App\Router($this, $this->config->appFunctionNamespace(), $this->config->defaultRoute());
+        if ( is_null( $this->router ) )
+            $this->router = new \App\Router( $this, $this->config->routes(), $this->config->appFunctionNamespace() );
 
         return $this->router;
     }
@@ -74,8 +74,8 @@ class App implements Interfaces\App
     public function httpResponse()
     {
 
-        if (is_null($this->httpResponse))
-            $this->httpResponse = new \App\HttpResponse($this);
+        if ( is_null( $this->httpResponse ) )
+            $this->httpResponse = new \App\HttpResponse( $this );
         return $this->httpResponse;
     }
 
@@ -86,8 +86,8 @@ class App implements Interfaces\App
 
     protected function isHttpRequest()
     {
-        if (is_null($this->isHttpRequest))
-            $this->isHttpRequest = !isset($_SERVER["argv"]) || is_null($_SERVER["argv"]) || is_string($_SERVER["argv"]);
+        if ( is_null( $this->isHttpRequest ) )
+            $this->isHttpRequest = ! isset( $_SERVER[ "argv" ] ) || is_null( $_SERVER[ "argv" ] ) || is_string( $_SERVER[ "argv" ] );
 
         return $this->isHttpRequest;
     }
@@ -135,10 +135,10 @@ namespace App;
 class Config implements \Qck\Interfaces\AppConfig
 {
 
-    function __construct($name, $appFunctionNamespace)
+    function __construct( $name, $defaultAppFunctionFqcn, $defaultRouteName = null )
     {
         $this->name = $name;
-        $this->appFunctionNamespace = $appFunctionNamespace;
+        $this->addRoute( $defaultAppFunctionFqcn, $defaultRouteName );
     }
 
     function name()
@@ -151,9 +151,23 @@ class Config implements \Qck\Interfaces\AppConfig
         return $this->appFunctionNamespace;
     }
 
-    function defaultRoute()
+    function setAppFunctionNamespace( $appFunctionNamespace )
     {
-        return $this->defaultRoute;
+        $this->appFunctionNamespace = $appFunctionNamespace;
+        return $this;
+    }
+
+    function addRoute( $fqcn, $routeName = null )
+    {
+        $fqcnParts = explode( "\\", $fqcn );
+        $routeName = $routeName ? $routeName : array_pop( $fqcnParts );
+        $this->routes[ $routeName ] = $fqcn;
+        return $this;
+    }
+
+    function routes()
+    {
+        return $this->routes;
     }
 
     function showErrors()
@@ -168,22 +182,16 @@ class Config implements \Qck\Interfaces\AppConfig
 
     public function runApp()
     {
-        new \Qck\App($this);
+        new \Qck\App( $this );
     }
 
-    public function setDefaultRoute($defaultRoute = "Start")
-    {
-        $this->defaultRoute = $defaultRoute;
-        return $this;
-    }
-
-    public function setShowErrors($showErrors = false)
+    public function setShowErrors( $showErrors = false )
     {
         $this->showErrors = $showErrors;
         return $this;
     }
 
-    public function setUserArgs(array $args = array())
+    public function setUserArgs( array $args = array() )
     {
         $this->userArgs = $args;
         return $this;
@@ -203,21 +211,21 @@ class Config implements \Qck\Interfaces\AppConfig
 
     /**
      *
-     * @var string
+     * @var string[]
      */
-    protected $defaultRoute = "Start";
+    protected $routes = [];
 
     /**
      *
      * @var bool
      */
-    protected $showErrors=false;
+    protected $showErrors = false;
 
     /**
      *
      * @var array
      */
-    protected $userArgs=[];
+    protected $userArgs = [];
 
     /**
      *
@@ -233,7 +241,7 @@ class Config implements \Qck\Interfaces\AppConfig
 class HttpRequest implements \Qck\Interfaces\HttpRequest
 {
 
-    function __construct(\Qck\Interfaces\App $app)
+    function __construct( \Qck\Interfaces\App $app )
     {
         $this->app = $app;
     }
@@ -245,8 +253,8 @@ class HttpRequest implements \Qck\Interfaces\HttpRequest
 
     public function ipAddress()
     {
-        if (is_null($this->ipAddress))
-            $this->ipAddress = new IpAddress($this);
+        if ( is_null( $this->ipAddress ) )
+            $this->ipAddress = new IpAddress( $this );
         return $this->ipAddress;
     }
 
@@ -270,35 +278,37 @@ class HttpRequest implements \Qck\Interfaces\HttpRequest
 class IpAddress implements \Qck\Interfaces\IpAddress
 {
 
-    function __construct(\Qck\Interfaces\HttpRequest $httpRequest)
+    function __construct( \Qck\Interfaces\HttpRequest $httpRequest )
     {
         $this->httpRequest = $httpRequest;
     }
 
     public function value()
     {
-        if (!$this->ip)
+        if ( ! $this->ip )
         {
-            if (!empty($_SERVER['HTTP_CLIENT_IP']))
+            if ( ! empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
             {
                 //ip from share internet
-                $this->ip = $_SERVER['HTTP_CLIENT_IP'];
-            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+                $this->ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
+            }
+            elseif ( ! empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
             {
                 //ip pass from proxy
-                $this->ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            } elseif (!empty($_SERVER['REMOTE_ADDR']))
-                $this->ip = $_SERVER['REMOTE_ADDR'];
+                $this->ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
+            }
+            elseif ( ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
+                $this->ip = $_SERVER[ 'REMOTE_ADDR' ];
             else
             {
                 $this->ip = null;
             }
         }
-        if ($this->validationFlags)
+        if ( $this->validationFlags )
         {
-            $this->ip = filter_var($this->ip, FILTER_VALIDATE_IP, $this->validationFlags);
-            if ($this->ip === false)
-                $this->httpRequest->app()->createException()->error("Invalid ip %s", $this->ip)->exception()->throw();
+            $this->ip = filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
+            if ( $this->ip === false )
+                $this->httpRequest->app()->createException()->error( "Invalid ip %s", $this->ip )->exception()->throw();
         }
 
         return $this->ip;
@@ -314,7 +324,7 @@ class IpAddress implements \Qck\Interfaces\IpAddress
         return $this->httpRequest;
     }
 
-    public function setValidationFlags($validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
+    public function setValidationFlags( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
     {
         $this->validationFlags = $validationFlags;
         $this->ip = null;
@@ -349,20 +359,20 @@ class IpAddress implements \Qck\Interfaces\IpAddress
 class Router implements \Qck\Interfaces\Router
 {
 
-    function __construct(\Qck\Interfaces\App $app, $appFunctionNamespace, $defaultRoute = "Start", $routeParamName = "q")
+    function __construct( \Qck\Interfaces\App $app, array $routes, $appFunctionNamespace = null, $routeParamName = "q" )
     {
         $this->app = $app;
+        $this->routes = $routes;
         $this->appFunctionNamespace = $appFunctionNamespace;
-        $this->defaultRoute = $defaultRoute;
         $this->routeParamName = $routeParamName;
     }
 
     function currentRoute()
     {
-        if (is_null($this->currentRoute))
+        if ( is_null( $this->currentRoute ) )
         {
             $args = $this->app->args();
-            $this->currentRoute = $args[$this->routeParamName] ?? null;
+            $this->currentRoute = $args[ $this->routeParamName ] ?? null;
         }
         return $this->currentRoute;
     }
@@ -372,31 +382,34 @@ class Router implements \Qck\Interfaces\Router
         return $this->routeParamName;
     }
 
-    function buildUrl($routeName, array $queryData = [])
+    function buildUrl( $routeName, array $queryData = [] )
     {
-        $completeQueryData = array_merge($queryData, [$this->routeParamName => $routeName]);
-        return "?" . http_build_query($completeQueryData);
+        $completeQueryData = array_merge( $queryData, [ $this->routeParamName => $routeName ] );
+        return "?" . http_build_query( $completeQueryData );
     }
 
     function run()
     {
         $route = $this->currentRoute();
-        if (is_null($route))
-            $route = $this->defaultRoute;
+        if ( is_null( $route ) )
+            $route = array_keys( $this->routes )[ 0 ];
 
-        $exception = $this->app->createException();
-        if (!preg_match("/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route))
-            $exception->argError("Invalid route '%s'", $this->routeParamName, $route)->throw();
+        $exception = $this->app->createException()->setHttpReturnCode( HttpResponse::EXIT_CODE_NOT_FOUND );
+        if ( ! preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
+            $exception->argError( "Invalid route '%s'", $this->routeParamName, $route )->throw();
 
-        $fqcn = $this->appFunctionNamespace . "\\" . $route;
+        $fqcn = isset( $this->routes[ $route ] ) ?? null;
+        if ( is_null( $fqcn ) && $this->appFunctionNamespace !== null )
+            $fqcn = $this->appFunctionNamespace . "\\" . $route;
+
         $appFunction = null;
-        if (!class_exists($fqcn, true))
-            $exception->argError("Class '%s' does not exist", $this->routeParamName, $fqcn)->throw();
+        if ( ! class_exists( $fqcn, true ) )
+            $exception->argError( "Class '%s' does not exist", $this->routeParamName, $fqcn )->throw();
 
         $appFunction = new $fqcn();
-        if (!$appFunction instanceof \Qck\Interfaces\AppFunction)
-            $exception->argError("Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\Interfaces\AppFunction::class)->throw();
-        $appFunction->run($this->app);
+        if ( ! $appFunction instanceof \Qck\Interfaces\AppFunction )
+            $exception->argError( "Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\Interfaces\AppFunction::class )->throw();
+        $appFunction->run( $this->app );
     }
 
     public function app()
@@ -420,7 +433,7 @@ class Router implements \Qck\Interfaces\Router
      *
      * @var string 
      */
-    protected $defaultRoute;
+    protected $routes;
 
     /**
      *
@@ -446,25 +459,25 @@ class Router implements \Qck\Interfaces\Router
 class ErrorHandler
 {
 
-    function __construct($isHttpRequest, $showErrors = false)
+    function __construct( $isHttpRequest, $showErrors = false )
     {
         $this->isHttpRequest = $isHttpRequest;
         $this->showErrors = $showErrors;
         $this->install();
     }
 
-    function errorHandler($errno, $errstr, $errfile, $errline)
+    function errorHandler( $errno, $errstr, $errfile, $errline )
     {
-        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
     }
 
-    function exceptionHandler(\Throwable $exception)
+    function exceptionHandler( \Throwable $exception )
     {
         /* @var $exception \Exception */
-        if ($this->isHttpRequest)
+        if ( $this->isHttpRequest )
         {
             $code = $exception instanceof Exception ? $exception->httpReturnCode() : \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
-            http_response_code($code);
+            http_response_code( $code );
         }
 
         throw $exception;
@@ -472,18 +485,18 @@ class ErrorHandler
 
     function install()
     {
-        if ($this->errorHandler && $this->exceptionHandler)
+        if ( $this->errorHandler && $this->exceptionHandler )
             return;
-        $this->errorHandler = set_error_handler(array($this, "errorHandler"));
-        $this->exceptionHandler = set_exception_handler(array($this, "exceptionHandler"));
+        $this->errorHandler = set_error_handler( array( $this, "errorHandler" ) );
+        $this->exceptionHandler = set_exception_handler( array( $this, "exceptionHandler" ) );
     }
 
     protected function uninstall()
     {
-        if (!$this->errorHandler || !$this->exceptionHandler)
+        if ( ! $this->errorHandler || ! $this->exceptionHandler )
             return;
-        set_error_handler($this->errorHandler);
-        set_exception_handler($this->exceptionHandler);
+        set_error_handler( $this->errorHandler );
+        set_exception_handler( $this->exceptionHandler );
         $this->errorHandler = null;
         $this->exceptionHandler = null;
     }
@@ -524,9 +537,9 @@ class ErrorHandler
 class Exception extends \Exception implements \Qck\Interfaces\Exception
 {
 
-    public function __construct(string $message = "", int $code = 0, \Throwable $previous = NULL)
+    public function __construct( string $message = "", int $code = 0, \Throwable $previous = NULL )
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct( $message, $code, $previous );
         $this->code = $this->returnCode;
     }
 
@@ -542,19 +555,19 @@ class Exception extends \Exception implements \Qck\Interfaces\Exception
 
     protected function generateMessage()
     {
-        $this->message = implode(", ", array_map('strval', $this->errors));
+        $this->message = implode( ", ", array_map( 'strval', $this->errors ) );
     }
 
-    public function argError($text, $relatedKey, ...$args)
+    public function argError( $text, $relatedKey, ...$args )
     {
-        $this->errors[] = new Error(vsprintf($text, $args), $relatedKey);
+        $this->errors[] = new Error( vsprintf( $text, $args ), $relatedKey );
         $this->generateMessage();
         return $this;
     }
 
-    public function error($text, ...$args)
+    public function error( $text, ...$args )
     {
-        $this->errors[] = new Error(vsprintf($text, $args));
+        $this->errors[] = new Error( vsprintf( $text, $args ) );
         $this->generateMessage();
         return $this;
     }
@@ -564,7 +577,7 @@ class Exception extends \Exception implements \Qck\Interfaces\Exception
         return $this->errors;
     }
 
-    public function setHttpReturnCode($returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR)
+    public function setHttpReturnCode( $returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR )
     {
         $this->httpReturnCode = $returnCode;
         return $this;
@@ -575,7 +588,7 @@ class Exception extends \Exception implements \Qck\Interfaces\Exception
         throw $this;
     }
 
-    public function setReturnCode($returnCode = -1)
+    public function setReturnCode( $returnCode = -1 )
     {
         $this->returnCode = $returnCode;
         $this->code = $this->returnCode;
@@ -605,7 +618,7 @@ class Exception extends \Exception implements \Qck\Interfaces\Exception
 class Error implements \Qck\Interfaces\Error
 {
 
-    function __construct(string $text, string $relatedKey = null)
+    function __construct( string $text, string $relatedKey = null )
     {
         $this->text = $text;
         $this->relatedKey = $relatedKey;
@@ -643,26 +656,26 @@ class Error implements \Qck\Interfaces\Error
 class HttpResponse implements \Qck\Interfaces\HttpResponse
 {
 
-    function __construct(\Qck\Interfaces\App $app)
+    function __construct( \Qck\Interfaces\App $app )
     {
         $this->app = $app;
     }
 
-    public function createContent($text)
+    public function createContent( $text )
     {
-        $this->content = new HttpContent($this, $text);
+        $this->content = new HttpContent( $this, $text );
         return $this->content;
     }
 
     public function send()
     {
-        http_response_code($this->returnCode);
+        http_response_code( $this->returnCode );
 
-        header(sprintf("Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet()));
+        header( sprintf( "Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet() ) );
         echo $this->content->text();
     }
 
-    public function setReturnCode($returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_OK)
+    public function setReturnCode( $returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_OK )
     {
         $this->returnCode = $returnCode;
         return $this;
@@ -696,7 +709,7 @@ class HttpResponse implements \Qck\Interfaces\HttpResponse
 class HttpContent implements \Qck\Interfaces\HttpContent
 {
 
-    function __construct(\Qck\Interfaces\HttpResponse $response, $text)
+    function __construct( \Qck\Interfaces\HttpResponse $response, $text )
     {
         $this->response = $response;
         $this->text = $text;
@@ -707,13 +720,13 @@ class HttpContent implements \Qck\Interfaces\HttpContent
         return $this->response;
     }
 
-    public function setCharset($charSet = \Qck\Interfaces\HttpContent::CHARSET_UTF_8)
+    public function setCharset( $charSet = \Qck\Interfaces\HttpContent::CHARSET_UTF_8 )
     {
         $this->charSet = $charSet;
         return $this;
     }
 
-    public function setContentType($contentType = \Qck\Interfaces\HttpContent::CONTENT_TYPE_TEXT_HTML)
+    public function setContentType( $contentType = \Qck\Interfaces\HttpContent::CONTENT_TYPE_TEXT_HTML )
     {
         $this->contentType = $contentType;
         return $this;
@@ -721,7 +734,7 @@ class HttpContent implements \Qck\Interfaces\HttpContent
 
     function text()
     {
-        return strval($this->text);
+        return strval( $this->text );
     }
 
     function contentType()

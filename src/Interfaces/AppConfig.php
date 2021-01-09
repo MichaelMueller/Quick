@@ -22,7 +22,12 @@ interface AppConfig
     /**
      * @return AppConfig
      */
-    function setDefaultRoute($defaultRoute = "Start");
+    function addRoute($fqcn, $routeName=null);
+    
+    /**
+     * @return AppConfig
+     */
+    function setAppFunctionNamespace($appFunctionNamespace);
 
     /**
      * void
