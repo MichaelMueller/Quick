@@ -799,7 +799,7 @@ class HttpResponse implements \Qck\Interfaces\HttpResponse
      *
      * @var string
      */
-    protected $returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
+    protected $returnCode = \Qck\Interfaces\HttpResponse::EXIT_CODE_OK;
 
 }
 
