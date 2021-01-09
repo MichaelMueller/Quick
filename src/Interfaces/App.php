@@ -41,7 +41,7 @@ interface App
 
     /**
      * runs a command 
-     * @param string $command the actual executable
+     * @param string $executable the actual executable
      * @return Cmd
      */
     function createCmd( $executable );
