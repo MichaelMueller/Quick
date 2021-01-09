@@ -26,6 +26,7 @@ class Deploy implements Qck\Interfaces\AppFunction
             $fileContents = file_get_contents($interfaceFile);
             $fileContents = str_replace("<?php", "", $fileContents);
             $fileContents = str_replace($namespaceDeclaration, "", $fileContents);
+            $fileContents = trim($fileContents);
             $newContents .= $fileContents.PHP_EOL;
         }
         $newContents .= "}".PHP_EOL;
