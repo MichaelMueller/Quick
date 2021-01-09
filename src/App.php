@@ -17,10 +17,10 @@ class App implements Interfaces\App
         error_reporting( E_ALL );
         ini_set( 'log_errors', intval( 0 ) );
         ini_set( 'display_errors', intval( 1 ) );
-        return new \App\Config( $name, $defaultAppFunctionFqcn, $defaultRouteName );
+        return new App\Config( $name, $defaultAppFunctionFqcn, $defaultRouteName );
     }
 
-    function __construct( \App\Config $config )
+    function __construct( App\Config $config )
     {
         $this->config = $config;
         // setup error handling
@@ -28,7 +28,7 @@ class App implements Interfaces\App
         ini_set( 'log_errors', intval( $config->showErrors() ) );
         ini_set( 'display_errors', intval( $config->showErrors() ) );
         ini_set( 'html_errors', intval( $this->isHttpRequest() ) );
-        new \App\ErrorHandler( $this->isHttpRequest(), $this->config->showErrors() );
+        new App\ErrorHandler( $this->isHttpRequest(), $this->config->showErrors() );
 
         // run the router
         $this->router()->run();
@@ -41,7 +41,7 @@ class App implements Interfaces\App
 
     function createCmd( $executable )
     {
-        return new \App\Cmd( $executable );
+        return new App\Cmd( $executable );
     }
 
     public function args()
@@ -63,18 +63,18 @@ class App implements Interfaces\App
     public function httpRequest()
     {
         if ( $this->isHttpRequest() && is_null( $this->httpRequest ) )
-            $this->httpRequest = new \App\HttpRequest( $this );
+            $this->httpRequest = new App\HttpRequest( $this );
         return $this->httpRequest;
     }
 
     /**
      * 
-     * @return \App\Router
+     * @return App\Router
      */
     public function router()
     {
         if ( is_null( $this->router ) )
-            $this->router = new \App\Router( $this, $this->config->routes(), $this->config->appFunctionNamespace() );
+            $this->router = new App\Router( $this, $this->config->routes(), $this->config->appFunctionNamespace() );
 
         return $this->router;
     }
@@ -83,13 +83,13 @@ class App implements Interfaces\App
     {
 
         if ( is_null( $this->httpResponse ) )
-            $this->httpResponse = new \App\HttpResponse( $this );
+            $this->httpResponse = new App\HttpResponse( $this );
         return $this->httpResponse;
     }
 
     public function createException()
     {
-        return new \App\Exception();
+        return new App\Exception();
     }
 
     protected function isHttpRequest()
@@ -102,7 +102,7 @@ class App implements Interfaces\App
 
     /**
      *
-     * @var \App\Config
+     * @var App\Config
      */
     protected $config;
 
@@ -126,7 +126,7 @@ class App implements Interfaces\App
 
     /**
      *
-     * @var \App\Router
+     * @var App\Router
      */
     protected $router;
 
@@ -138,7 +138,7 @@ class App implements Interfaces\App
 
 }
 
-namespace App;
+namespace Qck\App;
 
 class Cmd implements \Qck\Interfaces\Cmd
 {
@@ -168,7 +168,7 @@ class Cmd implements \Qck\Interfaces\Cmd
         $returnCode  = -1;
         flush();
         exec( implode( " ", $args ), $outputArray, $returnCode );
-        return new \App\CmdOutput( implode( "\n", $outputArray ), $returnCode );
+        return new CmdOutput( implode( "\n", $outputArray ), $returnCode );
     }
 
     /**
