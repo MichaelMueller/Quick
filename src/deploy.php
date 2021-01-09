@@ -17,11 +17,24 @@ class Deploy implements Qck\Interfaces\AppFunction
         
         $interfaceFiles = glob( __DIR__ . "/Interfaces/*.php", GLOB_BRACE );
         print_r( "found the following interface files" . print_r( $interfaceFiles, true ) );
-        $newContents = PHP_EOL.PHP_EOL."namespace \Qck\Interfaces";
+        $namespaceDeclaration = "namespace \\Qck\\Interfaces";
+        $newContents = PHP_EOL."if(interface_exists()==false)".PHP_EOL;
+        $newContents .= "{".PHP_EOL;
+        $newContents .= $namespaceDeclaration.PHP_EOL;
         foreach ( $interfaceFiles as $interfaceFile )
-            $newContents .= PHP_EOL.file_get_contents($interfaceFile).PHP_EOL;
+        {
+            $fileContents = file_get_contents($interfaceFile);
+            $fileContents = str_replace("<?php", "", $fileContents);
+            $fileContents = str_replace($namespaceDeclaration, "", $fileContents);
+            $newContents .= $fileContents.PHP_EOL;
+        }
+        $newContents .= "}".PHP_EOL;
         
-        file_put_contents("App.php", $newContents, FILE_APPEND);
+        $appFile = __DIR__."/App.php";
+        $appFileContents = file_get_contents($appFile);
+        $find = strpos($appFileContents, $namespaceDeclaration);
+        $classesPart = substr($appFileContents, 0, $find);
+        file_put_contents($appFile, $classesPart.$newContents);
         
     }
 
