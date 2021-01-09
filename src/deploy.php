@@ -11,10 +11,12 @@ class Deploy implements Qck\Interfaces\AppFunction
         print_r( "found the following interface files" . print_r( $interfaceFiles, true ) );
         $exception      = $app->createException();
 
-        $exception->assert( $app->cmd( "git", "add", "-A" )->successful(), "failed to run git add" );
+        $cmd           = $app->createCmd( "git" )->arg( "add" )->arg( "-A" );
+        $exception->assert( $cmd->run()->successful(), "failed to run git add" );
         $dateTime      = (new DateTime() )->format( "Ymd_hhmmss" );
         $commitMessage = "Checkpoint commit " . $dateTime;
-        $exception->assert( $app->cmd( "git", "commit", " -m", escapeshellarg($commitMessage) )->successful(), "failed to run git commit" );
+        $cmd           = $app->createCmd( "git" )->arg( "commit" )->arg( "-m" )->escapeArg( $commitMessage );
+        $exception->assert( $cmd->run()->successful(), "failed to run git commit" );
     }
 
 }

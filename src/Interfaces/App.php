@@ -28,21 +28,21 @@ interface App
      * @return Router
      */
     function router();
-    
+
     /**
      * @return HttpResponse|null or null if run from the command line
      */
     function httpResponse();
-    
+
     /**
      * @return Exception
      */
     function createException();
-    
+
     /**
      * runs a command 
-     * @param mixed $args
-     * @return CmdOutput
+     * @param string $command the actual executable
+     * @return Cmd
      */
-    function cmd(...$args);
+    function createCmd( $executable );
 }
