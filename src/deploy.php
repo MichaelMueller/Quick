@@ -17,7 +17,7 @@ class Deploy implements Qck\Interfaces\AppFunction
         
         $interfaceFiles = glob( __DIR__ . "/Interfaces/*.php", GLOB_BRACE );
         print_r( "found the following interface files" . print_r( $interfaceFiles, true ) );
-        $namespaceDeclaration = "namespace \\Qck\\Interfaces";
+        $namespaceDeclaration = "namespace \\Qck\\Interfaces;";
         $newContents = PHP_EOL."if(interface_exists()==false)".PHP_EOL;
         $newContents .= "{".PHP_EOL;
         $newContents .= $namespaceDeclaration.PHP_EOL;
