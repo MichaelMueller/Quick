@@ -3,125 +3,120 @@
 namespace Qck;
 
 /**
+ * App class maps arguments to specific functions
  * 
  * @author muellerm
  */
 class App
 {
-    /*
-     * @return Interfaces\AppConfig
-     */
 
-    static function create($name, $defaultAppFunctionFqcn, $showErrors = false, $defaultRouteName = null)
+    static function new( $name, $defaultAppFunctionFqcn )
     {
-        return new App($name, $defaultAppFunctionFqcn, $showErrors, $defaultRouteName);
+        return new App( $name, $defaultAppFunctionFqcn );
     }
 
-    function __construct($name, $defaultAppFunctionFqcn, $showErrors = false, $defaultRouteName = null)
+    function __construct( $name, $defaultAppFunctionFqcn )
     {
-        // setup error handling
-        $this->errorHandler = new ErrorHandler($this, $showErrors);
-
-        // setup member
+        $this->installErrorHandler();
         $this->name = $name;
-        $this->router = new Router($this, $defaultAppFunctionFqcn, $defaultRouteName);
+        $this->addRoute( $defaultAppFunctionFqcn, null );
     }
 
-    function run()
+    function appFunctionNamespace(): string
     {
-        $this->router->run();
+        return $this->appFunctionNamespace;
     }
 
-    public function name()
+    function setUserArgs( array $userArgs ): App
     {
-        return $this->name;
-    }
-
-    function newCmd($executable)
-    {
-        return new Cmd($executable);
-    }
-
-    public function args()
-    {
-        if (is_null($this->args))
-        {
-            // create args
-            if ($this->httpRequest())
-                $this->args = array_merge($_COOKIE, $_GET, $_POST, $this->userArgs);
-            else
-            {
-                $cmdArgs = count($_SERVER["argv"]) > 1 ? parse_str($_SERVER["argv"][1]) : [];
-                $this->args = array_merge($cmdArgs, $this->userArgs);
-            }
-        }
-        return $this->args;
-    }
-
-    function hasHttpRequest()
-    {
-        return $this->httpRequest() != null;
-    }
-
-    public function httpRequest()
-    {
-        if ($this->isHttpRequest() && is_null($this->httpRequest))
-            $this->httpRequest = new HttpRequest($this);
-        return $this->httpRequest;
-    }
-
-    function showErrors()
-    {
-        return $this->showErrors;
-    }
-
-    public function setShowErrors($showErrors = false)
-    {
-        $this->errorHandler->setShowErrors($showErrors);
+        $this->userArgs = $userArgs;
         return $this;
     }
 
-    public function setUserArgs(array $args = array())
+    function setShowErrors( $showErrors ): App
     {
-        $this->userArgs = $args;
+        $this->errorHandler->setShowErrors( $showErrors );
         return $this;
     }
 
-    /**
-     * 
-     * @return Router
-     */
-    public function router()
+    function setAppFunctionNamespace( $appFunctionNamespace ): App
     {
-        return $this->router;
+        $this->appFunctionNamespace = $appFunctionNamespace;
+        return $this;
     }
 
-    public function httpResponse()
+    function addRoute( $fqcn, $routeName = null ): App
     {
-
-        if (is_null($this->httpResponse))
-            $this->httpResponse = new HttpResponse($this);
-        return $this->httpResponse;
+        $fqcnParts = explode( "\\", $fqcn );
+        $routeName = $routeName ? $routeName : array_pop( $fqcnParts );
+        $this->routes[ $routeName ] = $fqcn;
+        return $this;
     }
 
-    public function newException()
+    function request(): Request
     {
-        return new Exception();
+        if ( is_null( $this->requestFactory ) )
+            $this->requestFactory = new RequestFactory ( );
+        return $this->requestFactory->request();
     }
 
-    protected function isHttpRequest()
+    function routes(): array
     {
-        if (is_null($this->isHttpRequest))
-            $this->isHttpRequest = !isset($_SERVER["argv"]) || is_null($_SERVER["argv"]) || is_string($_SERVER["argv"]);
-
-        return $this->isHttpRequest;
+        return $this->routes;
     }
 
-    /**
-     *
-     * @var string
-     */
-    protected $name;
+    function currentRoute(): string
+    {
+        if ( is_null( $this->currentRoute ) )
+            $this->currentRoute = $this->request()->get( $this->routeParamName );
+        return $this->currentRoute;
+    }
+
+    function setRouteParamName( string $routeParamName ): App
+    {
+        $this->routeParamName = $routeParamName;
+        return $this;
+    }
+
+    function routeParamName(): string
+    {
+        return $this->routeParamName;
+    }
+
+    function buildUrl( $routeName, array $queryData = [] ): string
+    {
+        $completeQueryData = array_merge( $queryData, [ $this->routeParamName => $routeName ] );
+        return "?" . http_build_query( $completeQueryData );
+    }
+
+    function run(): void
+    {
+        $route = $this->currentRoute();
+        if ( is_null( $route ) )
+            $route = array_keys( $this->routes )[ 0 ];
+
+        $exception = $this->app->newException()->setHttpReturnCode( HttpResponse::EXIT_CODE_NOT_FOUND );
+        if ( ! preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
+            $exception->argError( "Invalid route '%s'", $this->routeParamName, $route )->throw();
+
+        $fqcn = $this->routes[ $route ] ?? null;
+        if ( is_null( $fqcn ) && $this->appFunctionNamespace !== null )
+            $fqcn = $this->appFunctionNamespace . "\\" . $route;
+
+        $appFunction = null;
+        if ( ! class_exists( $fqcn, true ) )
+            $exception->argError( "Class '%s' does not exist", $this->routeParamName, $fqcn )->throw();
+
+        $appFunction = new $fqcn();
+        if ( ! $appFunction instanceof \Qck\AppFunction )
+            $exception->argError( "Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\AppFunction::class )->throw();
+        $appFunction->run( $this->app );
+    }
+
+    protected function installErrorHandler(): void
+    {
+        $this->errorHandler = new ErrorHandler();
+    }
 
     /**
      *
@@ -131,9 +126,9 @@ class App
 
     /**
      *
-     * @var bool
+     * @var string
      */
-    protected $showErrors = false;
+    protected $name;
 
     /**
      *
@@ -143,32 +138,34 @@ class App
 
     /**
      *
-     * @var array
+     * @var string 
      */
-    protected $args;
+    protected $appFunctionNamespace;
 
     /**
      *
-     * @var bool
+     * @var string 
      */
-    protected $isHttpRequest;
+    protected $routes;
 
     /**
      *
-     * @var Interfaces\HttpRequest
+     * @var string 
      */
-    protected $httpRequest;
+    protected $routeParamName = "q";
+
+    // state
 
     /**
      *
-     * @var Router
+     * @var RequestFactory 
      */
-    protected $router;
+    private $requestFactory;
 
     /**
      *
-     * @var Interfaces\HttpResponse
+     * @var string 
      */
-    protected $httpResponse;
+    private $currentRoute;
 
 }

@@ -11,7 +11,7 @@ class BundleQuick implements \Qck\AppFunction
 
     public function run(\Qck\App $app)
     {
-        $codeBundler = new Qck\CodeBundler(__DIR__, __DIR__ . "/../Quick.php");
+        $codeBundler = new Qck\ComposerCodeBundler(__DIR__, __DIR__ . "/../Quick.php");
         $codeBundler->addExcludedFile(__FILE__, __DIR__ . "/public_html/index.php");
         $codeBundler();
         print "finished";

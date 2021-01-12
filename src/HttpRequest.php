@@ -5,31 +5,24 @@ namespace Qck;
 /**
  * 
  */
-class HttpRequest
+class HttpRequest extends Request
 {
 
-    function __construct(App $app)
+    public function __construct( array $userArgs=[] )
     {
-        $this->app = $app;
+        parent::__construct( $userArgs );
     }
-
-    public function app()
+    public function isHttpRequest()
     {
-        return $this->app;
+        return true;
     }
 
     public function ipAddress()
     {
         if (is_null($this->ipAddress))
-            $this->ipAddress = new IpAddress($this);
+            $this->ipAddress = new IpAddress();
         return $this->ipAddress;
     }
-
-    /**
-     *
-     * @var App
-     */
-    protected $app;
 
     /**
      *
