@@ -1,6 +1,6 @@
 <?php
 
-namespace Qck\Interfaces;
+namespace Qck;
 
 /**
  * 
@@ -10,7 +10,8 @@ interface AppFunction
 {
 
     /**
-     * @return void
+     * 
+     * @param App $app
      */
-    function run(App $app);
+    public function run(App $app);
 }
