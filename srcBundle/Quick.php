@@ -189,6 +189,124 @@ class App
 namespace Qck;
 
 /**
+ * 
+ * @author muellerm
+ */
+interface AppFunction
+{
+
+    /**
+     * 
+     * @param App $app
+     */
+    public function run(App $app);
+}
+
+namespace Qck;
+
+/**
+ * Class representing a system command
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
+class Cmd
+{
+
+    static function new( string $executable ): Cmd
+    {
+        return new Cmd( $executable );
+    }
+
+    function __construct( string $executable )
+    {
+        $this->executable = $executable;
+    }
+
+    public function arg( $arg ): Cmd
+    {
+        $this->args[] = $arg;
+        return $this;
+    }
+
+    public function escapeArg( $arg ): Cmd
+    {
+        $this->args[] = escapeshellarg( $arg );
+        return $this;
+    }
+
+    public function run(): CmdOutput
+    {
+        $args        = [ $this->executable ];
+        $args        = array_merge( $args, $this->args );
+        $outputArray = [];
+        $returnCode  = -1;
+        flush();
+        exec( implode( " ", $args ), $outputArray, $returnCode );
+        return new CmdOutput( implode( "\n", $outputArray ), $returnCode );
+    }
+
+    /**
+     *
+     * @var string
+     */
+    protected $executable;
+
+    /**
+     *
+     * @var string[]
+     */
+    protected $args = [];
+
+}
+
+namespace Qck;
+
+/**
+ * Class representing the output of a system command
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
+class CmdOutput
+{
+
+    function __construct( string $output, int $returnCode )
+    {
+        $this->output     = $output;
+        $this->returnCode = $returnCode;
+    }
+
+    function output(): string
+    {
+        return $this->output;
+    }
+
+    function returnCode(): int
+    {
+        return $this->returnCode;
+    }
+
+    public function successful(): bool
+    {
+        return $this->returnCode == 0;
+    }
+
+    /**
+     *
+     * @var string
+     */
+    protected $output;
+
+    /**
+     *
+     * @var int
+     */
+    protected $returnCode;
+
+}
+
+namespace Qck;
+
+/**
  * Class for collecting all Psr4 compatible classes and bundle it into one file.
  * 
  * @author Michael Mueller <michaelmuelleronline@gmx.de>
@@ -249,8 +367,8 @@ class ComposerCodeBundler
                         continue;
                     }
                     $className = pathinfo( $filename, PATHINFO_FILENAME );
-                    $fqcn     = $prefix . $className;
-                    if ( !in_array($fqcn, get_declared_classes()) || !class_exists( $fqcn, true ) )
+                    $fqcn      = "\\" . $prefix . $className;
+                    if ( !class_exists( $fqcn, true ) && !interface_exists( $fqcn, true ) )
                     {
                         $this->log->warn( "Skipping %s. A corresponding PSR-4 compliant class '%s' was not found." )
                                 ->addArg( $filename )->addArg( $fqcn )->send();
@@ -338,6 +456,51 @@ class ComposerCodeBundler
      * @var string[]
      */
     protected $excludedFiles = [];
+
+}
+
+namespace Qck;
+
+/**
+ * Class for representing an Error (possibly related to an Argument specified by relatedKey)
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
+class Error
+{
+
+    function __construct(string $text, string $relatedKey = null)
+    {
+        $this->text = $text;
+        $this->relatedKey = $relatedKey;
+    }
+
+    public function __toString()
+    {
+        return ($this->relatedKey ? $this->relatedKey . ": " : null) . $this->text;
+    }
+
+    public function relatedKey()
+    {
+        return $this->relatedKey;
+    }
+
+    public function text()
+    {
+        return $this->text;
+    }
+
+    /**
+     *
+     * @var string
+     */
+    protected $text;
+
+    /**
+     *
+     * @var string
+     */
+    protected $relatedKey;
 
 }
 
@@ -553,6 +716,138 @@ class Exception extends \Exception
 
 namespace Qck;
 
+/**
+ * Class representing HttpContent
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
+class HttpContent implements Snippet
+{
+
+    // CONSTANTS
+    const CONTENT_TYPE_TEXT_PLAIN               = "text/plain";
+    const CONTENT_TYPE_TEXT_HTML                = "text/html";
+    const CONTENT_TYPE_TEXT_CSS                 = "text/css";
+    const CONTENT_TYPE_TEXT_JAVASCRIPT          = "text/javascript";
+    const CONTENT_TYPE_TEXT_CSV                 = "text/csv";
+    const CONTENT_TYPE_APPLICATION_JSON         = "application/json";
+    const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    const CHARSET_ISO_8859_1                    = "ISO-8859-1";
+    const CHARSET_UTF_8                         = "utf-8";
+    const CHARSET_BINARY                        = "binary";
+
+    function __construct( HttpResponse $response, $body = null )
+    {
+        $this->response = $response;
+        $this->body     = $body;
+    }
+
+    function setBody( $body ): HttpContent
+    {
+        $this->body = $body;
+        return $this;
+    }
+
+    public function response()
+    {
+        return $this->response;
+    }
+
+    public function setCharset( $charSet = \Qck\HttpContent::CHARSET_UTF_8 )
+    {
+        $this->charSet = $charSet;
+        return $this;
+    }
+
+    public function setContentType( $contentType = \Qck\HttpContent::CONTENT_TYPE_TEXT_HTML )
+    {
+        $this->contentType = $contentType;
+        return $this;
+    }
+
+    function toString(): string
+    {
+        return $this->body instanceof Snippet ? $this->body->toString() : strval( $this->body );
+    }
+
+    function contentType()
+    {
+        return $this->contentType;
+    }
+
+    function charSet()
+    {
+        return $this->charSet;
+    }
+
+    /**
+     *
+     * @var HttpResponse
+     */
+    protected $response;
+
+    /**
+     *
+     * @var Snippet|string
+     */
+    protected $body;
+
+    /**
+     *
+     * @var string
+     */
+    protected $contentType = \Qck\HttpContent::CONTENT_TYPE_TEXT_HTML;
+
+    /**
+     *
+     * @var string
+     */
+    protected $charSet = \Qck\HttpContent::CHARSET_UTF_8;
+
+}
+
+namespace Qck;
+
+/**
+ * A basic representing a HttpRequest
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
+class HttpRequest extends Request
+{
+
+    public function __construct( array $userArgs = [] )
+    {
+        parent::__construct( $userArgs );
+    }
+
+    function httpRequest()
+    {
+        return $this;
+    }
+
+    public function isHttpRequest()
+    {
+        return true;
+    }
+
+    public function ipAddress()
+    {
+        if ( is_null( $this->ipAddress ) )
+            $this->ipAddress = new IpAddress();
+        return $this->ipAddress;
+    }
+
+    /**
+     *
+     * @var \Qck\IpAddress
+     */
+    protected $ipAddress;
+
+}
+
+namespace Qck;
+
 class HttpResponse
 {
 
@@ -567,14 +862,18 @@ class HttpResponse
     const EXIT_CODE_MOVED_PERMANENTLY    = 301;
     const EXIT_CODE_REDIRECT_FOUND       = 302;
 
-    static function new(): HttpResponse
+    /**
+     * 
+     * @return \Qck\HttpResponse
+     */
+    static function new()
     {
         return new HttpResponse();
     }
 
-    public function createContent( $text )
+    public function createContent( $body )
     {
-        $this->content = new HttpContent( $this, $text );
+        $this->content = new HttpContent( $this, $body );
         return $this->content;
     }
 
@@ -583,7 +882,7 @@ class HttpResponse
         http_response_code( $this->returnCode );
 
         header( sprintf( "Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet() ) );
-        echo $this->content->text();
+        echo $this->content->toString();
     }
 
     public function setReturnCode( $returnCode = \Qck\HttpResponse::EXIT_CODE_OK )
@@ -603,6 +902,71 @@ class HttpResponse
      * @var string
      */
     protected $returnCode = \Qck\HttpResponse::EXIT_CODE_OK;
+
+}
+
+namespace Qck;
+
+/**
+ * 
+ */
+class IpAddress
+{
+
+    public function value()
+    {
+        if ( ! $this->ip )
+        {
+            if ( ! empty( $_SERVER[ 'HTTP_CLIENT_IP' ] ) )
+            {
+                //ip from share internet
+                $this->ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
+            }
+            elseif ( ! empty( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ] ) )
+            {
+                //ip pass from proxy
+                $this->ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
+            }
+            elseif ( ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) )
+                $this->ip = $_SERVER[ 'REMOTE_ADDR' ];
+            else
+            {
+                $this->ip = null;
+            }
+        }
+        if ( $this->validationFlags )
+        {
+            $this->ip = filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
+            if ( $this->ip === false )
+                Exception::new()->error( "Invalid ip %s", $this->ip )->exception()->throw();
+        }
+
+        return $this->ip;
+    }
+
+    public function __toString()
+    {
+        return $this->value();
+    }
+
+    public function setValidationFlags( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+    {
+        $this->validationFlags = $validationFlags;
+        $this->ip = null;
+        return $this;
+    }
+
+    /**
+     *
+     * @var int
+     */
+    protected $validationFlags;
+
+    /**
+     *
+     * @var string
+     */
+    private $ip;
 
 }
 
@@ -989,4 +1353,20 @@ class RequestFactory
      */
     protected $request;
 
+}
+
+namespace Qck;
+
+/**
+ * 
+ * @author muellerm
+ */
+interface Snippet
+{
+
+    /**
+     * 
+     * @return string
+     */
+    public function toString(): string;
 }
