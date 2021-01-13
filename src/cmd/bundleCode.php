@@ -10,7 +10,7 @@ require_once $vendorDir . "/autoload.php";
  * 
  * @author muellerm
  */
-class BundleQuick implements \Qck\AppFunction
+class BundleCode implements \Qck\AppFunction
 {
 
     public function run( \Qck\App $app )
@@ -34,5 +34,5 @@ class BundleQuick implements \Qck\AppFunction
 
 }
 
-Qck\App::new( "Bundle Quick App", BundleQuick::class )->setShowErrors( true )->run();
+Qck\App::new( "Code Bundler App", BundleCode::class )->setShowErrors( true )->run();
 
