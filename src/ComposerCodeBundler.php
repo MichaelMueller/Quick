@@ -64,7 +64,7 @@ class ComposerCodeBundler
                     }
                     $className = pathinfo( $filename, PATHINFO_FILENAME );
                     $fqcn      = "\\" . $prefix . $className;
-                    if ( !in_array( $fqcn, get_declared_classes() ) || !class_exists( $fqcn, true ) )
+                    if ( !class_exists( $fqcn, true ) && !interface_exists( $fqcn, true ) )
                     {
                         $this->log->warn( "Skipping %s. A corresponding PSR-4 compliant class '%s' was not found." )
                                 ->addArg( $filename )->addArg( $fqcn )->send();
