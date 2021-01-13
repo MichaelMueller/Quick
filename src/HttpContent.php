@@ -2,25 +2,30 @@
 
 namespace Qck;
 
+/**
+ * Class representing HttpContent
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
 class HttpContent
 {
 
     // CONSTANTS
-    const CONTENT_TYPE_TEXT_PLAIN = "text/plain";
-    const CONTENT_TYPE_TEXT_HTML = "text/html";
-    const CONTENT_TYPE_TEXT_CSS = "text/css";
-    const CONTENT_TYPE_TEXT_JAVASCRIPT = "text/javascript";
-    const CONTENT_TYPE_TEXT_CSV = "text/csv";
-    const CONTENT_TYPE_APPLICATION_JSON = "application/json";
+    const CONTENT_TYPE_TEXT_PLAIN               = "text/plain";
+    const CONTENT_TYPE_TEXT_HTML                = "text/html";
+    const CONTENT_TYPE_TEXT_CSS                 = "text/css";
+    const CONTENT_TYPE_TEXT_JAVASCRIPT          = "text/javascript";
+    const CONTENT_TYPE_TEXT_CSV                 = "text/csv";
+    const CONTENT_TYPE_APPLICATION_JSON         = "application/json";
     const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    const CHARSET_ISO_8859_1 = "ISO-8859-1";
-    const CHARSET_UTF_8 = "utf-8";
-    const CHARSET_BINARY = "binary";
+    const CHARSET_ISO_8859_1                    = "ISO-8859-1";
+    const CHARSET_UTF_8                         = "utf-8";
+    const CHARSET_BINARY                        = "binary";
 
-    function __construct(\Qck\HttpResponse $response, $text)
+    function __construct( HttpResponse $response, $text )
     {
         $this->response = $response;
-        $this->text = $text;
+        $this->text     = $text;
     }
 
     public function response()
@@ -28,13 +33,13 @@ class HttpContent
         return $this->response;
     }
 
-    public function setCharset($charSet = \Qck\HttpContent::CHARSET_UTF_8)
+    public function setCharset( $charSet = \Qck\HttpContent::CHARSET_UTF_8 )
     {
         $this->charSet = $charSet;
         return $this;
     }
 
-    public function setContentType($contentType = \Qck\HttpContent::CONTENT_TYPE_TEXT_HTML)
+    public function setContentType( $contentType = \Qck\HttpContent::CONTENT_TYPE_TEXT_HTML )
     {
         $this->contentType = $contentType;
         return $this;
@@ -42,7 +47,7 @@ class HttpContent
 
     function text()
     {
-        return strval($this->text);
+        return $this->text instanceof Snippet ? $this->text->text() : strval( $this->text );
     }
 
     function contentType()
@@ -57,13 +62,13 @@ class HttpContent
 
     /**
      *
-     * @var \Qck\HttpResponse
+     * @var HttpResponse
      */
     protected $response;
 
     /**
      *
-     * @var object|string
+     * @var Snippet|string
      */
     protected $text;
 

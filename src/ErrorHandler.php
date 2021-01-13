@@ -3,65 +3,75 @@
 namespace Qck;
 
 /**
- * Default Error Handler
+ * A basic Error Handler
  * 
- * @author muellerm
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
  */
 class ErrorHandler
 {
 
-    function __construct(App $app, $showErrors = true)
+    static function new( ): ErrorHandler
     {
-        error_reporting(E_ALL);
-        ini_set('log_errors', intval($showErrors));
-        ini_set('display_errors', intval($showErrors));
-        ini_set('html_errors', intval($app->hasHttpRequest()));
-        $this->app = $app;
-        $this->showErrors = $showErrors;
+        return new ErrorHandler( );
+    }
+
+    function __construct()
+    {
+        error_reporting( E_ALL );
+        ini_set( 'log_errors', 1 );
+        ini_set( 'display_errors', 0 );
+        ini_set( 'html_errors', 0 );
         $this->install();
     }
 
-    function errorHandler($errno, $errstr, $errfile, $errline)
+    function errorHandler( $errno, $errstr, $errfile, $errline )
     {
-        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
     }
 
-    function exceptionHandler(\Throwable $exception)
+    function exceptionHandler( \Throwable $exception )
     {
         /* @var $exception \Exception */
-        if ($this->app->hasHttpRequest())
+        if ( $this->request !== null && $this->request->isHttpRequest() )
         {
             $code = $exception instanceof Exception ? $exception->httpReturnCode() : \Qck\HttpResponse::EXIT_CODE_INTERNAL_ERROR;
-            http_response_code($code);
+            http_response_code( $code );
         }
 
         throw $exception;
     }
 
-    function setShowErrors(bool $showErrors)
+    function setRequest( Request $request ): ErrorHandler
     {
-        $this->showErrors = $showErrors;
-
-        ini_set('log_errors', intval($showErrors));
-        ini_set('display_errors', intval($showErrors));
+        $this->request = $request;
+        ini_set( 'html_errors', intval( $request->isHttpRequest() ) );
         return $this;
     }
 
-    function install()
+    function setShowErrors( bool $showErrors ): ErrorHandler
     {
-        if ($this->errorHandler && $this->exceptionHandler)
-            return;
-        $this->errorHandler = set_error_handler(array($this, "errorHandler"));
-        $this->exceptionHandler = set_exception_handler(array($this, "exceptionHandler"));
+        $this->showErrors = $showErrors;
+
+        ini_set( 'log_errors', intval( $showErrors ) );
+        ini_set( 'display_errors', intval( $showErrors ) );
+        return $this;
     }
 
-    protected function uninstall()
+    function install(): void
     {
-        if (!$this->errorHandler || !$this->exceptionHandler)
+        if ( $this->errorHandler && $this->exceptionHandler )
             return;
-        set_error_handler($this->errorHandler);
-        set_exception_handler($this->exceptionHandler);
-        $this->errorHandler = null;
+        $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
+        $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
+    }
+
+    protected function uninstall(): void
+    {
+        if ( !$this->errorHandler || !$this->exceptionHandler )
+            return;
+        set_error_handler( $this->errorHandler );
+        set_exception_handler( $this->exceptionHandler );
+        $this->errorHandler     = null;
         $this->exceptionHandler = null;
     }
 
@@ -72,9 +82,9 @@ class ErrorHandler
 
     /**
      *
-     * @var App
+     * @var Request
      */
-    protected $app;
+    protected $request;
 
     /**
      *

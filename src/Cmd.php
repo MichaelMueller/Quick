@@ -2,35 +2,45 @@
 
 namespace Qck;
 
+/**
+ * Class representing a system command
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
 class Cmd
 {
 
-    function __construct(string $executable)
+    static function new( string $executable ): Cmd
+    {
+        return new Cmd( $executable );
+    }
+
+    function __construct( string $executable )
     {
         $this->executable = $executable;
     }
 
-    public function arg($arg)
+    public function arg( $arg ): Cmd
     {
         $this->args[] = $arg;
         return $this;
     }
 
-    public function escapeArg($arg)
+    public function escapeArg( $arg ): Cmd
     {
-        $this->args[] = escapeshellarg($arg);
+        $this->args[] = escapeshellarg( $arg );
         return $this;
     }
 
-    public function run()
+    public function run(): CmdOutput
     {
-        $args = [$this->executable];
-        $args = array_merge($args, $this->args);
+        $args        = [ $this->executable ];
+        $args        = array_merge( $args, $this->args );
         $outputArray = [];
-        $returnCode = -1;
+        $returnCode  = -1;
         flush();
-        exec(implode(" ", $args), $outputArray, $returnCode);
-        return new CmdOutput(implode("\n", $outputArray), $returnCode);
+        exec( implode( " ", $args ), $outputArray, $returnCode );
+        return new CmdOutput( implode( "\n", $outputArray ), $returnCode );
     }
 
     /**

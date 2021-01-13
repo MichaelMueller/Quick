@@ -2,12 +2,17 @@
 
 namespace Qck;
 
+/**
+ * An exception class carying more detailed information than the PHP Exception base class
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
 class Exception extends \Exception
 {
 
     static function new(): Exception
     {
-        return new Qck\Exception();
+        return new \Qck\Exception();
     }
 
     public function __construct( string $message = "", int $code = 0, \Throwable $previous = NULL )
@@ -64,7 +69,7 @@ class Exception extends \Exception
     public function setReturnCode( $returnCode = -1 )
     {
         $this->returnCode = $returnCode;
-        $this->code = $this->returnCode;
+        $this->code       = $this->returnCode;
         return $this;
     }
 

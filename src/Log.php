@@ -2,43 +2,117 @@
 
 namespace Qck;
 
+/**
+ * Basic logging class.
+ * 
+ * @todo Implement channels via request / file logging
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
 class Log
 {
 
-    function __construct( RequestFactory $httpRequestFactory )
+    static function new( Request $request ): Log
     {
-        $this->httpRequestFactory = $httpRequestFactory;
+        return new Log( $request );
     }
 
-    function print( $text, $isError = false )
+    function __construct( Request $request )
     {
-        $date = DateTime::createFromFormat( 'U.u', microtime( TRUE ) );
-        $text = sprintf( "%s: %s", $date->format( 'Y-m-d H:i:s.u' ), $text );
-        if ( $isError && $this->httpRequestFactory->hasHttpRequest() == false )
-            fwrite( STDERR, $text );
+        $this->request = $request;
+    }
+
+    function send( LogMessage $logMessage )
+    {
+        $matchingTopics = array_values( array_intersect( $this->acitveTopics, $logMessage->topics() ) );
+        if ( count( $matchingTopics ) == 0 )
+            return;
+        $text           = strval( $logMessage );
+        $this->handleMessage( $text, $matchingTopics );
+    }
+
+    protected function handleMessage( $text, $matchingTopics )
+    {
+        if ( in_array( LogMessage::ERROR, $matchingTopics ) && $this->request->isHttpRequest() == false )
+            fwrite( STDERR, $text . PHP_EOL );
         else
-            print($text );
+            print($text ) . PHP_EOL;
+        flush();
     }
 
-    function info( $text, ...$args )
+    function msg( $text, $topic ): LogMessage
     {
-        $this->print( vprintf( $text, $args ) );
+        $logMessage = LogMessage::new( $this, $text, $topic );
+        $logMessage->setShowDateTime( $this->showDateTime )->setShowFile( $this->showFile )->setShowTopics( $this->showTopics );
+        return $logMessage;
     }
 
-    function warn( $text, ...$args )
+    function addTopic( $activeTopic ): Log
     {
-        $this->print( vprintf( $text, $args ) );
+        $this->acitveTopics[] = $activeTopic;
+        return $this;
     }
 
-    function error( $text, ...$args )
+    function info( $text ): LogMessage
     {
-        $this->print( vprintf( $text, $args ), true );
+        return $this->msg( $text, LogMessage::INFO );
+    }
+
+    function warn( $text )
+    {
+        return $this->msg( $text, LogMessage::WARN );
+    }
+
+    function error( $text )
+    {
+        return $this->msg( $text, LogMessage::ERROR );
+    }
+
+    function setShowDateTime( bool $showDateTime ): Log
+    {
+        $this->showDateTime = $showDateTime;
+        return $this;
+    }
+
+    function setShowFile( string $showFile ): Log
+    {
+        $this->showFile = $showFile;
+        return $this;
+    }
+
+    function setShowTopics( bool $showTopics ): Log
+    {
+        $this->showTopics = $showTopics;
+        return $this;
     }
 
     /**
      *
-     * @var RequestFactory
+     * @var Request
      */
-    protected $httpRequestFactory;
+    protected $request;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $showDateTime = true;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $showFile = true;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $showTopics = false;
+
+    /**
+     *
+     * @var string[]
+     */
+    protected $acitveTopics = [];
 
 }

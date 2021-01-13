@@ -13,6 +13,15 @@ class Request
         $this->userArgs = $userArgs;
     }
 
+    /**
+     * 
+     * @return HttpRequest or null
+     */
+    function httpRequest()
+    {
+        return null;
+    }
+
     function isHttpRequest()
     {
         return false;
@@ -46,7 +55,7 @@ class Request
                 $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->userArgs );
             else
             {
-                $cmdArgs = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
+                $cmdArgs    = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
                 $this->args = array_merge( $cmdArgs, $this->userArgs );
             }
         }

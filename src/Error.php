@@ -2,6 +2,11 @@
 
 namespace Qck;
 
+/**
+ * Class for representing an Error (possibly related to an Argument specified by relatedKey)
+ * 
+ * @author Michael Mueller <michaelmuelleronline@gmx.de>
+ */
 class Error
 {
 

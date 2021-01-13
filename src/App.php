@@ -3,14 +3,14 @@
 namespace Qck;
 
 /**
- * App class maps arguments to specific functions
+ * Basic App infrastructure for dispatching to different App Functions
  * 
  * @author muellerm
  */
 class App
 {
 
-    static function new( $name, $defaultAppFunctionFqcn )
+    static function new( $name, $defaultAppFunctionFqcn ): App
     {
         return new App( $name, $defaultAppFunctionFqcn );
     }
@@ -39,16 +39,16 @@ class App
         return $this;
     }
 
-    function setAppFunctionNamespace( $appFunctionNamespace ): App
+    function addAppFunctionNamespace( $appFunctionNamespace ): App
     {
-        $this->appFunctionNamespace = $appFunctionNamespace;
+        $this->appFunctionNamespaces[] = $appFunctionNamespace;
         return $this;
     }
 
     function addRoute( $fqcn, $routeName = null ): App
     {
-        $fqcnParts = explode( "\\", $fqcn );
-        $routeName = $routeName ? $routeName : array_pop( $fqcnParts );
+        $fqcnParts                  = explode( "\\", $fqcn );
+        $routeName                  = $routeName ? $routeName : array_pop( $fqcnParts );
         $this->routes[ $routeName ] = $fqcn;
         return $this;
     }
@@ -65,7 +65,11 @@ class App
         return $this->routes;
     }
 
-    function currentRoute(): string
+    /**
+     * 
+     * @return string the name of the current route or null
+     */
+    function currentRoute()
     {
         if ( is_null( $this->currentRoute ) )
             $this->currentRoute = $this->request()->get( $this->routeParamName );
@@ -76,6 +80,11 @@ class App
     {
         $this->routeParamName = $routeParamName;
         return $this;
+    }
+
+    function name(): string
+    {
+        return $this->name;
     }
 
     function routeParamName(): string
@@ -95,27 +104,34 @@ class App
         if ( is_null( $route ) )
             $route = array_keys( $this->routes )[ 0 ];
 
-        $exception = $this->app->newException()->setHttpReturnCode( HttpResponse::EXIT_CODE_NOT_FOUND );
-        if ( ! preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
+        $exception = Exception::new()->setHttpReturnCode( HttpResponse::EXIT_CODE_NOT_FOUND );
+        if ( !preg_match( "/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/", $route ) )
             $exception->argError( "Invalid route '%s'", $this->routeParamName, $route )->throw();
 
         $fqcn = $this->routes[ $route ] ?? null;
-        if ( is_null( $fqcn ) && $this->appFunctionNamespace !== null )
-            $fqcn = $this->appFunctionNamespace . "\\" . $route;
+        if ( is_null( $fqcn ) && count( $this->appFunctionNamespaces ) > 0 )
+        {
+            foreach ( $this->appFunctionNamespaces as $appFunctionNamespace )
+            {
+                $fqcn = $appFunctionNamespace . "\\" . $route;
+                if ( class_exists( $fqcn, true ) )
+                    break;
+            }
+        }
 
         $appFunction = null;
-        if ( ! class_exists( $fqcn, true ) )
+        if ( !class_exists( $fqcn, true ) )
             $exception->argError( "Class '%s' does not exist", $this->routeParamName, $fqcn )->throw();
 
         $appFunction = new $fqcn();
-        if ( ! $appFunction instanceof \Qck\AppFunction )
+        if ( !$appFunction instanceof \Qck\AppFunction )
             $exception->argError( "Class '%s' does not implement interface '%s'", $this->routeParamName, $fqcn, \Qck\AppFunction::class )->throw();
-        $appFunction->run( $this->app );
+        $appFunction->run( $this );
     }
 
     protected function installErrorHandler(): void
     {
-        $this->errorHandler = new ErrorHandler();
+        $this->errorHandler = ErrorHandler::new()->setRequest( $this->request() );
     }
 
     /**
@@ -138,9 +154,9 @@ class App
 
     /**
      *
-     * @var string 
+     * @var string[] 
      */
-    protected $appFunctionNamespace;
+    protected $appFunctionNamespaces = [];
 
     /**
      *
