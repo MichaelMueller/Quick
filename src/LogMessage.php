@@ -29,7 +29,8 @@ class LogMessage
         $this->addTopic( self::ALL );
 
         $date           = \DateTime::createFromFormat( 'U.u', microtime( TRUE ) );
-        $this->dateTime = $date->format( 'Y-m-d H:i:s.u' );
+        if($date)
+            $this->dateTime = $date->format( 'Y-m-d H:i:s.u' );
         $trace          = debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 5 );
         if ( count( $trace ) > 3 )
         {
