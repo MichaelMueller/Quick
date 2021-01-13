@@ -7,7 +7,7 @@ namespace Qck;
  * 
  * @author Michael Mueller <michaelmuelleronline@gmx.de>
  */
-class HttpContent
+class HttpContent implements Snippet
 {
 
     // CONSTANTS
@@ -22,10 +22,16 @@ class HttpContent
     const CHARSET_UTF_8                         = "utf-8";
     const CHARSET_BINARY                        = "binary";
 
-    function __construct( HttpResponse $response, $text )
+    function __construct( HttpResponse $response, $body = null )
     {
         $this->response = $response;
-        $this->text     = $text;
+        $this->body     = $body;
+    }
+
+    function setBody( $body ): HttpContent
+    {
+        $this->body = $body;
+        return $this;
     }
 
     public function response()
@@ -45,9 +51,9 @@ class HttpContent
         return $this;
     }
 
-    function text()
+    function toString(): string
     {
-        return $this->text instanceof Snippet ? $this->text->text() : strval( $this->text );
+        return $this->body instanceof Snippet ? $this->body->toString() : strval( $this->body );
     }
 
     function contentType()
@@ -70,7 +76,7 @@ class HttpContent
      *
      * @var Snippet|string
      */
-    protected $text;
+    protected $body;
 
     /**
      *

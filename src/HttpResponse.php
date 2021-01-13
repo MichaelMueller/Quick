@@ -16,14 +16,18 @@ class HttpResponse
     const EXIT_CODE_MOVED_PERMANENTLY    = 301;
     const EXIT_CODE_REDIRECT_FOUND       = 302;
 
-    static function new(): HttpResponse
+    /**
+     * 
+     * @return \Qck\HttpResponse
+     */
+    static function new()
     {
         return new HttpResponse();
     }
 
-    public function createContent( $text )
+    public function createContent( $body )
     {
-        $this->content = new HttpContent( $this, $text );
+        $this->content = new HttpContent( $this, $body );
         return $this->content;
     }
 
@@ -32,7 +36,7 @@ class HttpResponse
         http_response_code( $this->returnCode );
 
         header( sprintf( "Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet() ) );
-        echo $this->content->text();
+        echo $this->content->toString();
     }
 
     public function setReturnCode( $returnCode = \Qck\HttpResponse::EXIT_CODE_OK )

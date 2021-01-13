@@ -13,5 +13,5 @@ interface Snippet
      * 
      * @return string
      */
-    public function text();
+    public function toString(): string;
 }
