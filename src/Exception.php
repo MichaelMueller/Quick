@@ -43,11 +43,21 @@ class Exception extends \Exception
         return $this;
     }
 
+    function setRelatedKey( $relatedKey )
+    {
+        $this->relatedKey = $relatedKey;
+    }
+
     public function error( $text, ...$args )
     {
-        $this->errors[] = new Error( vsprintf( $text, $args ) );
+        $this->errors[] = new Error( vsprintf( $text, $args ), $this->relatedKey );
         $this->generateMessage();
         return $this;
+    }
+
+    function hasErrors()
+    {
+        return count( $this->errors ) > 0;
     }
 
     function errors()
@@ -63,7 +73,8 @@ class Exception extends \Exception
 
     public function throw()
     {
-        throw $this;
+        if ( count( $this->errors ) > 0 )
+            throw $this;
     }
 
     public function setReturnCode( $returnCode = -1 )
@@ -99,5 +110,11 @@ class Exception extends \Exception
      * @var Error[]
      */
     protected $errors = [];
+
+    /**
+     *
+     * @var null
+     */
+    protected $relatedKey;
 
 }

@@ -39,6 +39,10 @@ class Request
         return $this->args[ $key ] ?? $default;
     }
 
+    /**
+     * 
+     * @return array
+     */
     public function args()
     {
         $this->assertArgs();
