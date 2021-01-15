@@ -10,7 +10,13 @@ namespace Qck;
 class App
 {
 
-    static function new( $name, $defaultAppFunctionFqcn ): App
+    /**
+     * 
+     * @param string $name
+     * @param string $defaultAppFunctionFqcn
+     * @return \Qck\App
+     */
+    static function new( $name, $defaultAppFunctionFqcn )
     {
         return new App( $name, $defaultAppFunctionFqcn );
     }
@@ -58,6 +64,20 @@ class App
         if ( is_null( $this->requestFactory ) )
             $this->requestFactory = new RequestFactory ( );
         return $this->requestFactory->request();
+    }
+
+    function log(): Log
+    {
+        if ( is_null( $this->log ) )
+            $this->log = new Log( $this->request() );
+        return $this->log;
+    }
+
+    function httpResponse(): HttpResponse
+    {
+        if ( is_null( $this->httpResponse ) )
+            $this->httpResponse = new HttpResponse( $this->request() );
+        return $this->httpResponse;
     }
 
     function routes(): array
@@ -176,12 +196,24 @@ class App
      *
      * @var RequestFactory 
      */
-    private $requestFactory;
+    protected $requestFactory;
+
+    /**
+     *
+     * @var Log 
+     */
+    protected $log;
+
+    /**
+     *
+     * @var HttpResponse 
+     */
+    protected $httpResponse;
 
     /**
      *
      * @var string 
      */
-    private $currentRoute;
+    protected $currentRoute;
 
 }

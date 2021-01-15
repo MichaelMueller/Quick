@@ -29,7 +29,7 @@ class LogMessage
         $this->addTopic( self::ALL );
 
         $date           = \DateTime::createFromFormat( 'U.u', microtime( TRUE ) );
-        if($date)
+        if ( $date )
             $this->dateTime = $date->format( 'Y-m-d H:i:s.u' );
         $trace          = debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 5 );
         if ( count( $trace ) > 3 )
@@ -86,6 +86,14 @@ class LogMessage
         return $this;
     }
 
+    function disableAdditionalInformation(): LogMessage
+    {
+        $this->showDateTime = false;
+        $this->showTopics   = false;
+        $this->showFile     = false;
+        return $this;
+    }
+
     function text()
     {
 
@@ -96,7 +104,7 @@ class LogMessage
             $msg .= "[" . $this->dateTime . "]";
         if ( $this->showFile )
             $msg .= "[" . pathinfo( $this->traceThirdElement[ "file" ], PATHINFO_BASENAME ) . ":" . $this->traceThirdElement[ "line" ] . "]";
-        $msg .= ": " . vsprintf( $this->text, $this->args );
+        $msg .= ($msg != "" ? ": " : null) . vsprintf( $this->text, $this->args );
         return $msg;
     }
 
