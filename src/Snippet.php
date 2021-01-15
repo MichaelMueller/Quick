@@ -13,5 +13,5 @@ interface Snippet
      * 
      * @return string
      */
-    public function toString(): string;
+    public function toString( $indent = null, $level=0 );
 }

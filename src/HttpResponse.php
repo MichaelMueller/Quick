@@ -31,12 +31,12 @@ class HttpResponse
         return $this->content;
     }
 
-    public function send()
+    public function send( $indent = null)
     {
+        $content = $this->content->toString($indent);
         http_response_code( $this->returnCode );
-
         header( sprintf( "Content-Type: %s; charset=%s", $this->content->contentType(), $this->content->charSet() ) );
-        echo $this->content->toString();
+        echo $content;
     }
 
     public function setReturnCode( $returnCode = \Qck\HttpResponse::EXIT_CODE_OK )

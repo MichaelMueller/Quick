@@ -51,9 +51,9 @@ class HttpContent implements Snippet
         return $this;
     }
 
-    function toString(): string
+    function toString( $indent = null, $level=0 )
     {
-        return $this->body instanceof Snippet ? $this->body->toString() : strval( $this->body );
+        return $indent . ($this->body instanceof Snippet ? $this->body->toString() : strval( $this->body ));
     }
 
     function contentType()

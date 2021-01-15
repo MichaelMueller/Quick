@@ -10,7 +10,7 @@ namespace Qck;
 class ErrorHandler
 {
 
-    static function new( ): ErrorHandler
+    static function new(): ErrorHandler
     {
         return new ErrorHandler( );
     }
@@ -31,6 +31,7 @@ class ErrorHandler
 
     function exceptionHandler( \Throwable $exception )
     {
+        ob_end_clean();
         /* @var $exception \Exception */
         if ( $this->request !== null && $this->request->isHttpRequest() )
         {
