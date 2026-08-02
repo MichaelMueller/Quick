@@ -74,7 +74,7 @@ class LogMessage
         return $this;
     }
 
-    function setShowFile( string $showFile ): LogMessage
+    function setShowFile( bool $showFile ): LogMessage
     {
         $this->showFile = $showFile;
         return $this;
@@ -102,7 +102,7 @@ class LogMessage
             $msg .= "[" . implode( ",", $this->topics ) . "]";
         if ( $this->showDateTime )
             $msg .= "[" . $this->dateTime . "]";
-        if ( $this->showFile )
+        if ( $this->showFile && isset( $this->traceThirdElement[ "file" ] ) )
             $msg .= "[" . pathinfo( $this->traceThirdElement[ "file" ], PATHINFO_BASENAME ) . ":" . $this->traceThirdElement[ "line" ] . "]";
         $msg .= ($msg != "" ? ": " : null) . vsprintf( $this->text, $this->args );
         return $msg;
@@ -129,13 +129,13 @@ class LogMessage
      *
      * @var string[]
      */
-    protected $args;
+    protected $args = [];
 
     /**
      *
-     * @var string
+     * @var string[]
      */
-    protected $topics;
+    protected $topics = [];
 
     /**
      *

@@ -14,6 +14,20 @@ class Request
     }
 
     /**
+     * User supplied args take precedence over the args of the environment.
+     * Already parsed args are discarded and rebuilt on the next access.
+     *
+     * @param array $userArgs
+     * @return Request
+     */
+    function setUserArgs( array $userArgs ): Request
+    {
+        $this->userArgs = $userArgs;
+        $this->args     = null;
+        return $this;
+    }
+
+    /**
      * 
      * @return HttpRequest or null
      */
@@ -59,7 +73,9 @@ class Request
                 $this->args = array_merge( $_COOKIE, $_GET, $_POST, $this->userArgs );
             else
             {
-                $cmdArgs    = count( $_SERVER[ "argv" ] ) > 1 ? parse_str( $_SERVER[ "argv" ][ 1 ] ) : [];
+                $cmdArgs = [];
+                if ( isset( $_SERVER[ "argv" ] ) && count( $_SERVER[ "argv" ] ) > 1 )
+                    parse_str( $_SERVER[ "argv" ][ 1 ], $cmdArgs );
                 $this->args = array_merge( $cmdArgs, $this->userArgs );
             }
         }

@@ -31,9 +31,10 @@ class IpAddress
         }
         if ( $this->validationFlags )
         {
-            $this->ip = filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
-            if ( $this->ip === false )
-                Exception::new()->error( "Invalid ip %s", $this->ip )->exception()->throw();
+            $validatedIp = is_null( $this->ip ) ? false : filter_var( $this->ip, FILTER_VALIDATE_IP, $this->validationFlags );
+            if ( $validatedIp === false )
+                Exception::new()->error( "Invalid ip '%s'", strval( $this->ip ) )->throw();
+            $this->ip = $validatedIp;
         }
 
         return $this->ip;
@@ -41,7 +42,7 @@ class IpAddress
 
     public function __toString()
     {
-        return $this->value();
+        return strval( $this->value() );
     }
 
     public function setValidationFlags( $validationFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )

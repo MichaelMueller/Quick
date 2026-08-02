@@ -36,7 +36,10 @@ class ComposerCodeBundler
             }
         }
 
-        $this->log->info( "Searching composer autoloader" )->send();
+        if ( $autoloaderClassName === '' )
+            Exception::new()->error( "Could not find a composer autoloader. Is the project installed via composer?" )->throw();
+
+        $this->log->info( "Loading classes from composer autoloader %s" )->addArg( $autoloaderClassName )->send();
         /* @var $classLoader \Composer\Autoload\ClassLoader */
         $classLoader = $autoloaderClassName::getLoader();
         $filenames   = [];

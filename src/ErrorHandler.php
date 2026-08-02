@@ -31,7 +31,8 @@ class ErrorHandler
 
     function exceptionHandler( \Throwable $exception )
     {
-        ob_end_clean();
+        if ( ob_get_level() > 0 )
+            ob_end_clean();
         /* @var $exception \Exception */
         if ( $this->request !== null && $this->request->isHttpRequest() )
         {
@@ -60,20 +61,30 @@ class ErrorHandler
 
     function install(): void
     {
-        if ( $this->errorHandler && $this->exceptionHandler )
+        if ( $this->installed )
             return;
-        $this->errorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
-        $this->exceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
+        // set_*_handler returns the previously installed handler, which may legitimately
+        // be null. Track the installed state separately so uninstall() always restores.
+        $this->previousErrorHandler     = set_error_handler( array ( $this, "errorHandler" ) );
+        $this->previousExceptionHandler = set_exception_handler( array ( $this, "exceptionHandler" ) );
+        $this->installed                = true;
     }
 
-    protected function uninstall(): void
+    /**
+     * Restores the handlers that were active before install().
+     *
+     * Must be called explicitly: while installed, PHP holds a reference to this
+     * object in the handler registry, so __destruct() does not run before shutdown.
+     */
+    public function uninstall(): void
     {
-        if ( !$this->errorHandler || !$this->exceptionHandler )
+        if ( !$this->installed )
             return;
-        set_error_handler( $this->errorHandler );
-        set_exception_handler( $this->exceptionHandler );
-        $this->errorHandler     = null;
-        $this->exceptionHandler = null;
+        set_error_handler( $this->previousErrorHandler );
+        set_exception_handler( $this->previousExceptionHandler );
+        $this->previousErrorHandler     = null;
+        $this->previousExceptionHandler = null;
+        $this->installed                = false;
     }
 
     public function __destruct()
@@ -97,14 +108,20 @@ class ErrorHandler
 
     /**
      *
-     * @var callable
+     * @var bool
      */
-    protected $errorHandler;
+    protected $installed = false;
 
     /**
      *
      * @var callable
      */
-    protected $exceptionHandler;
+    protected $previousErrorHandler;
+
+    /**
+     *
+     * @var callable
+     */
+    protected $previousExceptionHandler;
 
 }

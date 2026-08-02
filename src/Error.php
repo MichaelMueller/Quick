@@ -10,7 +10,7 @@ namespace Qck;
 class Error
 {
 
-    function __construct(string $text, string $relatedKey = null)
+    function __construct(string $text, ?string $relatedKey = null)
     {
         $this->text = $text;
         $this->relatedKey = $relatedKey;

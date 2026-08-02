@@ -36,6 +36,7 @@ class App
     function setUserArgs( array $userArgs ): App
     {
         $this->userArgs = $userArgs;
+        $this->request()->setUserArgs( $userArgs );
         return $this;
     }
 
@@ -140,8 +141,8 @@ class App
         }
 
         $appFunction = null;
-        if ( !class_exists( $fqcn, true ) )
-            $exception->argError( "Class '%s' does not exist", $this->routeParamName, $fqcn )->throw();
+        if ( is_null( $fqcn ) || !class_exists( $fqcn, true ) )
+            $exception->argError( "Class '%s' does not exist", $this->routeParamName, strval( $fqcn ) )->throw();
 
         $appFunction = new $fqcn();
         if ( !$appFunction instanceof \Qck\AppFunction )
@@ -180,9 +181,9 @@ class App
 
     /**
      *
-     * @var string 
+     * @var string[]
      */
-    protected $routes;
+    protected $routes = [];
 
     /**
      *

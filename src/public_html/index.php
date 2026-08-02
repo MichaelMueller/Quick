@@ -13,7 +13,7 @@ class HelloWorld implements \Qck\AppFunction
     {
         $content = sprintf( "Hello World. My name is %s.", $app->name() );
         if ( $app->request()->isHttpRequest() )
-            $content .= sprintf( "Your IP: %s", $app->request()->httpRequest()->ipAddress()->value() );
+            $content .= sprintf( " Your IP: %s", $app->request()->httpRequest()->ipAddress()->value() );
         Qck\HttpResponse::new()->createContent( $content )->response()->send();
     }
 

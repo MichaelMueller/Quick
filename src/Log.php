@@ -35,7 +35,7 @@ class Log
         if ( in_array( LogMessage::ERROR, $matchingTopics ) && $this->request->isHttpRequest() == false )
             fwrite( STDERR, $text . PHP_EOL );
         else
-            print($text ) . PHP_EOL;
+            print( $text . PHP_EOL );
         flush();
     }
 
@@ -73,7 +73,7 @@ class Log
         return $this;
     }
 
-    function setShowFile( string $showFile ): Log
+    function setShowFile( bool $showFile ): Log
     {
         $this->showFile = $showFile;
         return $this;

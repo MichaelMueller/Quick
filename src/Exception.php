@@ -15,9 +15,11 @@ class Exception extends \Exception
         return new \Qck\Exception();
     }
 
-    public function __construct( string $message = "", int $code = 0, \Throwable $previous = NULL )
+    public function __construct( string $message = "", int $code = 0, ?\Throwable $previous = null )
     {
         parent::__construct( $message, $code, $previous );
+        if ( $code !== 0 )
+            $this->returnCode = $code;
         $this->code = $this->returnCode;
     }
 
